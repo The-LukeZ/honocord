@@ -8,7 +8,7 @@ import {
 import { API } from "@discordjs/core/http-only";
 import { ModalComponentResolver } from "@resolvers/ModalComponentResolver";
 import { BaseInteraction } from "./BaseInteraction";
-import { InteractionContext } from "../types";
+import { BaseInteractionContext } from "../types";
 
 class ModalInteraction extends BaseInteraction<InteractionType.ModalSubmit> {
   public readonly fields: ModalComponentResolver;
@@ -18,7 +18,7 @@ class ModalInteraction extends BaseInteraction<InteractionType.ModalSubmit> {
   constructor(
     api: API,
     interaction: APIModalSubmitInteraction,
-    c: InteractionContext,
+    c: BaseInteractionContext,
   ) {
     super(api, interaction, c);
     this.custom_id = interaction.data.custom_id;

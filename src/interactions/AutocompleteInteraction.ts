@@ -1,4 +1,5 @@
 import {
+  APIApplicationCommandAutocompleteInteraction,
   APIApplicationCommandOptionChoice,
   InteractionType,
   type APIChatInputApplicationCommandInteraction,
@@ -6,13 +7,13 @@ import {
 import { CommandInteractionOptionResolver } from "@resolvers/CommandOptionResolver";
 import { API } from "@discordjs/core/http-only";
 import { BaseInteraction } from "./BaseInteraction";
-import { InteractionContext } from "../types";
+import { BaseInteractionContext } from "../types";
 
-class AutocompleteInteraction extends BaseInteraction<InteractionType.ApplicationCommand> {
+class AutocompleteInteraction extends BaseInteraction<InteractionType.ApplicationCommandAutocomplete> {
   public readonly options: CommandInteractionOptionResolver;
   public responded = false;
 
-  constructor(api: API, interaction: APIChatInputApplicationCommandInteraction, c: InteractionContext) {
+  constructor(api: API, interaction: APIApplicationCommandAutocompleteInteraction, c: BaseInteractionContext) {
     super(api, interaction, c);
     this.options = new CommandInteractionOptionResolver(interaction.data.options, interaction.data.resolved);
   }

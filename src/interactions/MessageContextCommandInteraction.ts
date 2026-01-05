@@ -7,12 +7,12 @@ import {
 import { ModalBuilder } from "@discordjs/builders";
 import { API } from "@discordjs/core/http-only";
 import { BaseInteraction } from "./BaseInteraction";
-import { InteractionContext } from "../types";
+import { BaseInteractionContext } from "../types";
 
 class MessageCommandInteraction extends BaseInteraction<InteractionType.ApplicationCommand> {
   public readonly targetMessage: APIMessage;
 
-  constructor(api: API, interaction: APIMessageApplicationCommandInteraction, c: InteractionContext) {
+  constructor(api: API, interaction: APIMessageApplicationCommandInteraction, c: BaseInteractionContext) {
     super(api, interaction, c);
     this.targetMessage = interaction.data.resolved.messages[interaction.data.target_id];
   }

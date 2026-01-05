@@ -7,12 +7,12 @@ import { CommandInteractionOptionResolver } from "@resolvers/CommandOptionResolv
 import { ModalBuilder } from "@discordjs/builders";
 import { API } from "@discordjs/core/http-only";
 import { BaseInteraction } from "./BaseInteraction";
-import { InteractionContext } from "../types";
+import { BaseInteractionContext } from "../types";
 
 class ChatInputCommandInteraction extends BaseInteraction<InteractionType.ApplicationCommand> {
   public readonly options: CommandInteractionOptionResolver;
 
-  constructor(api: API, interaction: APIChatInputApplicationCommandInteraction, c: InteractionContext) {
+  constructor(api: API, interaction: APIChatInputApplicationCommandInteraction, c: BaseInteractionContext) {
     super(api, interaction, c);
     this.options = new CommandInteractionOptionResolver(interaction.data.options, interaction.data.resolved);
   }

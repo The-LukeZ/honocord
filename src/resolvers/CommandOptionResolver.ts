@@ -48,12 +48,12 @@ class CommandInteractionOptionResolver {
    * The bottom-level options for the interaction.
    * If there is a subcommand (or subcommand and group), this is the options for the subcommand.
    */
-  private _hoistedOptions: APIApplicationCommandInteractionDataOption<InteractionType.ApplicationCommand>[];
+  private _hoistedOptions: APIApplicationCommandInteractionDataOption<InteractionType.ApplicationCommand | InteractionType.ApplicationCommandAutocomplete>[];
 
   private _resolved: APIInteractionDataResolvedCollections;
 
   constructor(
-    options: APIApplicationCommandInteractionDataOption<InteractionType.ApplicationCommand>[] | undefined,
+    options: APIApplicationCommandInteractionDataOption<InteractionType.ApplicationCommand | InteractionType.ApplicationCommandAutocomplete>[] | undefined,
     resolved: APIInteractionDataResolved | undefined
   ) {
     this._hoistedOptions = options ?? [];
