@@ -10,7 +10,7 @@ import {
   ModalSubmitTextDisplayComponent,
   Snowflake,
 } from "discord-api-types/v10";
-import { APIInteractionDataResolvedCollections } from "../../types";
+import { APIInteractionDataResolvedCollections } from "../types";
 import { Collection, ReadonlyCollection } from "@discordjs/collection";
 
 export interface BaseModalData<Type extends ComponentType> {
@@ -23,14 +23,13 @@ export interface TextInputModalData extends BaseModalData<ComponentType.TextInpu
   value: string;
 }
 
-export interface SelectMenuModalData
-  extends BaseModalData<
-    | ComponentType.ChannelSelect
-    | ComponentType.MentionableSelect
-    | ComponentType.RoleSelect
-    | ComponentType.StringSelect
-    | ComponentType.UserSelect
-  > {
+export interface SelectMenuModalData extends BaseModalData<
+  | ComponentType.ChannelSelect
+  | ComponentType.MentionableSelect
+  | ComponentType.RoleSelect
+  | ComponentType.StringSelect
+  | ComponentType.UserSelect
+> {
   channels?: ReadonlyCollection<Snowflake, APIInteractionDataResolvedChannel>;
   custom_id: string;
   members?: ReadonlyCollection<Snowflake, APIInteractionDataResolvedGuildMember>;
@@ -49,7 +48,10 @@ export class ModalComponentResolver {
   private _resolved: APIInteractionDataResolvedCollections;
   private hoistedComponents: Collection<string, APIModalData>;
 
-  constructor(private components: (ModalSubmitLabelComponent | ModalSubmitTextDisplayComponent)[], resolved?: APIInteractionDataResolved) {
+  constructor(
+    private components: (ModalSubmitLabelComponent | ModalSubmitTextDisplayComponent)[],
+    resolved?: APIInteractionDataResolved
+  ) {
     this._resolved = Object.keys(resolved ?? {}).reduce((acc, key) => {
       const resolvedData = resolved?.[key as keyof APIInteractionDataResolved];
       const collection = new Collection(resolvedData ? Object.entries(resolvedData) : []);
@@ -57,14 +59,17 @@ export class ModalComponentResolver {
       return acc;
     }, {} as any);
 
-    this.hoistedComponents = components.reduce((accumulator, next) => {
-      // For label components
-      if (next.type === ComponentType.Label && next.component.type !== ComponentType.FileUpload) {
-        accumulator.set(next.component.custom_id, next.component);
-      }
+    this.hoistedComponents = this.components.reduce(
+      (accumulator, next) => {
+        // For label components
+        if (next.type === ComponentType.Label && next.component.type !== ComponentType.FileUpload) {
+          accumulator.set(next.component.custom_id, next.component);
+        }
 
-      return accumulator;
-    }, new Collection() as Collection<string, APIModalData>);
+        return accumulator;
+      },
+      new Collection() as Collection<string, APIModalData>
+    );
   }
 
   public get data() {
@@ -166,7 +171,9 @@ export class ModalComponentResolver {
       throw new TypeError("Component is not a user select", { cause: { custom_id, type: component.type } });
     }
     const values = component.values;
-    const members = values.map((id) => this._resolved.members?.get(id)).filter(Boolean) as APIInteractionDataResolvedGuildMember[];
+    const members = values
+      .map((id) => this._resolved.members?.get(id))
+      .filter(Boolean) as APIInteractionDataResolvedGuildMember[];
     return members.length > 0 ? members : required ? [] : null;
   }
 
@@ -196,11 +203,14 @@ export class ModalComponentResolver {
    * @param required Whether to throw an error if the component is not found or not a mentionable select.
    * @returns The selected mentionables (users, members, or roles), or null if not set and not required.
    */
-  getSelectedMentionables(custom_id: string, required?: boolean): (APIInteractionDataResolvedGuildMember | APIUser | APIRole)[] | null;
+  getSelectedMentionables(
+    custom_id: string,
+    required?: boolean
+  ): (APIInteractionDataResolvedGuildMember | APIUser | APIRole)[] | null;
   getSelectedMentionables(custom_id: string, required: true): (APIInteractionDataResolvedGuildMember | APIUser | APIRole)[];
   getSelectedMentionables(
     custom_id: string,
-    required: boolean = false,
+    required: boolean = false
   ): (APIInteractionDataResolvedGuildMember | APIUser | APIRole)[] | null {
     const component = this.getComponent(custom_id);
     if (component.type !== ComponentType.MentionableSelect) {
