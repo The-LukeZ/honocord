@@ -10,10 +10,7 @@ export const subtleCrypto = crypto.subtle;
  * @param format - Format of value. Valid options: 'hex'. Defaults to utf-8.
  * @returns Value in Uint8Array form.
  */
-export function valueToUint8Array(
-  value: Uint8Array | ArrayBuffer | Buffer | string,
-  format?: string,
-): Uint8Array {
+export function valueToUint8Array(value: Uint8Array | ArrayBuffer | Buffer | string, format?: string): Uint8Array {
   if (value == null) {
     return new Uint8Array();
   }
@@ -42,9 +39,7 @@ export function valueToUint8Array(
   if (value instanceof Uint8Array) {
     return value;
   }
-  throw new Error(
-    "Unrecognized value type, must be one of: string, Buffer, ArrayBuffer, Uint8Array",
-  );
+  throw new Error("Unrecognized value type, must be one of: string, Buffer, ArrayBuffer, Uint8Array");
 }
 
 /**
@@ -54,10 +49,7 @@ export function valueToUint8Array(
  * @param arr2 - Second array
  * @returns Concatenated arrays
  */
-export function concatUint8Arrays(
-  arr1: Uint8Array,
-  arr2: Uint8Array,
-): Uint8Array {
+export function concatUint8Arrays(arr1: Uint8Array, arr2: Uint8Array): Uint8Array {
   const merged = new Uint8Array(arr1.length + arr2.length);
   merged.set(arr1);
   merged.set(arr2, arr1.length);
@@ -77,7 +69,7 @@ export async function verifyKey(
   rawBody: Uint8Array | ArrayBuffer | Buffer | string,
   signature: string | null,
   timestamp: string | null,
-  clientPublicKey: string | CryptoKey,
+  clientPublicKey: string | CryptoKey
 ): Promise<boolean> {
   if (!signature || !timestamp) return false;
   try {
@@ -94,7 +86,7 @@ export async function verifyKey(
               namedCurve: "ed25519",
             },
             false,
-            ["verify"],
+            ["verify"]
           )
         : clientPublicKey;
     const isValid = await subtleCrypto.verify(
@@ -103,7 +95,7 @@ export async function verifyKey(
       },
       publicKey,
       valueToUint8Array(signature, "hex"),
-      message,
+      message
     );
     return isValid;
   } catch (_ex) {
@@ -111,16 +103,14 @@ export async function verifyKey(
   }
 }
 
-export async function verifyDiscordRequest<
-  T extends APIInteraction | APIWebhookEvent = APIInteraction,
->(req: HonoRequest, discordPublicKey: string | CryptoKey) {
+export async function verifyDiscordRequest<T extends APIInteraction | APIWebhookEvent = APIInteraction>(
+  req: HonoRequest,
+  discordPublicKey: string | CryptoKey
+) {
   const signature = req.header("x-signature-ed25519");
   const timestamp = req.header("x-signature-timestamp");
   const body = await (await cloneRawRequest(req)).text();
-  const isValidRequest =
-    signature &&
-    timestamp &&
-    (await verifyKey(body, signature, timestamp, discordPublicKey));
+  const isValidRequest = signature && timestamp && (await verifyKey(body, signature, timestamp, discordPublicKey));
   if (!isValidRequest) {
     return { isValid: false } as const;
   }

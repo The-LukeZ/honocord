@@ -15,19 +15,12 @@ class ModalInteraction extends BaseInteraction<InteractionType.ModalSubmit> {
   public readonly message?: APIMessage;
   public readonly custom_id: string;
 
-  constructor(
-    api: API,
-    interaction: APIModalSubmitInteraction,
-    c: BaseInteractionContext,
-  ) {
+  constructor(api: API, interaction: APIModalSubmitInteraction, c: BaseInteractionContext) {
     super(api, interaction, c);
     this.custom_id = interaction.data.custom_id;
     this.fields = new ModalComponentResolver(
-      interaction.data.components as (
-        | ModalSubmitLabelComponent
-        | ModalSubmitTextDisplayComponent
-      )[],
-      interaction.data.resolved,
+      interaction.data.components as (ModalSubmitLabelComponent | ModalSubmitTextDisplayComponent)[],
+      interaction.data.resolved
     );
     if ("message" in interaction && interaction.message) {
       this.message = interaction.message;

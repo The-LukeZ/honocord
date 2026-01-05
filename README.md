@@ -291,29 +291,25 @@ const app = new Hono<MyEnv>();
 const bot = new Honocord(process.env.DISCORD_TOKEN);
 
 // Create command with type-safe environment access
-const pingCommand = new SlashCommandHandler()
-  .setName("ping")
-  .setDescription("Ping the bot");
+const pingCommand = new SlashCommandHandler().setName("ping").setDescription("Ping the bot");
 
 pingCommand.handler = async (interaction) => {
   const ctx = interaction.ctx as MyContext;
-  
+
   // Type-safe access to bindings
   const cache = ctx.env.CACHE;
   await cache.put("last_ping", new Date().toISOString());
-  
+
   await interaction.reply("Pong! 🏓");
 };
 
 // Create command that queries database
-const statsCommand = new SlashCommandHandler()
-  .setName("stats")
-  .setDescription("Show bot stats");
+const statsCommand = new SlashCommandHandler().setName("stats").setDescription("Show bot stats");
 
 statsCommand.handler = async (interaction) => {
   const ctx = interaction.ctx as MyContext;
   const db = ctx.env.DATABASE;
-  
+
   const result = await db.prepare("SELECT COUNT(*) as count FROM users").first();
   await interaction.reply(`Total users: ${result?.count ?? 0}`);
 };
@@ -322,10 +318,10 @@ statsCommand.handler = async (interaction) => {
 const approveButton = new ComponentHandler("approve", async (interaction) => {
   const ctx = interaction.ctx as MyContext;
   const db = ctx.env.DATABASE;
-  
+
   // Update database
   await db.prepare("UPDATE requests SET approved = 1").run();
-  
+
   await interaction.update({ content: "✅ Approved!" });
 });
 
