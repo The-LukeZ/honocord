@@ -1,13 +1,52 @@
 {
   "name": "honocord",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "check": "prettier --check .",
+    "docs": "tsdown src --outDir docs --project ./tsconfig.json --theme tsdown-theme-default"
+  },
+  "keywords": [
+    "hono",
+    "discord",
+    "cloudflare-workers",
+    "interactions"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
   "packageManager": "pnpm@10.14.0",
-  "type": "module"
+  "type": "module",
+  "peerDependencies": {
+    "@cloudflare/workers-types": "^4.20260103.0",
+    "hono": "^4.11.3"
+  },
+  "dependencies": {
+    "@discordjs/builders": "^1.13.1",
+    "@discordjs/collection": "^2.1.1",
+    "@discordjs/core": "^2.4.0",
+    "@discordjs/rest": "^2.6.0",
+    "discord-api-types": "^0.38.37"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "prettier": "^3.7.4",
+    "tsdown": "0.19.0-beta.2",
+    "typescript": "^5.9.3"
+  }
 }
