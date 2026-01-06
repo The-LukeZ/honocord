@@ -2,11 +2,7 @@ import { Handler } from "@ctx/handlers";
 import { API } from "@discordjs/core/http-only";
 import { REST } from "@discordjs/rest";
 
-export default async function registerCommands(
-  token: string | undefined,
-  applicationId: string | undefined,
-  ...handlers: Handler[]
-) {
+export async function register(token: string | undefined, applicationId: string | undefined, ...handlers: Handler[]) {
   const commands = handlers
     .map((handler) => {
       if (handler.handlerType === "slash" || handler.handlerType === "context") {
