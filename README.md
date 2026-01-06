@@ -408,7 +408,7 @@ const command = new SlashCommandHandler()
 
 ## Registering Commands
 
-You can register your commands using the `register()` utility function.
+You can register your commands using the `registerCommands()` utility function.
 
 ```typescript
 // src/handlers/index.ts
@@ -417,10 +417,10 @@ export * from "./approveHandler";
 // ...export other handlers
 
 // src/register.ts
-import { register } from "honocord";
+import { registerCommands } from "honocord";
 import * as handlers from "./handlers/index";
 
-await register(process.env.DISCORD_TOKEN!, process.env.DISCORD_APPLICATION_ID!, ...Object.values(handlers));
+await registerCommands(process.env.DISCORD_TOKEN!, process.env.DISCORD_APPLICATION_ID!, ...Object.values(handlers));
 ```
 
 You should add the script to your package.json:
