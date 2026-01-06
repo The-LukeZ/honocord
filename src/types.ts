@@ -52,11 +52,11 @@ export interface BaseHonocordEnv<TBindings extends Bindings = {}, TVariables ext
   /**
    * Bindings available in the environment (from the worker)
    */
-  Bindings: TBindings & BaseBindings;
+  Bindings: BaseBindings & TBindings;
   /**
    * Variables available in the context (from Hono + Honocord)
    */
-  Variables: TVariables & BaseVariables;
+  Variables: BaseVariables & TVariables;
 }
 
 /**
@@ -102,8 +102,8 @@ export interface BaseHonocordEnv<TBindings extends Bindings = {}, TVariables ext
  * ```
  */
 export type BaseInteractionContext<
-  TBindings extends BaseBindings = BaseBindings,
-  TVariables extends BaseVariables = BaseVariables,
+  TBindings extends Bindings = {},
+  TVariables extends Variables = {},
   TPath extends string = "/",
 > = Context<BaseHonocordEnv<TBindings, TVariables>, TPath, BlankInput>;
 
