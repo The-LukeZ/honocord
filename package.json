@@ -53,6 +53,6 @@
     "url": "https://github.com/The-LukeZ/honocord"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.9.0"
   }
 }
