@@ -26,8 +26,8 @@ import { BaseInteractionContext, ContextCommandType, MessageComponentType } from
  */
 export class SlashCommandHandler<Context extends BaseInteractionContext = BaseInteractionContext> extends SlashCommandBuilder {
   readonly handlerType = "slash";
-  private handlerFn?: (interaction: ChatInputCommandInteraction<Context>) => Promise<void> | void;
-  private autocompleteFn?: (interaction: AutocompleteInteraction<Context>) => Promise<void> | void;
+  private handlerFn?: (interaction: ChatInputCommandInteraction<Context>) => Promise<any> | any;
+  private autocompleteFn?: (interaction: AutocompleteInteraction<Context>) => Promise<any> | any;
 
   /**
    * Adds the command handler function.
@@ -36,7 +36,7 @@ export class SlashCommandHandler<Context extends BaseInteractionContext = BaseIn
    * @returns The current SlashCommandHandler instance
    */
   public addHandler(
-    handler: (interaction: ChatInputCommandInteraction<Context>) => Promise<void> | void
+    handler: (interaction: ChatInputCommandInteraction<Context>) => Promise<any> | any
   ): SlashCommandHandler<Context> {
     this.handlerFn = handler;
     return this;
@@ -49,7 +49,7 @@ export class SlashCommandHandler<Context extends BaseInteractionContext = BaseIn
    * @returns The current SlashCommandHandler instance
    */
   public addAutocompleteHandler(
-    handler: (interaction: AutocompleteInteraction<Context>) => Promise<void> | void
+    handler: (interaction: AutocompleteInteraction<Context>) => Promise<any> | any
   ): SlashCommandHandler<Context> {
     this.autocompleteFn = handler;
     return this;
@@ -151,10 +151,10 @@ export class ContextCommandHandler<
   InteractionData = T extends ContextCommandType.User ? UserCommandInteraction<Context> : MessageCommandInteraction<Context>,
 > extends ContextMenuCommandBuilder {
   readonly handlerType = "context";
-  private handlerFn?: (interaction: InteractionData) => Promise<void> | void;
+  private handlerFn?: (interaction: InteractionData) => Promise<any> | any;
 
   public addHandler(
-    handler: (interaction: InteractionData) => Promise<void> | void
+    handler: (interaction: InteractionData) => Promise<any> | any
   ): ContextCommandHandler<T, Context, InteractionData> {
     this.handlerFn = handler;
     return this;
@@ -180,9 +180,9 @@ export class ComponentHandler<
 > {
   readonly handlerType = "component";
   public readonly prefix: string;
-  private handlerFn?: (interaction: MessageComponentInteraction<T, Context>) => Promise<void> | void;
+  private handlerFn?: (interaction: MessageComponentInteraction<T, Context>) => Promise<any> | any;
 
-  constructor(prefix: string, handler?: (interaction: MessageComponentInteraction<T, Context>) => Promise<void> | void) {
+  constructor(prefix: string, handler?: (interaction: MessageComponentInteraction<T, Context>) => Promise<any> | any) {
     if (!prefix || typeof prefix !== "string") {
       throw new TypeError("Component handler prefix must be a non-empty string");
     }
@@ -192,7 +192,7 @@ export class ComponentHandler<
   }
 
   addHandler(
-    handler: (interaction: MessageComponentInteraction<T, Context>) => Promise<void> | void
+    handler: (interaction: MessageComponentInteraction<T, Context>) => Promise<any> | any
   ): ComponentHandler<T, Context> {
     this.handlerFn = handler;
     return this;
@@ -223,9 +223,9 @@ export class ComponentHandler<
 export class ModalHandler<Context extends BaseInteractionContext = BaseInteractionContext> {
   readonly handlerType = "modal";
   public readonly prefix: string;
-  private handlerFn?: (interaction: ModalInteraction<Context>) => Promise<void> | void;
+  private handlerFn?: (interaction: ModalInteraction<Context>) => Promise<any> | any;
 
-  constructor(prefix: string, handler?: (interaction: ModalInteraction<Context>) => Promise<void> | void) {
+  constructor(prefix: string, handler?: (interaction: ModalInteraction<Context>) => Promise<any> | any) {
     if (!prefix || typeof prefix !== "string") {
       throw new TypeError("Modal handler prefix must be a non-empty string");
     }
@@ -234,7 +234,7 @@ export class ModalHandler<Context extends BaseInteractionContext = BaseInteracti
     if (handler) this.handlerFn = handler;
   }
 
-  addHandler(handler: (interaction: ModalInteraction<Context>) => Promise<void> | void): ModalHandler<Context> {
+  addHandler(handler: (interaction: ModalInteraction<Context>) => Promise<any> | any): ModalHandler<Context> {
     this.handlerFn = handler;
     return this;
   }
