@@ -1,3 +1,10 @@
 # Ignore artifacts:
 build
 coverage
+pnpm-lock.yaml
+node_modules
+dist
+.DS_Store
+# Ignore environment files:
+.env
+.env.*

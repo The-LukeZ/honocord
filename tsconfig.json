@@ -22,7 +22,7 @@
       "@ctx/*": ["./src/interactions/*"],
       "@resolvers/*": ["./src/resolvers/*"]
     },
-    "types": ["@cloudflare/workers-types", "@types/node"],
+    "types": ["@cloudflare/workers-types", "@types/node"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
