@@ -18,6 +18,7 @@ export type {
   APIChatInputApplicationCommandInteraction,
   APIModalSubmitInteraction,
   APIMessageComponentInteraction,
+  // TODO: include more
 } from "discord-api-types/v10";
 
 export type { BaseHonocordEnv, BaseVariables, BaseInteractionContext } from "./types";
