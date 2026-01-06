@@ -17,6 +17,7 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
+    "prepare": "pnpm run build",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "check": "prettier --check .",
