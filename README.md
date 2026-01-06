@@ -344,7 +344,7 @@ Extends `ContextMenuCommandBuilder` from `@discordjs/builders`.
 ```ts
 new ContextCommandHandler<
   T extends ContextCommandType = ContextCommandType,
-  InteractionData = T extends ContextCommandType.User ? UserCommandInteraction : MessageCommandInteraction,
+  InteractionData = T extends ContextCommandType.User ? UserContextInteraction : MessageContextInteraction,
   > ()
 ```
 

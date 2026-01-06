@@ -1,23 +1,31 @@
 import {
   type Snowflake,
-  APIApplicationCommandInteraction,
-  APIInteraction,
   APIInteractionResponseCallbackData,
-  APIMessageApplicationCommandInteraction,
-  APIMessageComponentInteraction,
   APIPartialInteractionGuild,
   APIUser,
-  APIUserApplicationCommandInteraction,
   ApplicationCommandType,
-  ComponentType,
   InteractionType,
   Locale,
+  APIApplicationCommandInteraction,
+  ComponentType,
+  APIMessageComponentInteraction,
 } from "discord-api-types/v10";
 import { API } from "@discordjs/core/http-only";
 import { REST } from "@discordjs/rest";
-import { ChatInputCommandInteraction } from "./ChatInputInteraction";
 import { ModalInteraction } from "./ModalInteraction";
-import type { BaseInteractionContext, InteractionResponseCallbackData, JSONEncodable, ValidInteraction } from "../types";
+import type {
+  BaseInteractionContext,
+  InteractionResponseCallbackData,
+  JSONEncodable,
+  MessageComponentType,
+  ValidInteraction,
+} from "../types";
+import { MessageComponentInteraction } from "./MessageComponentInteraction";
+import { AutocompleteInteraction } from "./AutocompleteInteraction";
+import { CommandInteraction } from "./CommandInteraction";
+import { ChatInputCommandInteraction } from "./ChatInputInteraction";
+import { UserContextInteraction } from "./UserContextCommandInteraction";
+import { MessageContextInteraction } from "./MessageContextCommandInteraction";
 
 function snakeCase(str: string): string {
   return str
@@ -56,86 +64,83 @@ function isJSONEncodable(maybeEncodable: unknown): maybeEncodable is JSONEncodab
 
 abstract class BaseInteraction<Type extends InteractionType, Context extends BaseInteractionContext = BaseInteractionContext> {
   public readonly type: Type;
-  protected readonly data: Extract<ValidInteraction, { type: Type }>;
+  /** The raw interaction data */
+  protected readonly raw: Extract<ValidInteraction, { type: Type }>;
   public readonly rest: REST;
   protected _ephemeral: boolean | null = null;
   protected replied: boolean = false;
   protected deferred: boolean = false;
   public readonly context: Context;
-  public readonly commandType?: ApplicationCommandType;
 
   constructor(
     protected api: API,
-    data: typeof this.data,
+    data: Extract<ValidInteraction, { type: Type }>,
     context: Context
   ) {
     this.type = data.type as Type;
-    this.data = data;
+    this.raw = { ...data };
     this.rest = api.rest;
     this.context = context;
-    if (this.type === InteractionType.ApplicationCommand) {
-      this.commandType = (data as APIApplicationCommandInteraction).data.type;
-    }
   }
 
   get applicationId() {
-    return this.data.application_id;
+    return this.raw.application_id;
   }
 
   get entitlements() {
-    return this.data.entitlements;
+    return this.raw.entitlements;
   }
 
   get channelId() {
-    return this.data.channel?.id;
+    return this.raw.channel?.id;
   }
 
   get channel() {
-    return this.data.channel;
+    return this.raw.channel;
   }
 
   get guildId() {
-    return this.data.guild_id;
+    return this.raw.guild_id;
   }
 
   get guild() {
-    return this.data.guild;
+    return this.raw.guild;
   }
 
   get userId() {
-    return this.data.user?.id;
+    return this.raw.user?.id;
   }
 
   get user() {
-    return (this.data.member?.user || this.data.user) as APIUser; // One is always given.
+    return (this.raw.member?.user || this.raw.user) as APIUser; // One is always given.
   }
 
   get member() {
-    return this.data.member;
+    return this.raw.member;
   }
 
   get locale() {
-    return this.data.guild_locale;
+    return this.raw.guild_locale;
   }
 
   get guildLocale() {
-    return this.data.guild_locale;
+    return this.raw.guild_locale;
   }
 
   get token() {
-    return this.data.token;
+    return this.raw.token;
   }
 
   get id() {
-    return this.data.id;
+    return this.raw.id;
   }
 
   get appPermissions() {
-    return this.data.app_permissions;
+    return this.raw.app_permissions;
   }
 
   get version() {
-    return this.data.version;
+    return this.raw.version;
   }
 
   protected isJSONEncodable(obj: unknown): obj is JSONEncodable<unknown> {
@@ -147,7 +152,7 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
   }
 
   inGuild(): this is BaseInteraction<Type> & { guild_id: Snowflake; guild: APIPartialInteractionGuild; guild_locale: Locale } {
-    return Boolean(this.data.guild_id && this.data.guild && this.data.guild_locale);
+    return Boolean(this.raw.guild_id && this.raw.guild && this.raw.guild_locale);
   }
 
   inDM(): this is BaseInteraction<Type> & { guild_id: undefined; guild: undefined; guild_locale: undefined } {
@@ -319,62 +324,65 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
   }
 
   // Typeguards
-  isChatInputCommand(): this is ChatInputCommandInteraction {
-    return this.type === InteractionType.ApplicationCommand;
+  isCommand(): this is CommandInteraction<ApplicationCommandType, Context> {
+    return this.raw.type === InteractionType.ApplicationCommand;
   }
 
-  isMessageContext(): this is APIMessageApplicationCommandInteraction {
-    return this.type === InteractionType.ApplicationCommand && "message" in this.data;
+  isChatInputCommand(): this is ChatInputCommandInteraction<Context> {
+    return (
+      this.raw.type === InteractionType.ApplicationCommand &&
+      (this.raw as APIApplicationCommandInteraction).data.type === ApplicationCommandType.ChatInput
+    );
   }
 
-  isUserContext(): this is APIUserApplicationCommandInteraction {
-    return this.type === InteractionType.ApplicationCommand && this.commandType === ApplicationCommandType.User;
+  isUserContextCommand(): this is UserContextInteraction<Context> {
+    return (
+      this.raw.type === InteractionType.ApplicationCommand &&
+      (this.raw as APIApplicationCommandInteraction).data.type === ApplicationCommandType.User
+    );
+  }
+
+  isMessageContextCommand(): this is MessageContextInteraction<Context> {
+    return (
+      this.raw.type === InteractionType.ApplicationCommand &&
+      (this.raw as APIApplicationCommandInteraction).data.type === ApplicationCommandType.Message
+    );
   }
 
   isModal(): this is ModalInteraction {
-    return this.type === InteractionType.ModalSubmit;
+    return this.raw.type === InteractionType.ModalSubmit;
   }
 
-  isMessageComponent(): this is APIMessageComponentInteraction {
-    return this.type === InteractionType.MessageComponent;
+  isMessageComponent(): this is MessageComponentInteraction<MessageComponentType, Context> {
+    return this.raw.type === InteractionType.MessageComponent;
   }
 
-  isButton(): this is APIMessageComponentInteraction & { data: { component_type: ComponentType.Button } } {
-    return this.isMessageComponent() && this.data.component_type === ComponentType.Button;
+  isButton(): this is MessageComponentInteraction<ComponentType.Button, Context> {
+    return this.isMessageComponent() && this.raw.data.component_type === ComponentType.Button;
   }
 
-  isStringSelect(): this is APIMessageComponentInteraction & {
-    data: { component_type: Exclude<ComponentType, ComponentType.StringSelect> };
-  } {
-    return this.isMessageComponent() && this.data.component_type === ComponentType.StringSelect;
+  isStringSelect(): this is MessageComponentInteraction<ComponentType.StringSelect, Context> {
+    return this.isMessageComponent() && this.raw.data.component_type === ComponentType.StringSelect;
   }
 
-  isUserSelect(): this is APIMessageComponentInteraction & {
-    data: { component_type: Exclude<ComponentType, ComponentType.UserSelect> };
-  } {
-    return this.isMessageComponent() && this.data.component_type === ComponentType.UserSelect;
+  isUserSelect(): this is MessageComponentInteraction<ComponentType.UserSelect, Context> {
+    return this.isMessageComponent() && this.raw.data.component_type === ComponentType.UserSelect;
   }
 
-  isRoleSelect(): this is APIMessageComponentInteraction & {
-    data: { component_type: Exclude<ComponentType, ComponentType.RoleSelect> };
-  } {
-    return this.isMessageComponent() && this.data.component_type === ComponentType.RoleSelect;
+  isRoleSelect(): this is MessageComponentInteraction<ComponentType.RoleSelect, Context> {
+    return this.isMessageComponent() && this.raw.data.component_type === ComponentType.RoleSelect;
   }
 
-  isMentionableSelect(): this is APIMessageComponentInteraction & {
-    data: { component_type: Exclude<ComponentType, ComponentType.MentionableSelect> };
-  } {
-    return this.isMessageComponent() && this.data.component_type === ComponentType.MentionableSelect;
+  isMentionableSelect(): this is MessageComponentInteraction<ComponentType.MentionableSelect, Context> {
+    return this.isMessageComponent() && this.raw.data.component_type === ComponentType.MentionableSelect;
   }
 
-  isChannelSelect(): this is APIMessageComponentInteraction & {
-    data: { component_type: Exclude<ComponentType, ComponentType.ChannelSelect> };
-  } {
-    return this.isMessageComponent() && this.data.component_type === ComponentType.ChannelSelect;
+  isChannelSelect(): this is MessageComponentInteraction<ComponentType.ChannelSelect, Context> {
+    return this.isMessageComponent() && this.raw.data.component_type === ComponentType.ChannelSelect;
   }
 
-  isAutocomplete(): this is APIInteraction & { type: InteractionType.ApplicationCommandAutocomplete } {
-    return this.type === InteractionType.ApplicationCommandAutocomplete;
+  isAutocomplete(): this is AutocompleteInteraction<Context> & { type: InteractionType.ApplicationCommandAutocomplete } {
+    return this.raw.type === InteractionType.ApplicationCommandAutocomplete;
   }
 }
 

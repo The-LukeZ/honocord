@@ -16,10 +16,11 @@ import type {
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandGroupBuilder,
 } from "@discordjs/builders";
-import { MessageCommandInteraction } from "./MessageContextCommandInteraction";
-import { UserCommandInteraction } from "./UserContextCommandInteraction";
+import { MessageContextInteraction } from "./MessageContextCommandInteraction";
+import { UserContextInteraction } from "./UserContextCommandInteraction";
 import { parseCustomId } from "@utils/index";
-import { BaseInteractionContext, ContextCommandType, MessageComponentType } from "../types";
+import { AnyInteraction, BaseInteractionContext, ContextCommandType, MessageComponentType } from "../types";
+import { InteractionType } from "discord-api-types/v10";
 
 /**
  * Handler for chat input commands with optional autocomplete support
@@ -148,7 +149,7 @@ export class SlashCommandHandler<Context extends BaseInteractionContext = BaseIn
 export class ContextCommandHandler<
   T extends ContextCommandType = ContextCommandType,
   Context extends BaseInteractionContext = BaseInteractionContext,
-  InteractionData = T extends ContextCommandType.User ? UserCommandInteraction<Context> : MessageCommandInteraction<Context>,
+  InteractionData = T extends ContextCommandType.User ? UserContextInteraction<Context> : MessageContextInteraction<Context>,
 > extends ContextMenuCommandBuilder {
   readonly handlerType = "context";
   private handlerFn?: (interaction: InteractionData) => Promise<any> | any;
@@ -261,4 +262,8 @@ export class ModalHandler<Context extends BaseInteractionContext = BaseInteracti
 /**
  * Union type of all possible handlers
  */
-export type Handler = SlashCommandHandler | ContextCommandHandler | ComponentHandler | ModalHandler;
+export type Handler<Context extends BaseInteractionContext = BaseInteractionContext> =
+  | SlashCommandHandler<Context>
+  | ContextCommandHandler<ContextCommandType, Context>
+  | ComponentHandler<MessageComponentType, Context>
+  | ModalHandler<Context>;

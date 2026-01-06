@@ -22,11 +22,11 @@ class AutocompleteInteraction<Context extends BaseInteractionContext = BaseInter
   }
 
   get commandName() {
-    return this.data.data.name;
+    return this.raw.data.name;
   }
 
   get commandId() {
-    return this.data.data.id;
+    return this.raw.data.id;
   }
 
   async respond(choices: APIApplicationCommandOptionChoice[]) {

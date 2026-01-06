@@ -19,8 +19,8 @@ import type {
   MessageComponentType,
   FlatOrNestedArray,
 } from "./types";
-import { UserCommandInteraction } from "@ctx/UserContextCommandInteraction";
-import { MessageCommandInteraction } from "@ctx/MessageContextCommandInteraction";
+import { UserContextInteraction } from "@ctx/UserContextCommandInteraction";
+import { MessageContextInteraction } from "@ctx/MessageContextCommandInteraction";
 import { MessageComponentInteraction } from "@ctx/MessageComponentInteraction";
 import { ModalInteraction } from "@ctx/ModalInteraction";
 import { AutocompleteInteraction } from "@ctx/AutocompleteInteraction";
@@ -96,9 +96,9 @@ export class Honocord {
       case ApplicationCommandType.ChatInput:
         return new ChatInputCommandInteraction(api, interaction as any, ctx);
       case ApplicationCommandType.User:
-        return new UserCommandInteraction(api, interaction as any, ctx);
+        return new UserContextInteraction(api, interaction as any, ctx);
       case ApplicationCommandType.Message:
-        return new MessageCommandInteraction(api, interaction as any, ctx);
+        return new MessageContextInteraction(api, interaction as any, ctx);
       default:
         throw new Error(
           `Unsupported application command type: ${interaction.data.type} (${ApplicationCommandType[interaction.data.type]})`
@@ -117,9 +117,9 @@ export class Honocord {
           await handler.execute(interactionObj as ChatInputCommandInteraction);
         } else if (handler instanceof ContextCommandHandler) {
           if (interaction.data.type === ApplicationCommandType.User) {
-            await handler.execute(interactionObj as UserCommandInteraction);
+            await handler.execute(interactionObj as UserContextInteraction);
           } else if (interaction.data.type === ApplicationCommandType.Message) {
-            await handler.execute(interactionObj as MessageCommandInteraction);
+            await handler.execute(interactionObj as MessageContextInteraction);
           }
         }
       } catch (error) {

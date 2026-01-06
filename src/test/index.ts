@@ -1,6 +1,6 @@
 import { ComponentHandler, SlashCommandHandler } from "@ctx/handlers";
-import { BaseInteractionContext } from "../types";
-import { ComponentType } from "discord-api-types/v10";
+import { BaseInteractionContext, HandlerFunction } from "../types";
+import { ApplicationCommandType, ComponentType } from "discord-api-types/v10";
 
 interface MyEnv {
   DISCORD_PUBLIC_KEY: string;
@@ -14,8 +14,17 @@ interface MyVar {
 
 type MyContext = BaseInteractionContext<MyEnv, MyVar>;
 
+const testHandle: HandlerFunction<MyContext> = async (ctx) => {
+  if (ctx.isCommand() && ctx.isUserContextCommand()) {
+    console.log("It's a user context command!", ctx);
+  }
+};
+
 new SlashCommandHandler<MyContext>().addHandler(async (ctx) => {
   console.log("Hello world");
+  if (ctx.isChatInputCommand()) {
+    ctx;
+  }
   return ctx.reply("Hello world!", true);
 });
 

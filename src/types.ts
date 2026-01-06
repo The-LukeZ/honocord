@@ -1,6 +1,9 @@
+import { AutocompleteInteraction } from "@ctx/AutocompleteInteraction";
 import type { ChatInputCommandInteraction } from "@ctx/ChatInputInteraction";
 import type { MessageComponentInteraction } from "@ctx/MessageComponentInteraction";
 import type { ModalInteraction } from "@ctx/ModalInteraction";
+import type { UserContextInteraction } from "@ctx/UserContextCommandInteraction";
+import type { MessageContextInteraction } from "@ctx/MessageContextCommandInteraction";
 import type { Collection } from "@discordjs/collection";
 import type { Snowflake } from "discord-api-types/globals";
 import {
@@ -135,67 +138,6 @@ export interface APIInteractionDataResolvedCollections {
 /** Represents an interaction which the lib user can handle themselves (ping is handled internally) */
 export type ValidInteraction = Exclude<APIInteraction, APIPingInteraction>;
 
-/**
- * Generic handler function type for Discord interactions.
- *
- * @template T - The specific interaction type from Discord's InteractionType enum
- */
-type InteractionHandler<T extends InteractionType> = (
-  interaction: Extract<ValidInteraction, { type: T }>
-) => void | Promise<void>;
-
-/**
- * Handler function type for application command interactions (slash commands, user commands, message commands).
- *
- * @template Data - The command data type (optional, defaults to generic command interaction data)
- */
-export type CommandInteractionHandler<Data = APIApplicationCommandInteractionData> = (
-  interaction: Extract<
-    Exclude<ValidInteraction, APIApplicationCommandAutocompleteInteraction>,
-    { type: InteractionType.ApplicationCommand; data: Data }
-  >
-) => void | Promise<void>;
-
-/**
- * Handler function type for autocomplete interactions.
- *
- * Called when a user is typing in a command option that has autocomplete enabled.
- */
-export type AutocompleteInteractionHandler = InteractionHandler<InteractionType.ApplicationCommandAutocomplete>;
-
-/**
- * Handler function type for modal submit interactions.
- *
- * Called when a user submits a modal (form).
- */
-export type ModalSubmitInteractionHandler = InteractionHandler<InteractionType.ModalSubmit>;
-
-/**
- * Handler function type for message component interactions.
- *
- * Called when a user interacts with a button, select menu, or other message component.
- */
-export type MessageComponentInteractionHandler = InteractionHandler<InteractionType.MessageComponent>;
-
-/**
- * Map of interaction types to their corresponding handler function types.
- *
- * Useful for creating type-safe handler registries or middleware systems.
- */
-export type InteractionHandlers = {
-  [InteractionType.ApplicationCommand]: CommandInteractionHandler<InteractionType.ApplicationCommand>;
-  [InteractionType.ApplicationCommandAutocomplete]: AutocompleteInteractionHandler;
-  [InteractionType.ModalSubmit]: ModalSubmitInteractionHandler;
-  [InteractionType.MessageComponent]: MessageComponentInteractionHandler;
-};
-
-/**
- * Generic handler function type for any Discord interaction.
- *
- * @template T - The specific API interaction type (defaults to any interaction)
- */
-export type InteractionHandlerFunction<T extends APIInteraction = APIInteraction> = (interaction: T) => void | Promise<void>;
-
 export type MessageComponentType =
   | ComponentType.Button
   | ComponentType.StringSelect
@@ -241,6 +183,19 @@ export interface JSONEncodable<Value> {
    */
   toJSON(): Value;
 }
+
+export type AnyInteraction<Context extends BaseInteractionContext = BaseInteractionContext> =
+  | ChatInputCommandInteraction<Context>
+  | UserContextInteraction<Context>
+  | MessageContextInteraction<Context>
+  | MessageComponentInteraction<MessageComponentType, Context>
+  | ModalInteraction<Context>
+  | AutocompleteInteraction<Context>;
+
+export type HandlerFunction<
+  Context extends BaseInteractionContext = BaseInteractionContext,
+  InteractionArg extends AnyInteraction<Context> = AnyInteraction<Context>,
+> = (interaction: InteractionArg) => Promise<any> | any;
 
 // ---------------------------------------------------------------------------------------------
 // The following types are typings which are derived from discord-api-types but we are using Builders so be have to redefine them

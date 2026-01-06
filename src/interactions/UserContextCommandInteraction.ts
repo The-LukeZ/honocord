@@ -1,10 +1,10 @@
-import { APIUserApplicationCommandInteraction, APIUser, InteractionType } from "discord-api-types/v10";
+import { APIUserApplicationCommandInteraction, APIUser, ApplicationCommandType } from "discord-api-types/v10";
 import { API } from "@discordjs/core/http-only";
 import { BaseInteractionContext } from "../types";
-import { ModalCapableInteraction } from "./ModalCapableInteraction";
+import { CommandInteraction } from "./CommandInteraction";
 
-class UserCommandInteraction<Context extends BaseInteractionContext = BaseInteractionContext> extends ModalCapableInteraction<
-  InteractionType.ApplicationCommand,
+class UserContextInteraction<Context extends BaseInteractionContext = BaseInteractionContext> extends CommandInteraction<
+  ApplicationCommandType.User,
   Context
 > {
   public readonly targetUser: APIUser;
@@ -13,14 +13,6 @@ class UserCommandInteraction<Context extends BaseInteractionContext = BaseIntera
     super(api, interaction, c);
     this.targetUser = interaction.data.resolved.users[interaction.data.target_id];
   }
-
-  get commandName() {
-    return this.data.data.name;
-  }
-
-  get commandId() {
-    return this.data.data.id;
-  }
 }
 
-export { UserCommandInteraction };
+export { UserContextInteraction };
