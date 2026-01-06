@@ -10,9 +10,7 @@ export { ModalComponentResolver } from "@resolvers/ModalComponentResolver";
 
 export { SlashCommandHandler, ContextCommandHandler, ComponentHandler, ModalHandler, type Handler } from "@ctx/handlers";
 
-export * from "@utils/Colors";
 export * from "@utils/index";
-export * from "@utils/register";
 
 // Re-export commonly used types from dependencies
 export type {
