@@ -19,8 +19,7 @@ import type {
 import { MessageContextInteraction } from "./MessageContextCommandInteraction";
 import { UserContextInteraction } from "./UserContextCommandInteraction";
 import { parseCustomId } from "@utils/index";
-import { AnyInteraction, BaseInteractionContext, ContextCommandType, MessageComponentType } from "../types";
-import { InteractionType } from "discord-api-types/v10";
+import { BaseInteractionContext, ContextCommandType, MessageComponentType } from "../types";
 
 /**
  * Handler for chat input commands with optional autocomplete support
@@ -29,6 +28,36 @@ export class SlashCommandHandler<Context extends BaseInteractionContext = BaseIn
   readonly handlerType = "slash";
   private handlerFn?: (interaction: ChatInputCommandInteraction<Context>) => Promise<any> | any;
   private autocompleteFn?: (interaction: AutocompleteInteraction<Context>) => Promise<any> | any;
+  /**
+   * Set of guild IDs where this command is registered (empty for global commands)
+   */
+  readonly guildIds = new Set<string>();
+
+  isGuildCommand(): boolean {
+    return this.guildIds.size > 0;
+  }
+
+  setGuildIds(guildIds: string[]): this {
+    this.guildIds.clear();
+    for (const guildId of guildIds) {
+      this.guildIds.add(guildId);
+    }
+    return this;
+  }
+
+  addGuildIds(...guildIds: string[]): this {
+    for (const guildId of guildIds) {
+      this.guildIds.add(guildId);
+    }
+    return this;
+  }
+
+  removeGuildIds(...guildIds: string[]): this {
+    for (const guildId of guildIds) {
+      this.guildIds.delete(guildId);
+    }
+    return this;
+  }
 
   /**
    * Adds the command handler function.
@@ -153,6 +182,36 @@ export class ContextCommandHandler<
 > extends ContextMenuCommandBuilder {
   readonly handlerType = "context";
   private handlerFn?: (interaction: InteractionData) => Promise<any> | any;
+  /**
+   * Set of guild IDs where this command is registered (empty for global commands)
+   */
+  readonly guildIds = new Set<string>();
+
+  isGuildCommand(): boolean {
+    return this.guildIds.size > 0;
+  }
+
+  setGuildIds(guildIds: string[]): this {
+    this.guildIds.clear();
+    for (const guildId of guildIds) {
+      this.guildIds.add(guildId);
+    }
+    return this;
+  }
+
+  addGuildIds(...guildIds: string[]): this {
+    for (const guildId of guildIds) {
+      this.guildIds.add(guildId);
+    }
+    return this;
+  }
+
+  removeGuildIds(...guildIds: string[]): this {
+    for (const guildId of guildIds) {
+      this.guildIds.delete(guildId);
+    }
+    return this;
+  }
 
   public addHandler(
     handler: (interaction: InteractionData) => Promise<any> | any
