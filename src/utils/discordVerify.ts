@@ -1,5 +1,6 @@
 import type { APIInteraction, APIWebhookEvent } from "discord-api-types/v10";
 import { cloneRawRequest, type HonoRequest } from "hono/request";
+import { BufferSource } from "../types";
 
 export const subtleCrypto = crypto.subtle;
 
@@ -80,10 +81,9 @@ export async function verifyKey(
       typeof clientPublicKey === "string"
         ? await subtleCrypto.importKey(
             "raw",
-            valueToUint8Array(clientPublicKey, "hex"),
+            valueToUint8Array(clientPublicKey, "hex").buffer as BufferSource,
             {
               name: "ed25519",
-              namedCurve: "ed25519",
             },
             false,
             ["verify"]
@@ -94,8 +94,8 @@ export async function verifyKey(
         name: "ed25519",
       },
       publicKey,
-      valueToUint8Array(signature, "hex"),
-      message
+      valueToUint8Array(signature, "hex").buffer as ArrayBuffer,
+      message.buffer as ArrayBuffer
     );
     return isValid;
   } catch (_ex) {

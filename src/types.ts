@@ -219,3 +219,5 @@ export enum ContextCommandType {
   User = ApplicationCommandType.User,
   Message = ApplicationCommandType.Message,
 }
+
+export type BufferSource = ArrayBufferView | ArrayBuffer;
