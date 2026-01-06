@@ -1,6 +1,6 @@
 {
   "name": "honocord",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -20,7 +20,7 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "check": "prettier --check .",
-    "docs": "tsdown src --outDir docs --project ./tsconfig.json --theme tsdown-theme-default"
+    "test": "vitest"
   },
   "keywords": [
     "hono",
@@ -37,11 +37,13 @@
     "hono": "^4.11.3"
   },
   "dependencies": {
+    "@cloudflare/workers-types": "^4.20260103.0",
     "@discordjs/builders": "^1.13.1",
     "@discordjs/collection": "^2.1.1",
     "@discordjs/core": "^2.4.0",
     "@discordjs/rest": "^2.6.0",
-    "discord-api-types": "^0.38.37"
+    "discord-api-types": "^0.38.37",
+    "discord-interactions": "^4.4.0"
   },
   "devDependencies": {
     "@types/node": "^25.0.3",

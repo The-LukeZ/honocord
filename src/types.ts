@@ -21,7 +21,11 @@ import type { BlankInput } from "hono/types";
 /**
  * Base bindings that your library requires
  */
-export interface BaseBindings {}
+export interface BaseBindings {
+  DISCORD_PUBLIC_KEY: string;
+  DISCORD_TOKEN: string;
+  IS_CF_WORKER?: "true" | "false";
+}
 
 /**
  * Base variables that your library uses

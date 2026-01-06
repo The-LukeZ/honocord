@@ -24,12 +24,14 @@ export class Honocord {
   private commandHandlers: Map<string, SlashCommandHandler | ContextCommandHandler> = new Map();
   private componentHandlers: ComponentHandler[] = [];
   private modalHandlers: ModalHandler[] = [];
+  private isCFWorker: boolean;
 
-  constructor(discordToken?: string) {
+  constructor(discordToken?: string, isCFWorker?: boolean) {
     if (!discordToken) {
       throw new TypeError("A Discord token must be provided to InteractionHandler");
     }
     this.api = new API(new REST({ authPrefix: "Bot" }).setToken(discordToken));
+    this.isCFWorker = isCFWorker ?? false;
   }
 
   /**
@@ -249,8 +251,11 @@ export class Honocord {
    * ```
    */
   handle = async (c: BaseInteractionContext) => {
+    // Check if running on CF Workers
+    const isCFWorker = this.isCFWorker || c.env.IS_CF_WORKER === "true";
+
     // Verify the request
-    const { isValid, interaction } = await verifyDiscordRequest(c.req, (c.env as any).DISCORD_PUBLIC_KEY as string);
+    const { isValid, interaction } = await verifyDiscordRequest(c.req, c.env.DISCORD_PUBLIC_KEY as string);
     if (!isValid) {
       return c.text("Bad request signature.", 401);
     } else if (!interaction) {
@@ -262,6 +267,23 @@ export class Honocord {
       return c.json({ type: InteractionResponseType.Pong });
     }
 
+    // Handle CF Workers execution context
+    if (isCFWorker && c.executionCtx?.waitUntil) {
+      // Process interaction asynchronously
+      c.executionCtx.waitUntil(
+        new Promise(async (resolve) => {
+          try {
+            await this.createInteraction(c, interaction);
+          } catch (error) {
+            console.error("Error handling interaction:", error);
+          }
+          resolve(undefined);
+        })
+      );
+      return c.json({}, 202); // Accepted for processing
+    }
+
+    // Standard non-CF Workers execution
     try {
       await this.createInteraction(c, interaction);
     } catch (error) {
