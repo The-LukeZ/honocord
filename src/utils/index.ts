@@ -1,5 +1,5 @@
 export * from "@utils/Colors";
-export * from "@utils/register";
+export * from "@utils/registerCommands";
 
 export function parseCustomId(customId: string, onlyPrefix: true): string;
 export function parseCustomId(
