@@ -8,7 +8,14 @@ export { MessageComponentInteraction } from "@ctx/MessageComponentInteraction";
 export { CommandInteractionOptionResolver } from "@resolvers/CommandOptionResolver";
 export { ModalComponentResolver } from "@resolvers/ModalComponentResolver";
 
-export { SlashCommandHandler, ContextCommandHandler, ComponentHandler, ModalHandler, type Handler } from "@ctx/handlers";
+export {
+  SlashCommandHandler,
+  ContextCommandHandler,
+  ComponentHandler,
+  ModalHandler,
+  type Handler,
+  type CommandHandler,
+} from "@ctx/handlers";
 
 export * from "@utils/index";
 

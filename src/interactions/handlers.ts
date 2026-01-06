@@ -267,3 +267,7 @@ export type Handler<Context extends BaseInteractionContext = BaseInteractionCont
   | ContextCommandHandler<ContextCommandType, Context>
   | ComponentHandler<MessageComponentType, Context>
   | ModalHandler<Context>;
+
+export type CommandHandler<Context extends BaseInteractionContext = BaseInteractionContext> =
+  | SlashCommandHandler<Context>
+  | ContextCommandHandler<ContextCommandType, Context>;
