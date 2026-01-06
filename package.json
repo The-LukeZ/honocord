@@ -1,6 +1,6 @@
 {
   "name": "honocord",
-  "version": "0.0.15",
+  "version": "1.0.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -27,6 +27,7 @@
     "hono",
     "discord",
     "cloudflare-workers",
+    "honocord",
     "interactions"
   ],
   "author": "Your Name",

@@ -23,7 +23,7 @@ import {
   InteractionType,
 } from "discord-api-types/v10";
 import type { Context } from "hono";
-import type { BlankInput } from "hono/types";
+import type { Bindings, BlankEnv, BlankInput, BlankSchema, Variables } from "hono/types";
 
 /**
  * Base bindings that your library requires
@@ -47,18 +47,15 @@ export interface BaseVariables {
 /**
  * Base context environment
  */
-export interface BaseHonocordEnv<
-  TBindings extends BaseBindings = BaseBindings,
-  TVariables extends BaseVariables = BaseVariables,
-> {
+export interface BaseHonocordEnv<TBindings extends Bindings = {}, TVariables extends Variables = {}> {
   /**
    * Bindings available in the environment (from the worker)
    */
-  Bindings: TBindings;
+  Bindings: TBindings & BaseBindings;
   /**
-   * Variables available in the context (from Hono)
+   * Variables available in the context (from Hono + Honocord)
    */
-  Variables: TVariables;
+  Variables: TVariables & BaseVariables;
 }
 
 /**
