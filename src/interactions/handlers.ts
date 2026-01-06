@@ -16,11 +16,10 @@ import type {
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandGroupBuilder,
 } from "@discordjs/builders";
-import { ApplicationCommandType } from "discord-api-types/v10";
 import { MessageCommandInteraction } from "./MessageContextCommandInteraction";
 import { UserCommandInteraction } from "./UserContextCommandInteraction";
 import { parseCustomId } from "@utils/index";
-import { MessageComponentInteractionPayload, MessageComponentType } from "../types";
+import { ContextCommandType, MessageComponentType } from "../types";
 
 /**
  * Handler for chat input commands with optional autocomplete support
@@ -143,8 +142,8 @@ export class SlashCommandHandler extends SlashCommandBuilder {
 }
 
 export class ContextCommandHandler<
-  T extends ApplicationCommandType = ApplicationCommandType,
-  InteractionData = T extends ApplicationCommandType.User ? UserCommandInteraction : MessageCommandInteraction,
+  T extends ContextCommandType = ContextCommandType,
+  InteractionData = T extends ContextCommandType.User ? UserCommandInteraction : MessageCommandInteraction,
 > extends ContextMenuCommandBuilder {
   readonly handlerType = "context";
   private handlerFn?: (interaction: InteractionData) => Promise<void> | void;

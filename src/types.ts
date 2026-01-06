@@ -19,6 +19,7 @@ import {
   APIPingInteraction,
   APIRole,
   APIUser,
+  ApplicationCommandType,
   ComponentType,
   InteractionType,
 } from "discord-api-types/v10";
@@ -213,3 +214,8 @@ export type MessageComponentInteractionPayload<T extends MessageComponentType = 
     data: MessageComponentDataTypes[T];
   }
 >;
+
+export enum ContextCommandType {
+  User = ApplicationCommandType.User,
+  Message = ApplicationCommandType.Message,
+}

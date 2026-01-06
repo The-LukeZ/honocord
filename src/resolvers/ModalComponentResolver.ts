@@ -1,5 +1,4 @@
 import {
-  APIBaseComponent,
   APIInteractionDataResolved,
   APIInteractionDataResolvedChannel,
   APIInteractionDataResolvedGuildMember,

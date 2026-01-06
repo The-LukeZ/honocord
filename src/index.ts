@@ -1,5 +1,3 @@
-import { ComponentType } from "discord-api-types/v10";
-
 export { Honocord } from "./Honocord";
 
 export { BaseInteraction } from "@ctx/BaseInteraction";
@@ -20,8 +18,11 @@ export type {
   APIChatInputApplicationCommandInteraction,
   APIModalSubmitInteraction,
   APIMessageComponentInteraction,
+  Snowflake,
   // TODO: include more as needed
 } from "discord-api-types/v10";
+
+export { ComponentType, InteractionType, ApplicationCommandType, ChannelType } from "discord-api-types/v10";
 
 export {
   LabelBuilder,
