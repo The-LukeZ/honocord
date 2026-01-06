@@ -44,9 +44,9 @@ interface HonocordOptions {
 }
 
 export class Honocord {
-  private commandHandlers: Map<string, SlashCommandHandler | ContextCommandHandler> = new Map();
-  private componentHandlers: ComponentHandler[] = [];
-  private modalHandlers: ModalHandler[] = [];
+  private commandHandlers = new Map<string, SlashCommandHandler | ContextCommandHandler>();
+  private componentHandlers = new Map<string, ComponentHandler>();
+  private modalHandlers = new Map<string, ModalHandler>();
   private isCFWorker: boolean;
   private debugRest: boolean;
 
@@ -72,21 +72,17 @@ export class Honocord {
         }
         this.commandHandlers.set(handler.name, handler);
       } else if (handler instanceof ComponentHandler) {
-        // Check for duplicate prefixes
-        const existing = this.componentHandlers.find((h) => h.prefix === handler.prefix);
-        if (existing) {
-          console.warn(`Component handler with prefix "${handler.prefix}" already exists. Overwriting.`);
-          this.componentHandlers = this.componentHandlers.filter((h) => h.prefix !== handler.prefix);
+        const prefix = handler.prefix;
+        if (this.componentHandlers.has(prefix)) {
+          console.warn(`Component handler with prefix "${prefix}" already exists. Overwriting.`);
         }
-        this.componentHandlers.push(handler);
+        this.componentHandlers.set(prefix, handler);
       } else if (handler instanceof ModalHandler) {
-        // Check for duplicate prefixes
-        const existing = this.modalHandlers.find((h) => h.prefix === handler.prefix);
-        if (existing) {
-          console.warn(`Modal handler with prefix "${handler.prefix}" already exists. Overwriting.`);
-          this.modalHandlers = this.modalHandlers.filter((h) => h.prefix !== handler.prefix);
+        const prefix = handler.prefix;
+        if (this.modalHandlers.has(prefix)) {
+          console.warn(`Modal handler with prefix "${prefix}" already exists. Overwriting.`);
         }
-        this.modalHandlers.push(handler);
+        this.modalHandlers.set(prefix, handler);
       }
     }
   }
@@ -160,8 +156,8 @@ export class Honocord {
     const interactionObj = new MessageComponentInteraction<T>(api, interaction, ctx);
     const prefix = parseCustomId(interaction.data.custom_id, true);
 
-    // Find matching handler by prefix
-    const handler = this.componentHandlers.find((h) => h.matches(prefix));
+    // Lookup handler by prefix
+    const handler = this.componentHandlers.get(prefix);
     if (handler) {
       try {
         await handler.execute(interactionObj);
@@ -183,8 +179,8 @@ export class Honocord {
     const customId = interaction.data.custom_id;
     const prefix = parseCustomId(customId, true);
 
-    // Find matching handler by prefix
-    const handler = this.modalHandlers.find((h) => h.matches(customId));
+    // Lookup handler by prefix
+    const handler = this.modalHandlers.get(prefix);
 
     if (handler) {
       try {
