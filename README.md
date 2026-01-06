@@ -29,7 +29,7 @@ pnpm install honocord @discordjs/core @discordjs/builders @discordjs/rest discor
 ```typescript
 import { Honocord, SlashCommandHandler } from "honocord";
 
-const bot = new Honocord(process.env.DISCORD_TOKEN);
+const bot = new Honocord();
 
 // Define a slash command
 const pingCommand = new SlashCommandHandler().setName("ping").setDescription("Replies with Pong!");
@@ -50,6 +50,29 @@ import { Hono } from "hono";
 
 const app = new Hono();
 ```
+
+## Usage with and without Cloudflare Workers
+
+Hono, well rather CF Workers, have a small issue with responding to interactions.
+
+When using HonoCord in a Cloudflare Worker environment, you should ensure that your environment variable `IS_CF_WORKER` is set to `"true"` **or** you pass this information to HonoCord in the constructor:
+
+```typescript
+const bot = new Honocord({ isCFWorker: true }); // true indicates CF Worker environment
+```
+
+<details>
+    <summary>Why that is needed?</summary>
+
+On Cloudflare Workers, we need to make use of `c.executionContext.waitUntil()` to handle asynchronous tasks properly without blocking the response. By checking for the `IS_CF_WORKER` environment variable, HonoCord can determine if it's running in a Cloudflare Worker environment and adjust its behavior accordingly.
+
+This approach allows HonoCord to maintain compatibility with both Cloudflare Workers and other environments, ensuring that interactions are handled correctly regardless of where the code is executed.
+
+</details>
+
+> [!IMPORTANT]
+> This readme assumes you are using Cloudflare Workers.
+> Most stuff is the same for other environments, but keep in mind the `IS_CF_WORKER` variable and the way you export and use your Hono app.
 
 ## Philosophy - How It Works
 
@@ -213,7 +236,7 @@ bot.loadHandlers(feedbackHandler);
 ```typescript
 import { Honocord, SlashCommandHandler, ComponentHandler, ModalHandler } from "honocord";
 
-const bot = new Honocord(process.env.DISCORD_TOKEN);
+const bot = new Honocord();
 
 // Slash command
 const greetCommand = new SlashCommandHandler()
@@ -278,6 +301,7 @@ interface MyBindings {
   DISCORD_TOKEN: string;
   DATABASE: D1Database;
   CACHE: KVNamespace;
+  IS_CF_WORKER: "true";
 }
 
 // Create custom environment and context types
@@ -288,7 +312,7 @@ type MyContext = BaseInteractionContext<MyBindings>;
 const app = new Hono<MyEnv>();
 
 // Initialize bot
-const bot = new Honocord(process.env.DISCORD_TOKEN);
+const bot = new Honocord();
 
 // Create command with type-safe environment access
 const pingCommand = new SlashCommandHandler().setName("ping").setDescription("Ping the bot");
@@ -409,7 +433,7 @@ Main class for handling Discord interactions.
 
 **Constructor:**
 
-- `new Honocord(discordToken: string)` - Creates a new instance
+- `new Honocord(options?: HonocordOptions)` - Creates a new instance
 
 **Methods:**
 
