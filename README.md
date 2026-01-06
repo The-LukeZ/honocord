@@ -21,8 +21,10 @@ A Discord interaction handler library for [Hono](https://hono.dev/), designed to
 ## Installation
 
 ```bash
-pnpm install honocord @discordjs/core @discordjs/builders @discordjs/rest discord-api-types
+pnpm add honocord@latest
 ```
+
+The most important stuff from the dependencies is already exported through honocord itselfy but if you need more from `discord-api-types` for example, you should install it yourself as well.
 
 ## Quick Start
 
