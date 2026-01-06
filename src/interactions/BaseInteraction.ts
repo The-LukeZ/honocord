@@ -1,13 +1,9 @@
 import {
   type APIInteractionResponseCallbackData,
   type Snowflake,
-  APIApplicationCommandAutocompleteInteraction,
-  APIApplicationCommandInteraction,
-  APIChatInputApplicationCommandInteraction,
   APIInteraction,
   APIMessageApplicationCommandInteraction,
   APIMessageComponentInteraction,
-  APIModalSubmitInteraction,
   APIPartialInteractionGuild,
   APIUser,
   ComponentType,
@@ -20,19 +16,19 @@ import { ChatInputCommandInteraction } from "./ChatInputInteraction";
 import { ModalInteraction } from "./ModalInteraction";
 import type { BaseInteractionContext } from "../types";
 
-abstract class BaseInteraction<Type extends InteractionType> {
+abstract class BaseInteraction<Type extends InteractionType, Context extends BaseInteractionContext = BaseInteractionContext> {
   public readonly type: Type;
   protected readonly data: Extract<APIInteraction, { type: Type }>;
   public readonly rest: REST;
   protected _ephemeral: boolean | null = null;
   protected replied: boolean = false;
   protected deferred: boolean = false;
-  public readonly context: BaseInteractionContext;
+  public readonly context: Context;
 
   constructor(
     protected api: API,
     data: typeof this.data,
-    context: BaseInteractionContext
+    context: Context
   ) {
     this.type = data.type as Type;
     this.data = data;

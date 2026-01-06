@@ -10,12 +10,15 @@ import { ModalComponentResolver } from "@resolvers/ModalComponentResolver";
 import { BaseInteraction } from "./BaseInteraction";
 import { BaseInteractionContext } from "../types";
 
-class ModalInteraction extends BaseInteraction<InteractionType.ModalSubmit> {
+class ModalInteraction<Context extends BaseInteractionContext = BaseInteractionContext> extends BaseInteraction<
+  InteractionType.ModalSubmit,
+  Context
+> {
   public readonly fields: ModalComponentResolver;
   public readonly message?: APIMessage;
   public readonly custom_id: string;
 
-  constructor(api: API, interaction: APIModalSubmitInteraction, c: BaseInteractionContext) {
+  constructor(api: API, interaction: APIModalSubmitInteraction, c: Context) {
     super(api, interaction, c);
     this.custom_id = interaction.data.custom_id;
     this.fields = new ModalComponentResolver(

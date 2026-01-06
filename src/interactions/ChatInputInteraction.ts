@@ -9,10 +9,12 @@ import { API } from "@discordjs/core/http-only";
 import { BaseInteraction } from "./BaseInteraction";
 import { BaseInteractionContext } from "../types";
 
-class ChatInputCommandInteraction extends BaseInteraction<InteractionType.ApplicationCommand> {
+class ChatInputCommandInteraction<
+  Context extends BaseInteractionContext = BaseInteractionContext,
+> extends BaseInteraction<InteractionType.ApplicationCommand> {
   public readonly options: CommandInteractionOptionResolver;
 
-  constructor(api: API, interaction: APIChatInputApplicationCommandInteraction, c: BaseInteractionContext) {
+  constructor(api: API, interaction: APIChatInputApplicationCommandInteraction, c: Context) {
     super(api, interaction, c);
     this.options = new CommandInteractionOptionResolver(interaction.data.options, interaction.data.resolved);
   }

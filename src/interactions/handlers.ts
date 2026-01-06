@@ -19,15 +19,15 @@ import type {
 import { MessageCommandInteraction } from "./MessageContextCommandInteraction";
 import { UserCommandInteraction } from "./UserContextCommandInteraction";
 import { parseCustomId } from "@utils/index";
-import { ContextCommandType, MessageComponentType } from "../types";
+import { BaseInteractionContext, ContextCommandType, MessageComponentType } from "../types";
 
 /**
  * Handler for chat input commands with optional autocomplete support
  */
-export class SlashCommandHandler extends SlashCommandBuilder {
+export class SlashCommandHandler<Context extends BaseInteractionContext = BaseInteractionContext> extends SlashCommandBuilder {
   readonly handlerType = "slash";
-  private handlerFn?: (interaction: ChatInputCommandInteraction) => Promise<void> | void;
-  private autocompleteFn?: (interaction: AutocompleteInteraction) => Promise<void> | void;
+  private handlerFn?: (interaction: ChatInputCommandInteraction<Context>) => Promise<void> | void;
+  private autocompleteFn?: (interaction: AutocompleteInteraction<Context>) => Promise<void> | void;
 
   /**
    * Adds the command handler function.
@@ -35,7 +35,9 @@ export class SlashCommandHandler extends SlashCommandBuilder {
    * @param handler The function to handle the command interaction
    * @returns The current SlashCommandHandler instance
    */
-  public addHandler(handler: (interaction: ChatInputCommandInteraction) => Promise<void> | void): SlashCommandHandler {
+  public addHandler(
+    handler: (interaction: ChatInputCommandInteraction<Context>) => Promise<void> | void
+  ): SlashCommandHandler<Context> {
     this.handlerFn = handler;
     return this;
   }
@@ -46,7 +48,9 @@ export class SlashCommandHandler extends SlashCommandBuilder {
    * @param handler The function to handle the autocomplete interaction
    * @returns The current SlashCommandHandler instance
    */
-  public addAutocompleteHandler(handler: (interaction: AutocompleteInteraction) => Promise<void> | void): SlashCommandHandler {
+  public addAutocompleteHandler(
+    handler: (interaction: AutocompleteInteraction<Context>) => Promise<void> | void
+  ): SlashCommandHandler<Context> {
     this.autocompleteFn = handler;
     return this;
   }
@@ -54,7 +58,7 @@ export class SlashCommandHandler extends SlashCommandBuilder {
   /**
    * Executes the command handler
    */
-  async execute(interaction: ChatInputCommandInteraction): Promise<void> {
+  async execute(interaction: ChatInputCommandInteraction<Context>): Promise<void> {
     if (!this.handlerFn) {
       throw new Error(`Command "${this.name}" does not have a handler`);
     }
@@ -64,7 +68,7 @@ export class SlashCommandHandler extends SlashCommandBuilder {
   /**
    * Executes the autocomplete handler if it exists
    */
-  async executeAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
+  async executeAutocomplete(interaction: AutocompleteInteraction<Context>): Promise<void> {
     if (this.autocompleteFn == undefined) {
       throw new Error(`Command "${this.name}" does not have an autocomplete handler`);
     }
@@ -143,12 +147,15 @@ export class SlashCommandHandler extends SlashCommandBuilder {
 
 export class ContextCommandHandler<
   T extends ContextCommandType = ContextCommandType,
-  InteractionData = T extends ContextCommandType.User ? UserCommandInteraction : MessageCommandInteraction,
+  Context extends BaseInteractionContext = BaseInteractionContext,
+  InteractionData = T extends ContextCommandType.User ? UserCommandInteraction<Context> : MessageCommandInteraction<Context>,
 > extends ContextMenuCommandBuilder {
   readonly handlerType = "context";
   private handlerFn?: (interaction: InteractionData) => Promise<void> | void;
 
-  public addHandler(handler: (interaction: InteractionData) => Promise<void> | void): ContextCommandHandler<T, InteractionData> {
+  public addHandler(
+    handler: (interaction: InteractionData) => Promise<void> | void
+  ): ContextCommandHandler<T, Context, InteractionData> {
     this.handlerFn = handler;
     return this;
   }
@@ -167,12 +174,15 @@ export class ContextCommandHandler<
 /**
  * Handler for message components (buttons, select menus) based on custom ID prefix
  */
-export class ComponentHandler<T extends MessageComponentType = MessageComponentType> {
+export class ComponentHandler<
+  T extends MessageComponentType = MessageComponentType,
+  Context extends BaseInteractionContext = BaseInteractionContext,
+> {
   readonly handlerType = "component";
   public readonly prefix: string;
-  private handlerFn?: (interaction: MessageComponentInteraction<T>) => Promise<void> | void;
+  private handlerFn?: (interaction: MessageComponentInteraction<T, Context>) => Promise<void> | void;
 
-  constructor(prefix: string, handler?: (interaction: MessageComponentInteraction<T>) => Promise<void> | void) {
+  constructor(prefix: string, handler?: (interaction: MessageComponentInteraction<T, Context>) => Promise<void> | void) {
     if (!prefix || typeof prefix !== "string") {
       throw new TypeError("Component handler prefix must be a non-empty string");
     }
@@ -181,7 +191,9 @@ export class ComponentHandler<T extends MessageComponentType = MessageComponentT
     if (handler) this.handlerFn = handler;
   }
 
-  addHandler(handler: (interaction: MessageComponentInteraction<T>) => Promise<void> | void): ComponentHandler<T> {
+  addHandler(
+    handler: (interaction: MessageComponentInteraction<T, Context>) => Promise<void> | void
+  ): ComponentHandler<T, Context> {
     this.handlerFn = handler;
     return this;
   }
@@ -189,7 +201,7 @@ export class ComponentHandler<T extends MessageComponentType = MessageComponentT
   /**
    * Executes the component handler
    */
-  async execute(interaction: MessageComponentInteraction<T>): Promise<void> {
+  async execute(interaction: MessageComponentInteraction<T, Context>): Promise<void> {
     if (!this.handlerFn) {
       throw new Error(`Component handler with prefix "${this.prefix}" does not have a handler`);
     }
@@ -208,12 +220,12 @@ export class ComponentHandler<T extends MessageComponentType = MessageComponentT
 /**
  * Handler for modal submits based on custom ID prefix
  */
-export class ModalHandler {
+export class ModalHandler<Context extends BaseInteractionContext = BaseInteractionContext> {
   readonly handlerType = "modal";
   public readonly prefix: string;
-  private handlerFn?: (interaction: ModalInteraction) => Promise<void> | void;
+  private handlerFn?: (interaction: ModalInteraction<Context>) => Promise<void> | void;
 
-  constructor(prefix: string, handler?: (interaction: ModalInteraction) => Promise<void> | void) {
+  constructor(prefix: string, handler?: (interaction: ModalInteraction<Context>) => Promise<void> | void) {
     if (!prefix || typeof prefix !== "string") {
       throw new TypeError("Modal handler prefix must be a non-empty string");
     }
@@ -222,7 +234,7 @@ export class ModalHandler {
     if (handler) this.handlerFn = handler;
   }
 
-  addHandler(handler: (interaction: ModalInteraction) => Promise<void> | void): ModalHandler {
+  addHandler(handler: (interaction: ModalInteraction<Context>) => Promise<void> | void): ModalHandler<Context> {
     this.handlerFn = handler;
     return this;
   }
@@ -230,7 +242,7 @@ export class ModalHandler {
   /**
    * Executes the modal handler
    */
-  async execute(interaction: ModalInteraction): Promise<void> {
+  async execute(interaction: ModalInteraction<Context>): Promise<void> {
     if (!this.handlerFn) {
       throw new Error(`Modal handler with prefix "${this.prefix}" does not have a handler`);
     }

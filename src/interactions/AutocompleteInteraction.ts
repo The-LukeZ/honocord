@@ -9,11 +9,14 @@ import { API } from "@discordjs/core/http-only";
 import { BaseInteraction } from "./BaseInteraction";
 import { BaseInteractionContext } from "../types";
 
-class AutocompleteInteraction extends BaseInteraction<InteractionType.ApplicationCommandAutocomplete> {
+class AutocompleteInteraction<Context extends BaseInteractionContext = BaseInteractionContext> extends BaseInteraction<
+  InteractionType.ApplicationCommandAutocomplete,
+  Context
+> {
   public readonly options: CommandInteractionOptionResolver;
   public responded = false;
 
-  constructor(api: API, interaction: APIApplicationCommandAutocompleteInteraction, c: BaseInteractionContext) {
+  constructor(api: API, interaction: APIApplicationCommandAutocompleteInteraction, c: Context) {
     super(api, interaction, c);
     this.options = new CommandInteractionOptionResolver(interaction.data.options, interaction.data.resolved);
   }

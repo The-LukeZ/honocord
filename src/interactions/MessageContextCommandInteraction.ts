@@ -9,10 +9,13 @@ import { API } from "@discordjs/core/http-only";
 import { BaseInteraction } from "./BaseInteraction";
 import { BaseInteractionContext } from "../types";
 
-class MessageCommandInteraction extends BaseInteraction<InteractionType.ApplicationCommand> {
+class MessageCommandInteraction<Context extends BaseInteractionContext = BaseInteractionContext> extends BaseInteraction<
+  InteractionType.ApplicationCommand,
+  Context
+> {
   public readonly targetMessage: APIMessage;
 
-  constructor(api: API, interaction: APIMessageApplicationCommandInteraction, c: BaseInteractionContext) {
+  constructor(api: API, interaction: APIMessageApplicationCommandInteraction, c: Context) {
     super(api, interaction, c);
     this.targetMessage = interaction.data.resolved.messages[interaction.data.target_id];
   }

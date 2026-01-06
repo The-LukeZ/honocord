@@ -6,10 +6,11 @@ import type { BaseInteractionContext, MessageComponentInteractionPayload, Messag
 
 class MessageComponentInteraction<
   T extends MessageComponentType = MessageComponentType,
-> extends BaseInteraction<InteractionType.MessageComponent> {
+  Context extends BaseInteractionContext = BaseInteractionContext,
+> extends BaseInteraction<InteractionType.MessageComponent, Context> {
   public readonly message?: APIMessage;
   public readonly custom_id: string;
-  constructor(api: API, interaction: MessageComponentInteractionPayload<T>, c: BaseInteractionContext) {
+  constructor(api: API, interaction: MessageComponentInteractionPayload<T>, c: Context) {
     super(api, interaction, c);
     this.custom_id = interaction.data.custom_id;
 

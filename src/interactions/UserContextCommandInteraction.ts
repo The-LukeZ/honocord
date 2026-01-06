@@ -9,10 +9,13 @@ import { API } from "@discordjs/core/http-only";
 import { BaseInteraction } from "./BaseInteraction";
 import { BaseInteractionContext } from "../types";
 
-class UserCommandInteraction extends BaseInteraction<InteractionType.ApplicationCommand> {
+class UserCommandInteraction<Context extends BaseInteractionContext = BaseInteractionContext> extends BaseInteraction<
+  InteractionType.ApplicationCommand,
+  Context
+> {
   public readonly targetUser: APIUser;
 
-  constructor(api: API, interaction: APIUserApplicationCommandInteraction, c: BaseInteractionContext) {
+  constructor(api: API, interaction: APIUserApplicationCommandInteraction, c: Context) {
     super(api, interaction, c);
     this.targetUser = interaction.data.resolved.users[interaction.data.target_id];
   }
