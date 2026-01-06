@@ -208,13 +208,17 @@ const modal = new ModalBuilder()
   .setCustomId("feedback/feature") // prefix: "feedback"
   .setTitle("Feature Feedback");
 
-const input = new TextInputBuilder()
-  .setCustomId("feedback_text")
+// ActionRows in modals are deprecated and should not be used because Honocord doesn't process them!
+const input = new LabelBuilder()
   .setLabel("What would you like to see?")
-  .setStyle(TextInputStyle.Paragraph)
-  .setRequired(true);
+  .setTextInputComponent(
+    new TextInputBuilder()
+    .setCustomId("feedback_text")
+    .setStyle(TextInputStyle.Paragraph)
+    .setRequired(true)
+  );
 
-modal.addComponents(new ActionRowBuilder().addComponents(input));
+modal.addLabelComponents(input);
 
 // Handler for all modals with the "feedback" prefix
 const feedbackHandler = new ModalHandler("feedback", async (interaction) => {
