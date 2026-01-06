@@ -54,6 +54,8 @@ export {
   FileUploadBuilder,
   SelectMenuOptionBuilder,
   ThumbnailBuilder,
+  SlashCommandSubcommandBuilder,
+  SlashCommandSubcommandGroupBuilder,
   // Want more? Install the package yourself then.
 } from "@discordjs/builders";
 export type { REST } from "@discordjs/rest";

@@ -229,12 +229,12 @@ export class Honocord {
    * @example
    * ```typescript
    * import { Hono } from "hono";
-   * import { HonoCord } from "honocord";
+   * import { Honocord } from "honocord";
    *
    * const app = new Hono();
    * const bot = new Honocord();
    *
-   * app.get("/", (c) => c.text("🔥 HonoCord is running!"));
+   * app.get("/", (c) => c.text("🔥 Honocord is running!"));
    * app.post("/interactions", bot.handle);
    *
    * export default app;
@@ -297,7 +297,7 @@ export class Honocord {
    */
   getApp() {
     const app = new Hono<{ Variables: BaseVariables }>();
-    app.get("*", (c) => c.text("🔥 HonoCord is running!"));
+    app.get("*", (c) => c.text("🔥 Honocord is running!"));
     app.post("/", this.handle);
     return app;
   }
