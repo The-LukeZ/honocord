@@ -5,6 +5,3 @@ node_modules/
 dist/
 build/
 .DS_Store
-
-# maybe later
-src/test/
