@@ -1,3 +1,5 @@
+import { ComponentType } from "discord-api-types/v10";
+
 export { Honocord } from "./Honocord";
 
 export { BaseInteraction } from "@ctx/BaseInteraction";
@@ -50,4 +52,4 @@ export type { REST } from "@discordjs/rest";
 export type { API } from "@discordjs/core/http-only";
 export { Collection, type ReadonlyCollection } from "@discordjs/collection";
 
-export type { BaseHonocordEnv, BaseVariables, BaseInteractionContext } from "./types";
+export type * from "./types";
