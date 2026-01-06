@@ -217,9 +217,6 @@ export class ModalHandler {
     if (!prefix || typeof prefix !== "string") {
       throw new TypeError("Modal handler prefix must be a non-empty string");
     }
-    if (typeof handler !== "function") {
-      throw new TypeError("Modal handler must be a function");
-    }
 
     this.prefix = prefix;
     if (handler) this.handlerFn = handler;
