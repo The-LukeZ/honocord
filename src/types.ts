@@ -221,3 +221,5 @@ export enum ContextCommandType {
 }
 
 export type BufferSource = ArrayBufferView | ArrayBuffer;
+
+export type FlatOrNestedArray<T> = T[] | T[][];

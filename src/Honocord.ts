@@ -17,6 +17,7 @@ import type {
   ValidInteraction,
   MessageComponentInteractionPayload,
   MessageComponentType,
+  FlatOrNestedArray,
 } from "./types";
 import { UserCommandInteraction } from "@ctx/UserContextCommandInteraction";
 import { MessageCommandInteraction } from "@ctx/MessageContextCommandInteraction";
@@ -59,53 +60,12 @@ export class Honocord {
    *
    * @param handlers - Array of CommandHandler, ComponentHandler, or ModalHandler instances
    *
-   * @example
-   * ```typescript
-   * import { HonoCord, CommandHandler, ComponentHandler, ModalHandler, HonocordSlashCommandBuilder } from "honocord";
-   *
-   * const honoCord = new Honocord();
-   *
-   * // Command handler with autocomplete
-   * const searchCommand = new HonocordSlashCommandBuilder()
-   *   .setName("search")
-   *   .setDescription("Search for something")
-   *   .addStringOption(option =>
-   *     option.setName("query")
-   *       .setDescription("Search query")
-   *       .setAutocomplete(true)
-   *   )
-   *   .handler(async (interaction) => {
-   *     const query = interaction.options.getString("query", true);
-   *     await interaction.reply(`Searching for: ${query}`);
-   *   })
-   *   .autocomplete(async (interaction) => {
-   *     const focused = interaction.options.getFocused();
-   *     await interaction.respond([
-   *       { name: "Option 1", value: "opt1" },
-   *       { name: "Option 2", value: "opt2" }
-   *     ]);
-   *   });
-   *
-   * // Component handler (for buttons, select menus with custom_id prefix)
-   * const buttonHandler = new ComponentHandler("mybutton", async (interaction) => {
-   *   await interaction.reply("Button clicked!");
-   * });
-   *
-   * // Modal handler (for modals with custom_id prefix)
-   * const modalHandler = new ModalHandler("mymodal", async (interaction) => {
-   *   const value = interaction.fields.getTextInputValue("field_id");
-   *   await interaction.reply(`You submitted: ${value}`);
-   * });
-   *
-   * honoCord.loadHandlers(
-   *   new CommandHandler(searchCommand),
-   *   buttonHandler,
-   *   modalHandler
-   * );
-   * ```
+   * For an example of usage, see the [Example Repository](https://github.com/The-LukeZ/honocord-examples).
    */
-  loadHandlers(...handlers: Handler[]): void {
-    for (const handler of handlers) {
+  loadHandlers(...handlers: FlatOrNestedArray<Handler>): void {
+    const flattenedHandlers = handlers.flat(Infinity) as Handler[];
+
+    for (const handler of flattenedHandlers) {
       if (handler instanceof SlashCommandHandler || handler instanceof ContextCommandHandler) {
         if (this.commandHandlers.has(handler.name)) {
           console.warn(`Command handler for "${handler.name}" already exists. Overwriting.`);
@@ -270,17 +230,16 @@ export class Honocord {
   /**
    * Returns a Hono handler for POST Requests handling Discord interactions.
    *
-   * It is important, that
-   *
    * @example
    * ```typescript
    * import { Hono } from "hono";
    * import { HonoCord } from "honocord";
    *
    * const app = new Hono();
-   * const honoCord = new Honocord();
+   * const bot = new Honocord();
    *
-   * app.post("/interactions", honoCord.handle);
+   * app.get("/", (c) => c.text("🔥 HonoCord is running!"));
+   * app.post("/interactions", bot.handle);
    *
    * export default app;
    * ```

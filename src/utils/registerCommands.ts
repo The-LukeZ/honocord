@@ -1,13 +1,20 @@
 import { Handler } from "@ctx/handlers";
 import { API } from "@discordjs/core/http-only";
 import { REST } from "@discordjs/rest";
+import { FlatOrNestedArray } from "../types";
 
-export async function registerCommands(token: string | undefined, applicationId: string | undefined, ...handlers: Handler[]) {
-  const commands = handlers
+export async function registerCommands(
+  token: string | undefined,
+  applicationId: string | undefined,
+  ...handlers: FlatOrNestedArray<Handler>
+) {
+  const flatCommands = handlers.flat(Infinity) as Handler[];
+  const commands = flatCommands
     .map((handler) => {
       if (handler.handlerType === "slash" || handler.handlerType === "context") {
         return handler.toJSON();
       }
+      return undefined;
     })
     .filter((cmd) => cmd !== undefined);
 
@@ -19,9 +26,9 @@ export async function registerCommands(token: string | undefined, applicationId:
   const api = new API(new REST({ version: "10" }).setToken(token));
   try {
     await api.applicationCommands.bulkOverwriteGlobalCommands(applicationId, commands);
-    console.log("✅ Successfully registered commands.");
+    console.log("---- ✅ Successfully registered global commands ----");
   } catch (error) {
-    console.error("❌ Error registering commands");
+    console.error("---- ❌ Error registering global commands ----");
     throw error;
   }
 }
