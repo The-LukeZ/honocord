@@ -250,24 +250,26 @@ HonoCord is written in TypeScript and provides full type safety.
 ### Custom Environment Types
 
 ```typescript
+// src/types.ts
 import type { BaseHonocordEnv, BaseInteractionContext } from "honocord";
 
-// Define your custom environment
-interface MyEnv {
-  DISCORD_TOKEN: string;
-  DISCORD_PUBLIC_KEY: string;
-  DATABASE_URL: string;
-}
+type MyEnv = {
+  MY_VARIABLE: string;
+};
 
-// Create a custom context type
-type MyContext = BaseInteractionContext<MyEnv>;
+export type HonoEnv = BaseHonocordEnv<MyEnv>;
+export type MyContext = BaseInteractionContext<MyEnv>;
+
+// src/index.ts
+import type { BaseHonocordEnv, BaseInteractionContext } from "honocord";
+import type { HonoEnv, MyContext } from "./types";
 
 // Use in your handlers
 const command = new SlashCommandHandler()
   .setName("data")
   .setDescription("Fetch data")
   .addHandler(async (interaction: MyContext) => {
-    const dbUrl = interaction.env.DATABASE_URL; // Fully typed!
+    const myVariable = interaction.env.MY_VARIABLE; // Fully typed!
     // ...
   });
 ```
@@ -315,6 +317,8 @@ Main class for handling Discord interactions.
 - `loadHandlers(handlers: Handler[])` - Registers interaction handlers
 - `handle(c: Context)` - Hono handler for processing interactions
 - `getApp()` - Returns a pre-configured Hono app instance
+  - Route: `POST /interactions` - Handles Discord interaction requests
+  - Route: `GET *` - Displays a generic "Is Running" text.
 
 ### `SlashCommandHandler`
 
@@ -329,6 +333,17 @@ Extends `SlashCommandBuilder` from `@discordjs/builders`.
 
 Extends `ContextMenuCommandBuilder` from `@discordjs/builders`.
 
+**Constructor:**
+
+```ts
+new ContextCommandHandler<
+  T extends ContextCommandType = ContextCommandType,
+  InteractionData = T extends ContextCommandType.User ? UserCommandInteraction : MessageCommandInteraction,
+  > ()
+```
+
+`ContextCommandType` is an enum with values `User` and `Message; Derived from ApplicationCommandType, but narrowed down to the two context command types.
+
 **Methods:**
 
 - `addHandler(handler: (interaction: UserCommandInteraction | MessageCommandInteraction) => Promise<void> | void)` - Adds the command execution handler
@@ -339,11 +354,13 @@ Handler for message components.
 
 **Constructor:**
 
-- `new ComponentHandler(prefix: string, handler?: Function)` - Creates a handler for components with the given prefix
+- `new ComponentHandler<T extends MessageComponentType = MessageComponentType>(prefix: string, handler?: Function)` - Creates a handler for components with the given prefix
+
+`MessageComponentType` is a union of `ComponentType` values that represent message components (e.g., Button, StringSelectMenu).
 
 **Methods:**
 
-- `addHandler(handler: (interaction: MessageComponentInteraction) => Promise<void> | void)` - Adds or replaces the component handler function
+- `addHandler(handler: (interaction: MessageComponentInteraction<T>) => Promise<void> | void)` - Adds or replaces the component handler function
 
 ### `ModalHandler`
 
