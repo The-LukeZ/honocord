@@ -41,7 +41,6 @@
     "@discordjs/core": "^2.4.0",
     "@discordjs/rest": "^2.6.0",
     "discord-api-types": "^0.38.37",
-    "discord-interactions": "^4.4.0",
     "hono": "^4.11.3"
   },
   "devDependencies": {
