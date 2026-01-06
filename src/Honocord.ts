@@ -20,17 +20,12 @@ import { AutocompleteInteraction } from "@ctx/AutocompleteInteraction";
 import { SlashCommandHandler, ContextCommandHandler, ComponentHandler, ModalHandler, type Handler } from "@ctx/handlers";
 
 export class Honocord {
-  private api: API;
   private commandHandlers: Map<string, SlashCommandHandler | ContextCommandHandler> = new Map();
   private componentHandlers: ComponentHandler[] = [];
   private modalHandlers: ModalHandler[] = [];
   private isCFWorker: boolean;
 
-  constructor(discordToken?: string, isCFWorker?: boolean) {
-    if (!discordToken) {
-      throw new TypeError("A Discord token must be provided to InteractionHandler");
-    }
-    this.api = new API(new REST({ authPrefix: "Bot" }).setToken(discordToken));
+  constructor(isCFWorker?: boolean) {
     this.isCFWorker = isCFWorker ?? false;
   }
 
@@ -111,14 +106,14 @@ export class Honocord {
     }
   }
 
-  private createCommandInteraction(ctx: BaseInteractionContext, interaction: APIApplicationCommandInteraction) {
+  private createCommandInteraction(ctx: BaseInteractionContext, interaction: APIApplicationCommandInteraction, api: API) {
     switch (interaction.data.type) {
       case ApplicationCommandType.ChatInput:
-        return new ChatInputCommandInteraction(this.api, interaction as any, ctx);
+        return new ChatInputCommandInteraction(api, interaction as any, ctx);
       case ApplicationCommandType.User:
-        return new UserCommandInteraction(this.api, interaction as any, ctx);
+        return new UserCommandInteraction(api, interaction as any, ctx);
       case ApplicationCommandType.Message:
-        return new MessageCommandInteraction(this.api, interaction as any, ctx);
+        return new MessageCommandInteraction(api, interaction as any, ctx);
       default:
         throw new Error(
           `Unsupported application command type: ${interaction.data.type} (${ApplicationCommandType[interaction.data.type]})`
@@ -126,8 +121,8 @@ export class Honocord {
     }
   }
 
-  private async handleCommandInteraction(ctx: BaseInteractionContext, interaction: APIApplicationCommandInteraction) {
-    const interactionObj = this.createCommandInteraction(ctx, interaction);
+  private async handleCommandInteraction(ctx: BaseInteractionContext, interaction: APIApplicationCommandInteraction, api: API) {
+    const interactionObj = this.createCommandInteraction(ctx, interaction, api);
     const commandName = interaction.data.name;
     const handler = this.commandHandlers.get(commandName);
 
@@ -153,9 +148,10 @@ export class Honocord {
 
   private async handleAutocompleteInteraction(
     ctx: BaseInteractionContext,
-    interaction: APIApplicationCommandAutocompleteInteraction
+    interaction: APIApplicationCommandAutocompleteInteraction,
+    api: API
   ) {
-    const interactionObj = new AutocompleteInteraction(this.api, interaction, ctx);
+    const interactionObj = new AutocompleteInteraction(api, interaction, ctx);
     const commandName = interaction.data.name;
     const handler = this.commandHandlers.get(commandName);
 
@@ -173,9 +169,10 @@ export class Honocord {
 
   private async handleComponentInteraction(
     ctx: BaseInteractionContext,
-    interaction: Extract<ValidInteraction, { type: InteractionType.MessageComponent }>
+    interaction: Extract<ValidInteraction, { type: InteractionType.MessageComponent }>,
+    api: API
   ) {
-    const interactionObj = new MessageComponentInteraction(this.api, interaction, ctx);
+    const interactionObj = new MessageComponentInteraction(api, interaction, ctx);
     const customId = interaction.data.custom_id;
     const prefix = parseCustomId(customId, true);
 
@@ -196,9 +193,10 @@ export class Honocord {
 
   private async handleModalInteraction(
     ctx: BaseInteractionContext,
-    interaction: Extract<ValidInteraction, { type: InteractionType.ModalSubmit }>
+    interaction: Extract<ValidInteraction, { type: InteractionType.ModalSubmit }>,
+    api: API
   ) {
-    const interactionObj = new ModalInteraction(this.api, interaction, ctx);
+    const interactionObj = new ModalInteraction(api, interaction, ctx);
     const customId = interaction.data.custom_id;
     const prefix = parseCustomId(customId, true);
 
@@ -218,15 +216,17 @@ export class Honocord {
   }
 
   private async createInteraction(ctx: BaseInteractionContext, interaction: ValidInteraction) {
+    const api = new API(new REST({ authPrefix: "Bot" }).setToken(ctx.env.DISCORD_TOKEN as string));
+
     switch (interaction.type) {
       case InteractionType.ApplicationCommand:
-        return await this.handleCommandInteraction(ctx, interaction);
+        return await this.handleCommandInteraction(ctx, interaction, api);
       case InteractionType.MessageComponent:
-        return await this.handleComponentInteraction(ctx, interaction);
+        return await this.handleComponentInteraction(ctx, interaction, api);
       case InteractionType.ModalSubmit:
-        return await this.handleModalInteraction(ctx, interaction);
+        return await this.handleModalInteraction(ctx, interaction, api);
       case InteractionType.ApplicationCommandAutocomplete:
-        return await this.handleAutocompleteInteraction(ctx, interaction);
+        return await this.handleAutocompleteInteraction(ctx, interaction, api);
       default:
         throw new Error(`Unknown interaction type: ${(interaction as any).type} (${InteractionType[(interaction as any).type]})`);
     }
