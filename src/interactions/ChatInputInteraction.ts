@@ -11,7 +11,7 @@ import { BaseInteractionContext } from "../types";
 
 class ChatInputCommandInteraction<
   Context extends BaseInteractionContext = BaseInteractionContext,
-> extends BaseInteraction<InteractionType.ApplicationCommand> {
+> extends BaseInteraction<InteractionType.ApplicationCommand, Context> {
   public readonly options: CommandInteractionOptionResolver;
 
   constructor(api: API, interaction: APIChatInputApplicationCommandInteraction, c: Context) {
