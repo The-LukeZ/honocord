@@ -35,9 +35,9 @@ const bot = new Honocord();
 const pingCommand = new SlashCommandHandler().setName("ping").setDescription("Replies with Pong!");
 
 // Add handler to the command
-pingCommand.handler = async (interaction) => {
+pingCommand.addHandler(async (interaction) => {
   await interaction.reply("Pong! 🏓");
-};
+});
 
 // Register handlers
 bot.loadHandlers(pingCommand);
@@ -124,11 +124,11 @@ const searchCommand = new SlashCommandHandler()
   .addStringOption((option) =>
     option.setName("query").setDescription("What to search for").setRequired(true).setAutocomplete(true)
   )
-  .handler(async (interaction) => {
+  .addHandler(async (interaction) => {
     const query = interaction.options.getString("query", true);
     await interaction.reply(`Searching for: ${query}`);
   })
-  .autocomplete(async (interaction) => {
+  .addAutocompleteHandler(async (interaction) => {
     const focusedValue = interaction.options.getFocused();
     const choices = ["apple", "banana", "cherry", "dragon fruit", "elderberry"]
       .filter((choice) => choice.startsWith(focusedValue.toLowerCase()))
@@ -151,18 +151,18 @@ import { ApplicationCommandType } from "discord-api-types/v10";
 // User context command
 const userInfoCommand = new ContextCommandHandler().setName("User Info").setType(ApplicationCommandType.User);
 
-userInfoCommand.handler = async (interaction) => {
+userInfoCommand.addHandler(async (interaction) => {
   const user = interaction.targetUser;
   await interaction.reply(`User: ${user.username} (${user.id})`);
-};
+});
 
 // Message context command
 const translateCommand = new ContextCommandHandler().setName("Translate").setType(ApplicationCommandType.Message);
 
-translateCommand.handler = async (interaction) => {
+translateCommand.addHandler(async (interaction) => {
   const message = interaction.targetMessage;
   await interaction.reply(`Translating: "${message.content}"`);
-};
+});
 
 bot.loadHandlers(userInfoCommand, translateCommand);
 ```
@@ -244,10 +244,10 @@ const greetCommand = new SlashCommandHandler()
   .setDescription("Sends a greeting")
   .addStringOption((option) => option.setName("name").setDescription("Who to greet").setRequired(true));
 
-greetCommand.handler = async (interaction) => {
+greetCommand.addHandler(async (interaction) => {
   const name = interaction.options.getString("name", true);
   await interaction.reply(`Hello, ${name}! 👋`);
-};
+});
 
 // Component handler for buttons
 const confirmHandler = new ComponentHandler("confirm", async (interaction) => {
@@ -317,7 +317,7 @@ const bot = new Honocord();
 // Create command with type-safe environment access
 const pingCommand = new SlashCommandHandler().setName("ping").setDescription("Ping the bot");
 
-pingCommand.handler = async (interaction) => {
+pingCommand.addHandler(async (interaction) => {
   const ctx = interaction.ctx as MyContext;
 
   // Type-safe access to bindings
@@ -325,18 +325,18 @@ pingCommand.handler = async (interaction) => {
   await cache.put("last_ping", new Date().toISOString());
 
   await interaction.reply("Pong! 🏓");
-};
+});
 
 // Create command that queries database
 const statsCommand = new SlashCommandHandler().setName("stats").setDescription("Show bot stats");
 
-statsCommand.handler = async (interaction) => {
+statsCommand.addHandler(async (interaction) => {
   const ctx = interaction.ctx as MyContext;
   const db = ctx.env.DATABASE;
 
   const result = await db.prepare("SELECT COUNT(*) as count FROM users").first();
   await interaction.reply(`Total users: ${result?.count ?? 0}`);
-};
+});
 
 // Component handler
 const approveButton = new ComponentHandler("approve", async (interaction) => {
@@ -392,12 +392,13 @@ interface MyEnv {
 type MyContext = BaseInteractionContext<MyEnv>;
 
 // Use in your handlers
-const command = new SlashCommandHandler().setName("data").setDescription("Fetch data");
-
-command.handler = async (interaction: MyContext) => {
-  const dbUrl = interaction.env.DATABASE_URL; // Fully typed!
-  // ...
-};
+const command = new SlashCommandHandler()
+  .setName("data")
+  .setDescription("Fetch data")
+  .addHandler(async (interaction: MyContext) => {
+    const dbUrl = interaction.env.DATABASE_URL; // Fully typed!
+    // ...
+  });
 ```
 
 ## Registering Commands with Discord
@@ -445,18 +446,18 @@ Main class for handling Discord interactions.
 
 Extends `SlashCommandBuilder` from `@discordjs/builders`.
 
-**Properties:**
+**Methods:**
 
-- `handler: (interaction: ChatInputCommandInteraction) => Promise<void> | void` - Command execution handler
-- `autocomplete?: (interaction: AutocompleteInteraction) => Promise<void> | void` - Optional autocomplete handler
+- `addHandler(handler: (interaction: ChatInputCommandInteraction) => Promise<void> | void)` - Adds the command execution handler
+- `addAutocompleteHandler(handler: (interaction: AutocompleteInteraction) => Promise<void> | void)` - Adds an optional autocomplete handler
 
 ### `ContextCommandHandler`
 
 Extends `ContextMenuCommandBuilder` from `@discordjs/builders`.
 
-**Properties:**
+**Methods:**
 
-- `handler: (interaction: UserCommandInteraction | MessageCommandInteraction) => Promise<void> | void` - Command execution handler
+- `addHandler(handler: (interaction: UserCommandInteraction | MessageCommandInteraction) => Promise<void> | void)` - Adds the command execution handler
 
 ### `ComponentHandler`
 
@@ -464,7 +465,11 @@ Handler for message components.
 
 **Constructor:**
 
-- `new ComponentHandler(prefix: string, handler: Function)` - Creates a handler for components with the given prefix
+- `new ComponentHandler(prefix: string, handler?: Function)` - Creates a handler for components with the given prefix
+
+**Methods:**
+
+- `addHandler(handler: (interaction: MessageComponentInteraction) => Promise<void> | void)` - Adds or replaces the component handler function
 
 ### `ModalHandler`
 
@@ -472,7 +477,11 @@ Handler for modal submissions.
 
 **Constructor:**
 
-- `new ModalHandler(prefix: string, handler: Function)` - Creates a handler for modals with the given prefix
+- `new ModalHandler(prefix: string, handler?: Function)` - Creates a handler for modals with the given prefix
+
+**Methods:**
+
+- `addHandler(handler: (interaction: ModalInteraction) => Promise<void> | void)` - Adds or replaces the modal submit handler function
 
 ### `parseCustomId`
 

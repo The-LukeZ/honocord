@@ -86,12 +86,12 @@ export interface BaseHonocordEnv<
  *   .setName("query")
  *   .setDescription("Query the database");
  *
- * command.handler = async (interaction: MyContext) => {
+ * command.addHandler(async (interaction: MyContext) => {
  *   // Type-safe access to your environment
  *   const db = interaction.env.DATABASE;
  *   const result = await db.prepare("SELECT * FROM users").all();
  *   await interaction.reply(`Found ${result.results.length} users`);
- * };
+ * });
  *
  * bot.loadHandlers([command]);
  * ```
