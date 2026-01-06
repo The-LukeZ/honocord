@@ -1,8 +1,9 @@
+export { Honocord } from "./Honocord";
+
 export { BaseInteraction } from "@ctx/BaseInteraction";
 export { ChatInputCommandInteraction } from "@ctx/ChatInputInteraction";
 export { ModalInteraction } from "@ctx/ModalInteraction";
 export { MessageComponentInteraction } from "@ctx/MessageComponentInteraction";
-export { Honocord } from "@ctx/Honocord";
 
 export { CommandInteractionOptionResolver } from "@resolvers/CommandOptionResolver";
 export { ModalComponentResolver } from "@resolvers/ModalComponentResolver";

@@ -5,19 +5,19 @@ import {
   InteractionResponseType,
   InteractionType,
 } from "discord-api-types/v10";
-import { ChatInputCommandInteraction } from "./ChatInputInteraction";
+import { ChatInputCommandInteraction } from "@ctx/ChatInputInteraction";
 import { API } from "@discordjs/core/http-only";
 import { REST } from "@discordjs/rest";
 import { Hono } from "hono";
 import { verifyDiscordRequest } from "@utils/discordVerify";
 import { parseCustomId } from "@utils/index";
-import type { BaseVariables, BaseInteractionContext, ValidInteraction } from "../types";
-import { UserCommandInteraction } from "./UserContextCommandInteraction";
-import { MessageCommandInteraction } from "./MessageContextCommandInteraction";
-import { MessageComponentInteraction } from "./MessageComponentInteraction";
-import { ModalInteraction } from "./ModalInteraction";
-import { AutocompleteInteraction } from "./AutocompleteInteraction";
-import { SlashCommandHandler, ContextCommandHandler, ComponentHandler, ModalHandler, type Handler } from "./handlers";
+import type { BaseVariables, BaseInteractionContext, ValidInteraction } from "./types";
+import { UserCommandInteraction } from "@ctx/UserContextCommandInteraction";
+import { MessageCommandInteraction } from "@ctx/MessageContextCommandInteraction";
+import { MessageComponentInteraction } from "@ctx/MessageComponentInteraction";
+import { ModalInteraction } from "@ctx/ModalInteraction";
+import { AutocompleteInteraction } from "@ctx/AutocompleteInteraction";
+import { SlashCommandHandler, ContextCommandHandler, ComponentHandler, ModalHandler, type Handler } from "@ctx/handlers";
 
 export class Honocord {
   private api: API;
