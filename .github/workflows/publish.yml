@@ -1,4 +1,4 @@
-name: Publish to npm on Release
+name: Publish to npm on Push (main)
 
 on:
   push:
@@ -23,5 +23,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build --if-present
+      - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm publish
