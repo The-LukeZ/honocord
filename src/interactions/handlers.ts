@@ -3,6 +3,19 @@ import type { AutocompleteInteraction } from "./AutocompleteInteraction";
 import type { MessageComponentInteraction } from "./MessageComponentInteraction";
 import type { ModalInteraction } from "./ModalInteraction";
 import { ContextMenuCommandBuilder, SlashCommandBuilder } from "@discordjs/builders";
+import type {
+  SlashCommandBooleanOption,
+  SlashCommandUserOption,
+  SlashCommandChannelOption,
+  SlashCommandRoleOption,
+  SlashCommandAttachmentOption,
+  SlashCommandMentionableOption,
+  SlashCommandStringOption,
+  SlashCommandIntegerOption,
+  SlashCommandNumberOption,
+  SlashCommandSubcommandBuilder,
+  SlashCommandSubcommandGroupBuilder,
+} from "@discordjs/builders";
 import { ApplicationCommandType } from "discord-api-types/v10";
 import { MessageCommandInteraction } from "./MessageContextCommandInteraction";
 import { UserCommandInteraction } from "./UserContextCommandInteraction";
@@ -55,6 +68,75 @@ export class SlashCommandHandler extends SlashCommandBuilder {
       throw new Error(`Command "${this.name}" does not have an autocomplete handler`);
     }
     await this.autocompleteFn(interaction);
+  }
+
+  /**
+   * Override option/subcommand adders so they return `this` (the handler),
+   * preserving chaining when options/subcommands are added.
+   */
+  addBooleanOption(input: SlashCommandBooleanOption | ((builder: SlashCommandBooleanOption) => SlashCommandBooleanOption)): this {
+    super.addBooleanOption(input);
+    return this;
+  }
+
+  addUserOption(input: SlashCommandUserOption | ((builder: SlashCommandUserOption) => SlashCommandUserOption)): this {
+    super.addUserOption(input);
+    return this;
+  }
+
+  addChannelOption(input: SlashCommandChannelOption | ((builder: SlashCommandChannelOption) => SlashCommandChannelOption)): this {
+    super.addChannelOption(input);
+    return this;
+  }
+
+  addRoleOption(input: SlashCommandRoleOption | ((builder: SlashCommandRoleOption) => SlashCommandRoleOption)): this {
+    super.addRoleOption(input);
+    return this;
+  }
+
+  addAttachmentOption(
+    input: SlashCommandAttachmentOption | ((builder: SlashCommandAttachmentOption) => SlashCommandAttachmentOption)
+  ): this {
+    super.addAttachmentOption(input);
+    return this;
+  }
+
+  addMentionableOption(
+    input: SlashCommandMentionableOption | ((builder: SlashCommandMentionableOption) => SlashCommandMentionableOption)
+  ): this {
+    super.addMentionableOption(input);
+    return this;
+  }
+
+  addStringOption(input: SlashCommandStringOption | ((builder: SlashCommandStringOption) => SlashCommandStringOption)): this {
+    super.addStringOption(input);
+    return this;
+  }
+
+  addIntegerOption(input: SlashCommandIntegerOption | ((builder: SlashCommandIntegerOption) => SlashCommandIntegerOption)): this {
+    super.addIntegerOption(input);
+    return this;
+  }
+
+  addNumberOption(input: SlashCommandNumberOption | ((builder: SlashCommandNumberOption) => SlashCommandNumberOption)): this {
+    super.addNumberOption(input);
+    return this;
+  }
+
+  addSubcommand(
+    input: SlashCommandSubcommandBuilder | ((sub: SlashCommandSubcommandBuilder) => SlashCommandSubcommandBuilder)
+  ): this {
+    super.addSubcommand(input);
+    return this;
+  }
+
+  addSubcommandGroup(
+    input:
+      | SlashCommandSubcommandGroupBuilder
+      | ((group: SlashCommandSubcommandGroupBuilder) => SlashCommandSubcommandGroupBuilder)
+  ): this {
+    super.addSubcommandGroup(input);
+    return this;
   }
 }
 
