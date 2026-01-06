@@ -20,6 +20,7 @@ import { ApplicationCommandType } from "discord-api-types/v10";
 import { MessageCommandInteraction } from "./MessageContextCommandInteraction";
 import { UserCommandInteraction } from "./UserContextCommandInteraction";
 import { parseCustomId } from "@utils/index";
+import { MessageComponentInteractionPayload, MessageComponentType } from "../types";
 
 /**
  * Handler for chat input commands with optional autocomplete support
@@ -167,12 +168,12 @@ export class ContextCommandHandler<
 /**
  * Handler for message components (buttons, select menus) based on custom ID prefix
  */
-export class ComponentHandler {
+export class ComponentHandler<T extends MessageComponentType = MessageComponentType> {
   readonly handlerType = "component";
   public readonly prefix: string;
-  private handlerFn?: (interaction: MessageComponentInteraction) => Promise<void> | void;
+  private handlerFn?: (interaction: MessageComponentInteraction<T>) => Promise<void> | void;
 
-  constructor(prefix: string, handler?: (interaction: MessageComponentInteraction) => Promise<void> | void) {
+  constructor(prefix: string, handler?: (interaction: MessageComponentInteraction<T>) => Promise<void> | void) {
     if (!prefix || typeof prefix !== "string") {
       throw new TypeError("Component handler prefix must be a non-empty string");
     }
@@ -181,7 +182,7 @@ export class ComponentHandler {
     if (handler) this.handlerFn = handler;
   }
 
-  addHandler(handler: (interaction: MessageComponentInteraction) => Promise<void> | void): ComponentHandler {
+  addHandler(handler: (interaction: MessageComponentInteraction<T>) => Promise<void> | void): ComponentHandler<T> {
     this.handlerFn = handler;
     return this;
   }
@@ -189,7 +190,7 @@ export class ComponentHandler {
   /**
    * Executes the component handler
    */
-  async execute(interaction: MessageComponentInteraction): Promise<void> {
+  async execute(interaction: MessageComponentInteraction<T>): Promise<void> {
     if (!this.handlerFn) {
       throw new Error(`Component handler with prefix "${this.prefix}" does not have a handler`);
     }

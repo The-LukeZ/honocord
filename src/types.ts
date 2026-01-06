@@ -10,9 +10,16 @@ import {
   APIInteraction,
   APIInteractionDataResolvedChannel,
   APIInteractionDataResolvedGuildMember,
+  APIMessageButtonInteractionData,
+  APIMessageChannelSelectInteractionData,
+  APIMessageMentionableSelectInteractionData,
+  APIMessageRoleSelectInteractionData,
+  APIMessageStringSelectInteractionData,
+  APIMessageUserSelectInteractionData,
   APIPingInteraction,
   APIRole,
   APIUser,
+  ComponentType,
   InteractionType,
 } from "discord-api-types/v10";
 import type { Context } from "hono";
@@ -184,3 +191,28 @@ export type InteractionHandlers = {
  * @template T - The specific API interaction type (defaults to any interaction)
  */
 export type InteractionHandlerFunction<T extends APIInteraction = APIInteraction> = (interaction: T) => void | Promise<void>;
+
+export type MessageComponentType =
+  | ComponentType.Button
+  | ComponentType.StringSelect
+  | ComponentType.UserSelect
+  | ComponentType.RoleSelect
+  | ComponentType.MentionableSelect
+  | ComponentType.ChannelSelect;
+
+export type MessageComponentDataTypes = {
+  [ComponentType.Button]: APIMessageButtonInteractionData;
+  [ComponentType.StringSelect]: APIMessageStringSelectInteractionData;
+  [ComponentType.UserSelect]: APIMessageUserSelectInteractionData;
+  [ComponentType.RoleSelect]: APIMessageRoleSelectInteractionData;
+  [ComponentType.MentionableSelect]: APIMessageMentionableSelectInteractionData;
+  [ComponentType.ChannelSelect]: APIMessageChannelSelectInteractionData;
+};
+
+export type MessageComponentInteractionPayload<T extends MessageComponentType = MessageComponentType> = Extract<
+  ValidInteraction,
+  {
+    type: InteractionType.MessageComponent;
+    data: MessageComponentDataTypes[T];
+  }
+>;

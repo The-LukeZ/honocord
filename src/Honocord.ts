@@ -11,7 +11,13 @@ import { REST } from "@discordjs/rest";
 import { Hono } from "hono";
 import { verifyDiscordRequest } from "@utils/discordVerify";
 import { parseCustomId } from "@utils/index";
-import type { BaseVariables, BaseInteractionContext, ValidInteraction } from "./types";
+import type {
+  BaseVariables,
+  BaseInteractionContext,
+  ValidInteraction,
+  MessageComponentInteractionPayload,
+  MessageComponentType,
+} from "./types";
 import { UserCommandInteraction } from "@ctx/UserContextCommandInteraction";
 import { MessageCommandInteraction } from "@ctx/MessageContextCommandInteraction";
 import { MessageComponentInteraction } from "@ctx/MessageComponentInteraction";
@@ -186,18 +192,16 @@ export class Honocord {
     return interactionObj;
   }
 
-  private async handleComponentInteraction(
+  private async handleComponentInteraction<T extends MessageComponentType>(
     ctx: BaseInteractionContext,
-    interaction: Extract<ValidInteraction, { type: InteractionType.MessageComponent }>,
+    interaction: MessageComponentInteractionPayload<T>,
     api: API
   ) {
-    const interactionObj = new MessageComponentInteraction(api, interaction, ctx);
-    const customId = interaction.data.custom_id;
-    const prefix = parseCustomId(customId, true);
+    const interactionObj = new MessageComponentInteraction<T>(api, interaction, ctx);
+    const prefix = parseCustomId(interaction.data.custom_id, true);
 
     // Find matching handler by prefix
-    const handler = this.componentHandlers.find((h) => h.matches(customId));
-
+    const handler = this.componentHandlers.find((h) => h.matches(prefix));
     if (handler) {
       try {
         await handler.execute(interactionObj);

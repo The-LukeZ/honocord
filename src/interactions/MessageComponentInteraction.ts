@@ -1,18 +1,15 @@
-import {
-  APIMessage,
-  APIMessageComponentInteraction,
-  APIModalInteractionResponseCallbackData,
-  InteractionType,
-} from "discord-api-types/v10";
+import { APIMessage, APIModalInteractionResponseCallbackData, InteractionType } from "discord-api-types/v10";
 import { API } from "@discordjs/core/http-only";
 import { BaseInteraction } from "./BaseInteraction";
 import { ModalBuilder } from "@discordjs/builders";
-import type { BaseInteractionContext } from "../types";
+import type { BaseInteractionContext, MessageComponentInteractionPayload, MessageComponentType } from "../types";
 
-class MessageComponentInteraction extends BaseInteraction<InteractionType.MessageComponent> {
+class MessageComponentInteraction<
+  T extends MessageComponentType = MessageComponentType,
+> extends BaseInteraction<InteractionType.MessageComponent> {
   public readonly message?: APIMessage;
   public readonly custom_id: string;
-  constructor(api: API, interaction: APIMessageComponentInteraction, c: BaseInteractionContext) {
+  constructor(api: API, interaction: MessageComponentInteractionPayload<T>, c: BaseInteractionContext) {
     super(api, interaction, c);
     this.custom_id = interaction.data.custom_id;
 
