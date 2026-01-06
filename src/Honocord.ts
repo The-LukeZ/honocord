@@ -28,6 +28,12 @@ interface HonocordOptions {
    * @default c.env.IS_CF_WORKER === "true" # later determined from environment variable
    */
   isCFWorker?: boolean;
+  /**
+   * Whether to turn on debug logging for REST API requests.
+   *
+   * @default false
+   */
+  debugRest?: boolean;
 }
 
 export class Honocord {
@@ -35,9 +41,11 @@ export class Honocord {
   private componentHandlers: ComponentHandler[] = [];
   private modalHandlers: ModalHandler[] = [];
   private isCFWorker: boolean;
+  private debugRest: boolean;
 
-  constructor({ isCFWorker }: { isCFWorker?: boolean } = {}) {
+  constructor({ isCFWorker, debugRest }: HonocordOptions = {}) {
     this.isCFWorker = isCFWorker ?? false;
+    this.debugRest = debugRest ?? false;
   }
 
   /**
@@ -227,7 +235,19 @@ export class Honocord {
   }
 
   private async createInteraction(ctx: BaseInteractionContext, interaction: ValidInteraction) {
-    const api = new API(new REST({ authPrefix: "Bot" }).setToken(ctx.env.DISCORD_TOKEN as string));
+    const rest = new REST({ authPrefix: "Bot" }).setToken(ctx.env.DISCORD_TOKEN as string);
+    if (this.debugRest) {
+      rest
+        .addListener("response", (request, response) => {
+          console.debug(
+            `[REST] ${request.method} ${request.path} -> ${response.status} ${response.statusText} (${request.route})`
+          );
+        })
+        .addListener("restDebug", (info) => {
+          console.debug(`[REST DEBUG] ${info}`);
+        });
+    }
+    const api = new API(rest);
 
     switch (interaction.type) {
       case InteractionType.ApplicationCommand:
