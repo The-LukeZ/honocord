@@ -230,7 +230,7 @@ bot.loadHandlers(feedbackHandler);
 
 ## Complete Example
 
-Please refer to the [Examples](/The-LukeZ/honocord-examples) repository for complete working examples, including deployment to Cloudflare Workers.
+Please refer to the [Examples](https://github.com/The-LukeZ/honocord-examples) repository for complete working examples, including deployment to Cloudflare Workers.
 
 ## Environment Variables
 
