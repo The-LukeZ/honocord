@@ -6,8 +6,6 @@ _Yes, AI helped me build this - with the focus on **helped**._
 
 ## 🚀 Core Features
 
----
-
 ### Type-Safe Development
 
 Full TypeScript support throughout the entire stack:
