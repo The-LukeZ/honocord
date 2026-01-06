@@ -19,14 +19,25 @@ import { ModalInteraction } from "@ctx/ModalInteraction";
 import { AutocompleteInteraction } from "@ctx/AutocompleteInteraction";
 import { SlashCommandHandler, ContextCommandHandler, ComponentHandler, ModalHandler, type Handler } from "@ctx/handlers";
 
+interface HonocordOptions {
+  /**
+   * Indicates whether the Honocord instance is running on Cloudflare Workers.
+   *
+   * This affects how interactions are processed, allowing for asynchronous handling using the Workers' execution context.
+   *
+   * @default process.env.IS_CF_WORKER === "true"
+   */
+  isCFWorker?: boolean;
+}
+
 export class Honocord {
   private commandHandlers: Map<string, SlashCommandHandler | ContextCommandHandler> = new Map();
   private componentHandlers: ComponentHandler[] = [];
   private modalHandlers: ModalHandler[] = [];
   private isCFWorker: boolean;
 
-  constructor(isCFWorker?: boolean) {
-    this.isCFWorker = isCFWorker ?? false;
+  constructor({ isCFWorker }: { isCFWorker?: boolean } = {}) {
+    this.isCFWorker = isCFWorker ?? process.env.IS_CF_WORKER === "true";
   }
 
   /**
