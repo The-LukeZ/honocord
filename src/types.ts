@@ -80,7 +80,7 @@ export interface BaseHonocordEnv<
  * import { Honocord, SlashCommandHandler } from "honocord";
  * import type { MyContext } from "./types";
  *
- * const bot = new Honocord(process.env.DISCORD_TOKEN);
+ * const bot = new Honocord();
  *
  * const command = new SlashCommandHandler()
  *   .setName("query")

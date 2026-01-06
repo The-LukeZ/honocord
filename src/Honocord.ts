@@ -49,7 +49,7 @@ export class Honocord {
    * ```typescript
    * import { HonoCord, CommandHandler, ComponentHandler, ModalHandler, HonocordSlashCommandBuilder } from "honocord";
    *
-   * const honoCord = new HonoCord("YOUR_BOT_TOKEN");
+   * const honoCord = new Honocord();
    *
    * // Command handler with autocomplete
    * const searchCommand = new HonocordSlashCommandBuilder()
@@ -254,7 +254,7 @@ export class Honocord {
    * import { HonoCord } from "honocord";
    *
    * const app = new Hono();
-   * const honoCord = new HonoCord("YOUR_BOT_TOKEN_HERE");
+   * const honoCord = new Honocord();
    *
    * app.post("/interactions", honoCord.handle);
    *
@@ -308,9 +308,9 @@ export class Honocord {
    *
    * @exampletypescript
    * ```typescript
-   * import { HonoCord } from "honocord";
+   * import { Honocord } from "honocord";
    *
-   * const honoCord = new HonoCord("YOUR_BOT_TOKEN_HERE");
+   * const honoCord = new Honocord();
    *
    * export default honoCord.getApp();
    * ```
