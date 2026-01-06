@@ -5,29 +5,21 @@ on:
     branches:
       - main
 
-jobs:
-  publish-npm:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
+permissions:
+  id-token: write # Required for OIDC
+  contents: read
 
+jobs:
+  publish:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10.27.0
-
       - uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
+          node-version: "24"
           registry-url: "https://registry.npmjs.org"
-
-      - run: pnpm install --frozen-lockfile
-
-      - run: pnpm build
-
-      - run: pnpm publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm test
+      - run: npm publish
