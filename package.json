@@ -1,6 +1,6 @@
 {
   "name": "honocord",
-  "version": "1.1.5",
+  "version": "1.2.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -8,7 +8,10 @@
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs",
+      "node": "./dist/index.mjs",
+      "module-sync": "./dist/index.js"
     }
   },
   "files": [
@@ -30,7 +33,7 @@
     "honocord",
     "interactions"
   ],
-  "author": "Your Name",
+  "author": "The-LukeZ",
   "license": "MIT",
   "packageManager": "pnpm@10.27.0",
   "type": "module",
