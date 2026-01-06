@@ -1,5 +1,6 @@
-import { SlashCommandHandler } from "@ctx/handlers";
+import { ComponentHandler, SlashCommandHandler } from "@ctx/handlers";
 import { BaseInteractionContext } from "../types";
+import { ComponentType } from "discord-api-types/v10";
 
 interface MyEnv {
   DISCORD_PUBLIC_KEY: string;
@@ -13,7 +14,13 @@ interface MyVar {
 
 type MyContext = BaseInteractionContext<MyEnv, MyVar>;
 
-new SlashCommandHandler<MyContext>().addHandler((ctx) => {
-  ctx.context.var;
-  ctx.context.env;
+new SlashCommandHandler<MyContext>().addHandler(async (ctx) => {
+  console.log("Hello world");
+  return ctx.reply("Hello world!", true);
+});
+
+new ComponentHandler<ComponentType.Button, MyContext>("some_id").addHandler(async (ctx) => {
+  console.log("Button clicked");
+  await ctx.update("Button clicked!");
+  await ctx.editReply("Edited reply!");
 });
