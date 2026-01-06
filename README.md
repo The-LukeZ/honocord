@@ -342,11 +342,11 @@ new ContextCommandHandler<
   > ()
 ```
 
-`ContextCommandType` is an enum with values `User` and `Message; Derived from ApplicationCommandType, but narrowed down to the two context command types.
+`ContextCommandType` is an enum with values `User` and `Message`; Derived from ApplicationCommandType, but narrowed down to the two context command types.
 
 **Methods:**
 
-- `addHandler(handler: (interaction: UserCommandInteraction | MessageCommandInteraction) => Promise<void> | void)` - Adds the command execution handler
+- `addHandler(handler: (interaction: InteractionData) => Promise<void> | void)` - Adds the command execution handler
 
 ### `ComponentHandler`
 
