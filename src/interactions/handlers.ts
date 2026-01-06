@@ -25,6 +25,7 @@ import { parseCustomId } from "@utils/index";
  * Handler for chat input commands with optional autocomplete support
  */
 export class SlashCommandHandler extends SlashCommandBuilder {
+  readonly handlerType = "slash";
   private handlerFn?: (interaction: ChatInputCommandInteraction) => Promise<void> | void;
   private autocompleteFn?: (interaction: AutocompleteInteraction) => Promise<void> | void;
 
@@ -144,6 +145,7 @@ export class ContextCommandHandler<
   T extends ApplicationCommandType = ApplicationCommandType,
   InteractionData = T extends ApplicationCommandType.User ? UserCommandInteraction : MessageCommandInteraction,
 > extends ContextMenuCommandBuilder {
+  readonly handlerType = "context";
   private handlerFn?: (interaction: InteractionData) => Promise<void> | void;
 
   public addHandler(handler: (interaction: InteractionData) => Promise<void> | void): ContextCommandHandler<T, InteractionData> {
@@ -166,6 +168,7 @@ export class ContextCommandHandler<
  * Handler for message components (buttons, select menus) based on custom ID prefix
  */
 export class ComponentHandler {
+  readonly handlerType = "component";
   public readonly prefix: string;
   private handlerFn?: (interaction: MessageComponentInteraction) => Promise<void> | void;
 
@@ -206,6 +209,7 @@ export class ComponentHandler {
  * Handler for modal submits based on custom ID prefix
  */
 export class ModalHandler {
+  readonly handlerType = "modal";
   public readonly prefix: string;
   private handlerFn?: (interaction: ModalInteraction) => Promise<void> | void;
 

@@ -25,7 +25,7 @@ interface HonocordOptions {
    *
    * This affects how interactions are processed, allowing for asynchronous handling using the Workers' execution context.
    *
-   * @default process.env.IS_CF_WORKER === "true"
+   * @default c.env.IS_CF_WORKER === "true" # later determined from environment variable
    */
   isCFWorker?: boolean;
 }
@@ -37,7 +37,7 @@ export class Honocord {
   private isCFWorker: boolean;
 
   constructor({ isCFWorker }: { isCFWorker?: boolean } = {}) {
-    this.isCFWorker = isCFWorker ?? process.env.IS_CF_WORKER === "true";
+    this.isCFWorker = isCFWorker ?? false;
   }
 
   /**

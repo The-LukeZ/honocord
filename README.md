@@ -234,7 +234,7 @@ bot.loadHandlers(feedbackHandler);
     <summary>If you want to only use Honocord for your project and have no existing Hono app:</summary>
 
 ```typescript
-import { Honocord, SlashCommandHandler, ComponentHandler, ModalHandler } from "honocord";
+import { Honocord, SlashCommandHandler, ComponentHandler, ModalHandler, parseCustomId } from "honocord";
 
 const bot = new Honocord();
 
@@ -251,7 +251,7 @@ greetCommand.addHandler(async (interaction) => {
 
 // Component handler for buttons
 const confirmHandler = new ComponentHandler("confirm", async (interaction) => {
-  const { params } = parseCustomId(interaction.customId);
+  const { params } = parseCustomId(interaction.custom_id);
   const action = params[0];
 
   await interaction.update({
@@ -262,15 +262,18 @@ const confirmHandler = new ComponentHandler("confirm", async (interaction) => {
 
 // Modal handler
 const reportHandler = new ModalHandler("report", async (interaction) => {
-  const reason = interaction.fields.getTextInputValue("reason");
-  const details = interaction.fields.getTextInputValue("details");
+  const reason = interaction.fields.getString("reason");
+  const details = interaction.fields.getString("details");
 
-  await interaction.reply({
-    content: "Report submitted successfully!",
-    ephemeral: true,
-  });
+  await interaction.reply(
+    {
+      content: "Report submitted successfully!",
+    },
+    true
+  );
 
   // Process the report...
+  console.log(`Report received: Reason - ${reason}, Details - ${details}`);
 });
 
 // Register all handlers
@@ -366,8 +369,10 @@ export default app;
 ## Environment Variables
 
 ```env
-DISCORD_TOKEN=your_bot_token_here
-DISCORD_PUBLIC_KEY=your_public_key_here
+DISCORD_APPLICATION_ID=your_application_id_here # only required for command registration
+DISCORD_TOKEN=your_bot_token_here # always required
+DISCORD_PUBLIC_KEY=your_public_key_here # always required
+IS_CF_WORKER=true # only required if using Cloudflare Workers
 ```
 
 The `DISCORD_PUBLIC_KEY` is required for request verification and should be available in your environment (e.g., `c.env.DISCORD_PUBLIC_KEY` in Cloudflare Workers).
@@ -401,29 +406,32 @@ const command = new SlashCommandHandler()
   });
 ```
 
-## Registering Commands with Discord
+## Registering Commands
 
-HonoCord handles command execution, but you still need to register your commands with Discord's API. Here's how:
+You can register your commands using the `register()` utility function.
 
 ```typescript
-import { REST } from "@discordjs/rest";
-import { Routes } from "discord-api-types/v10";
+// src/handlers/index.ts
+export * from "./pingCommand";
+export * from "./approveHandler";
+// ...export other handlers
 
-const rest = new REST().setToken(process.env.DISCORD_TOKEN);
+// src/register.ts
+import { register } from "honocord";
+import * as handlers from "./handlers/index";
 
-const commands = [
-  pingCommand.toJSON(),
-  searchCommand.toJSON(),
-  // ... other commands
-];
+await register(process.env.DISCORD_TOKEN!, process.env.DISCORD_APPLICATION_ID!, ...Object.values(handlers));
+```
 
-// Register globally (takes up to 1 hour to propagate)
-await rest.put(Routes.applicationCommands(APPLICATION_ID), { body: commands });
+You should add the script to your package.json:
 
-// Or register for a specific guild (instant)
-await rest.put(Routes.applicationGuildCommands(APPLICATION_ID, GUILD_ID), {
-  body: commands,
-});
+```json
+{
+  "scripts": {
+    // tsx is recommended for running TypeScript files directly, but you can use any method you prefer, even node itself if you use a JS file.
+    "register": "tsx --env-file=.env src/register.ts"
+  }
+}
 ```
 
 ## API Reference
