@@ -18,7 +18,36 @@ export type {
   APIChatInputApplicationCommandInteraction,
   APIModalSubmitInteraction,
   APIMessageComponentInteraction,
-  // TODO: include more
+  // TODO: include more as needed
 } from "discord-api-types/v10";
+
+export {
+  LabelBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
+  FileBuilder,
+  ModalBuilder,
+  TextInputBuilder,
+  RoleSelectMenuBuilder,
+  UserSelectMenuBuilder,
+  MentionableSelectMenuBuilder,
+  ChannelSelectMenuBuilder,
+  ContainerBuilder,
+  SeparatorBuilder,
+  SectionBuilder,
+  MediaGalleryBuilder,
+  MediaGalleryItemBuilder,
+  TextDisplayBuilder,
+  EmbedBuilder,
+  FileUploadBuilder,
+  SelectMenuOptionBuilder,
+  ThumbnailBuilder,
+  // Want more? Install the package yourself then.
+} from "@discordjs/builders";
+export type { REST } from "@discordjs/rest";
+export type { API } from "@discordjs/core/http-only";
+export { Collection, type ReadonlyCollection } from "@discordjs/collection";
 
 export type { BaseHonocordEnv, BaseVariables, BaseInteractionContext } from "./types";
