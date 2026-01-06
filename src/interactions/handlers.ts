@@ -6,6 +6,7 @@ import { ContextMenuCommandBuilder, SlashCommandBuilder } from "@discordjs/build
 import { ApplicationCommandType } from "discord-api-types/v10";
 import { MessageCommandInteraction } from "./MessageContextCommandInteraction";
 import { UserCommandInteraction } from "./UserContextCommandInteraction";
+import { parseCustomId } from "@utils/index";
 
 /**
  * Handler for chat input commands with optional autocomplete support
@@ -13,6 +14,28 @@ import { UserCommandInteraction } from "./UserContextCommandInteraction";
 export class SlashCommandHandler extends SlashCommandBuilder {
   private handlerFn?: (interaction: ChatInputCommandInteraction) => Promise<void> | void;
   private autocompleteFn?: (interaction: AutocompleteInteraction) => Promise<void> | void;
+
+  /**
+   * Adds the command handler function.
+   *
+   * @param handler The function to handle the command interaction
+   * @returns The current SlashCommandHandler instance
+   */
+  public addHandler(handler: (interaction: ChatInputCommandInteraction) => Promise<void> | void): SlashCommandHandler {
+    this.handlerFn = handler;
+    return this;
+  }
+
+  /**
+   * Adds the autocomplete handler function.
+   *
+   * @param handler The function to handle the autocomplete interaction
+   * @returns The current SlashCommandHandler instance
+   */
+  public addAutocompleteHandler(handler: (interaction: AutocompleteInteraction) => Promise<void> | void): SlashCommandHandler {
+    this.autocompleteFn = handler;
+    return this;
+  }
 
   /**
    * Executes the command handler
@@ -41,6 +64,11 @@ export class ContextCommandHandler<
 > extends ContextMenuCommandBuilder {
   private handlerFn?: (interaction: InteractionData) => Promise<void> | void;
 
+  public addHandler(handler: (interaction: InteractionData) => Promise<void> | void): ContextCommandHandler<T, InteractionData> {
+    this.handlerFn = handler;
+    return this;
+  }
+
   /**
    * Executes the command handler
    */
@@ -57,24 +85,29 @@ export class ContextCommandHandler<
  */
 export class ComponentHandler {
   public readonly prefix: string;
-  private handlerFn: (interaction: MessageComponentInteraction) => Promise<void> | void;
+  private handlerFn?: (interaction: MessageComponentInteraction) => Promise<void> | void;
 
-  constructor(prefix: string, handler: (interaction: MessageComponentInteraction) => Promise<void> | void) {
+  constructor(prefix: string, handler?: (interaction: MessageComponentInteraction) => Promise<void> | void) {
     if (!prefix || typeof prefix !== "string") {
       throw new TypeError("Component handler prefix must be a non-empty string");
     }
-    if (typeof handler !== "function") {
-      throw new TypeError("Component handler must be a function");
-    }
 
     this.prefix = prefix;
+    if (handler) this.handlerFn = handler;
+  }
+
+  addHandler(handler: (interaction: MessageComponentInteraction) => Promise<void> | void): ComponentHandler {
     this.handlerFn = handler;
+    return this;
   }
 
   /**
    * Executes the component handler
    */
   async execute(interaction: MessageComponentInteraction): Promise<void> {
+    if (!this.handlerFn) {
+      throw new Error(`Component handler with prefix "${this.prefix}" does not have a handler`);
+    }
     await this.handlerFn(interaction);
   }
 
@@ -82,9 +115,7 @@ export class ComponentHandler {
    * Checks if this handler matches the given custom ID
    */
   matches(customId: string): boolean {
-    // Extract prefix from custom ID (everything before first / or ?)
-    const match = customId.match(/^(.+?)(\/|\?|$)/);
-    const prefix = match ? match[1] : customId;
+    const prefix = parseCustomId(customId, true);
     return prefix === this.prefix;
   }
 }
@@ -94,9 +125,9 @@ export class ComponentHandler {
  */
 export class ModalHandler {
   public readonly prefix: string;
-  private handlerFn: (interaction: ModalInteraction) => Promise<void> | void;
+  private handlerFn?: (interaction: ModalInteraction) => Promise<void> | void;
 
-  constructor(prefix: string, handler: (interaction: ModalInteraction) => Promise<void> | void) {
+  constructor(prefix: string, handler?: (interaction: ModalInteraction) => Promise<void> | void) {
     if (!prefix || typeof prefix !== "string") {
       throw new TypeError("Modal handler prefix must be a non-empty string");
     }
@@ -105,13 +136,21 @@ export class ModalHandler {
     }
 
     this.prefix = prefix;
+    if (handler) this.handlerFn = handler;
+  }
+
+  addHandler(handler: (interaction: ModalInteraction) => Promise<void> | void): ModalHandler {
     this.handlerFn = handler;
+    return this;
   }
 
   /**
    * Executes the modal handler
    */
   async execute(interaction: ModalInteraction): Promise<void> {
+    if (!this.handlerFn) {
+      throw new Error(`Modal handler with prefix "${this.prefix}" does not have a handler`);
+    }
     await this.handlerFn(interaction);
   }
 
@@ -119,9 +158,7 @@ export class ModalHandler {
    * Checks if this handler matches the given custom ID
    */
   matches(customId: string): boolean {
-    // Extract prefix from custom ID (everything before first / or ?)
-    const match = customId.match(/^(.+?)(\/|\?|$)/);
-    const prefix = match ? match[1] : customId;
+    const prefix = parseCustomId(customId, true);
     return prefix === this.prefix;
   }
 }
