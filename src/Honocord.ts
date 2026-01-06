@@ -275,6 +275,7 @@ export class Honocord {
     }
 
     if (interaction.type === InteractionType.Ping) {
+      console.log("Received Discord Ping");
       return c.json({ type: InteractionResponseType.Pong });
     }
 
@@ -306,7 +307,7 @@ export class Honocord {
   /**
    * Returns a Hono App instance with the interaction handler mounted at the root path and a GET Handler for all paths, which returns a simple Health response.
    *
-   * @exampletypescript
+   * @example
    * ```typescript
    * import { Honocord } from "honocord";
    *
