@@ -1,7 +1,7 @@
 import {
-  type APIInteractionResponseCallbackData,
   type Snowflake,
   APIInteraction,
+  APIInteractionResponseCallbackData,
   APIMessageApplicationCommandInteraction,
   APIMessageComponentInteraction,
   APIPartialInteractionGuild,
@@ -14,7 +14,42 @@ import { API } from "@discordjs/core/http-only";
 import { REST } from "@discordjs/rest";
 import { ChatInputCommandInteraction } from "./ChatInputInteraction";
 import { ModalInteraction } from "./ModalInteraction";
-import type { BaseInteractionContext } from "../types";
+import type { BaseInteractionContext, InteractionResponseCallbackData, JSONEncodable } from "../types";
+
+function snakeCase(str: string): string {
+  return str
+    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+    .replace(/([A-Z])([A-Z][a-z])/g, "$1_$2")
+    .toLowerCase();
+}
+
+/**
+ * Transforms camel-cased keys into snake cased keys
+ *
+ * @param {*} obj The object to transform
+ * @returns {*} The transformed object
+ */
+function toSnakeCase(obj: any): any {
+  if (typeof obj !== "object" || !obj) return obj;
+  if (obj instanceof Date) return obj;
+  if (isJSONEncodable(obj)) return toSnakeCase(obj.toJSON());
+  if (Array.isArray(obj)) return obj.map(toSnakeCase);
+  return Object.fromEntries(Object.entries(obj).map(([key, value]) => [snakeCase(key), toSnakeCase(value)]));
+}
+
+/**
+ * Indicates if an object is encodable or not.
+ *
+ * @param maybeEncodable - The object to check against
+ */
+function isJSONEncodable(maybeEncodable: unknown): maybeEncodable is JSONEncodable<unknown> {
+  return (
+    maybeEncodable !== null &&
+    typeof maybeEncodable === "object" &&
+    "toJSON" in maybeEncodable &&
+    typeof maybeEncodable["toJSON"] === "function"
+  );
+}
 
 abstract class BaseInteraction<Type extends InteractionType, Context extends BaseInteractionContext = BaseInteractionContext> {
   public readonly type: Type;
@@ -96,6 +131,14 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
     return this.data.version;
   }
 
+  protected isJSONEncodable(obj: unknown): obj is JSONEncodable<unknown> {
+    return isJSONEncodable(obj);
+  }
+
+  protected toSnakeCase(obj: unknown): unknown {
+    return toSnakeCase(obj);
+  }
+
   inGuild(): this is BaseInteraction<Type> & { guild_id: Snowflake; guild: APIPartialInteractionGuild; guild_locale: Locale } {
     return Boolean(this.data.guild_id && this.data.guild && this.data.guild_locale);
   }
@@ -126,12 +169,20 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
     );
   }
 
-  async reply(options: APIInteractionResponseCallbackData | string, forceEphemeral = true) {
+  private prepareResponsePayload(options: InteractionResponseCallbackData) {
+    return this.toSnakeCase({
+      ...options,
+      components: options.components?.map((component) => (this.isJSONEncodable(component) ? component.toJSON() : component)),
+      embeds: options.embeds?.map((embed) => (this.isJSONEncodable(embed) ? embed.toJSON() : embed)),
+    }) as APIInteractionResponseCallbackData;
+  }
+
+  async reply(options: InteractionResponseCallbackData | string, forceEphemeral = true) {
     const replyOptions = typeof options === "string" ? { content: options } : options;
     if (forceEphemeral) {
       replyOptions.flags = (replyOptions.flags ?? 0) | 64;
     }
-    const response = await this.api.interactions.reply(this.id, this.token, replyOptions, {
+    const response = await this.api.interactions.reply(this.id, this.token, this.prepareResponsePayload(replyOptions), {
       signal: AbortSignal.timeout(5000),
     });
     this.replied = true;
@@ -150,11 +201,17 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
     return this.api.interactions.deferMessageUpdate(this.id, this.token);
   }
 
-  async editReply(options: APIInteractionResponseCallbackData | string, messageId: Snowflake | "@original" = "@original") {
+  async editReply(options: InteractionResponseCallbackData | string, messageId: Snowflake | "@original" = "@original") {
     const replyOptions = typeof options === "string" ? { content: options } : options;
-    const response = await this.api.interactions.editReply(this.applicationId, this.token, replyOptions, messageId, {
-      signal: AbortSignal.timeout(5000),
-    });
+    const response = await this.api.interactions.editReply(
+      this.applicationId,
+      this.token,
+      this.prepareResponsePayload(replyOptions),
+      messageId,
+      {
+        signal: AbortSignal.timeout(5000),
+      }
+    );
     this.replied = true;
     return response;
   }
@@ -163,9 +220,9 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
     return this.api.interactions.deleteReply(this.applicationId, this.token, messageId);
   }
 
-  async update(options: APIInteractionResponseCallbackData | string) {
+  async update(options: InteractionResponseCallbackData | string) {
     const updateOptions = typeof options === "string" ? { content: options } : options;
-    const response = await this.api.interactions.updateMessage(this.id, this.token, updateOptions, {
+    const response = await this.api.interactions.updateMessage(this.id, this.token, this.prepareResponsePayload(updateOptions), {
       signal: AbortSignal.timeout(5000),
     });
     this.replied = true;

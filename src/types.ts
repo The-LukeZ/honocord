@@ -7,15 +7,21 @@ import {
   APIApplicationCommandAutocompleteInteraction,
   APIApplicationCommandInteractionData,
   APIAttachment,
+  APIEmbed,
   APIInteraction,
   APIInteractionDataResolvedChannel,
   APIInteractionDataResolvedGuildMember,
+  APIInteractionResponseCallbackData,
+  APILabelComponent,
   APIMessageButtonInteractionData,
   APIMessageChannelSelectInteractionData,
   APIMessageMentionableSelectInteractionData,
   APIMessageRoleSelectInteractionData,
   APIMessageStringSelectInteractionData,
+  APIMessageTopLevelComponent,
   APIMessageUserSelectInteractionData,
+  APIModalComponent,
+  APIModalInteractionResponseCallbackData,
   APIPingInteraction,
   APIRole,
   APIUser,
@@ -223,3 +229,53 @@ export enum ContextCommandType {
 export type BufferSource = ArrayBufferView | ArrayBuffer;
 
 export type FlatOrNestedArray<T> = T[] | T[][];
+
+/**
+ * Represents an object capable of representing itself as a JSON object
+ *
+ * @typeParam Value - The JSON type corresponding to {@link JSONEncodable.toJSON} outputs.
+ */
+export interface JSONEncodable<Value> {
+  /**
+   * Transforms this object to its JSON format
+   */
+  toJSON(): Value;
+}
+
+// ---------------------------------------------------------------------------------------------
+// The following types are typings which are derived from discord-api-types but we are using Builders so be have to redefine them
+// ---------------------------------------------------------------------------------------------
+
+export interface InteractionResponseCallbackData extends Omit<APIInteractionResponseCallbackData, "components" | "embeds"> {
+  /**
+   * The components to include with the message
+   *
+   * Application-owned webhooks can always send components. Non-application-owned webhooks cannot send interactive components, and the `components` field will be ignored unless they set the `with_components` query param.
+   *
+   * Can be `ActionRowBuilder` or raw APIMessageActionRowComponent
+   *
+   * If using Components V2, ensure that `flags` includes `MessageFlags.IsComponentsV2` is set.
+   *
+   * @see {@link https://discord.com/developers/docs/components/reference}
+   */
+  components?: (JSONEncodable<APIMessageTopLevelComponent> | APIMessageTopLevelComponent)[];
+  /**
+   * Embedded `rich` content
+   *
+   * Can be `EmbedBuilder` or raw APIEmbed
+   *
+   * @see {@link https://discord.com/developers/docs/resources/channel#embed-object}
+   */
+  embeds?: (JSONEncodable<APIEmbed> | APIEmbed)[];
+}
+
+export interface ModalInteractionResponseCallbackData extends Omit<APIModalInteractionResponseCallbackData, "components"> {
+  /**
+   * The components to include with the modal
+   *
+   * Can be `LabelBuilder` or raw APILabelComponent.
+   *
+   * @see {@link https://discord.com/developers/docs/interactions/message-components#action-rows}
+   */
+  components: (JSONEncodable<APILabelComponent> | APILabelComponent)[];
+}

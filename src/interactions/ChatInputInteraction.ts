@@ -1,17 +1,15 @@
 import {
   InteractionType,
   type APIChatInputApplicationCommandInteraction,
-  type APIModalInteractionResponseCallbackData,
 } from "discord-api-types/v10";
 import { CommandInteractionOptionResolver } from "@resolvers/CommandOptionResolver";
-import { ModalBuilder } from "@discordjs/builders";
 import { API } from "@discordjs/core/http-only";
-import { BaseInteraction } from "./BaseInteraction";
 import { BaseInteractionContext } from "../types";
+import { ModalCapableInteraction } from "./ModalCapableInteraction";
 
 class ChatInputCommandInteraction<
   Context extends BaseInteractionContext = BaseInteractionContext,
-> extends BaseInteraction<InteractionType.ApplicationCommand, Context> {
+> extends ModalCapableInteraction<InteractionType.ApplicationCommand, Context> {
   public readonly options: CommandInteractionOptionResolver;
 
   constructor(api: API, interaction: APIChatInputApplicationCommandInteraction, c: Context) {
@@ -25,10 +23,6 @@ class ChatInputCommandInteraction<
 
   get commandId() {
     return this.data.data.id;
-  }
-
-  showModal(data: APIModalInteractionResponseCallbackData | ModalBuilder) {
-    return this.api.interactions.createModal(this.id, this.token, data instanceof ModalBuilder ? data.toJSON() : data);
   }
 }
 

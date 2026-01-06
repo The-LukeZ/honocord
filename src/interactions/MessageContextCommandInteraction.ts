@@ -1,15 +1,9 @@
-import {
-  APIMessage,
-  APIMessageApplicationCommandInteraction,
-  InteractionType,
-  type APIModalInteractionResponseCallbackData,
-} from "discord-api-types/v10";
-import { ModalBuilder } from "@discordjs/builders";
+import { APIMessage, APIMessageApplicationCommandInteraction, InteractionType } from "discord-api-types/v10";
 import { API } from "@discordjs/core/http-only";
-import { BaseInteraction } from "./BaseInteraction";
 import { BaseInteractionContext } from "../types";
+import { ModalCapableInteraction } from "./ModalCapableInteraction";
 
-class MessageCommandInteraction<Context extends BaseInteractionContext = BaseInteractionContext> extends BaseInteraction<
+class MessageCommandInteraction<Context extends BaseInteractionContext = BaseInteractionContext> extends ModalCapableInteraction<
   InteractionType.ApplicationCommand,
   Context
 > {
@@ -26,10 +20,6 @@ class MessageCommandInteraction<Context extends BaseInteractionContext = BaseInt
 
   get commandId() {
     return this.data.data.id;
-  }
-
-  showModal(data: APIModalInteractionResponseCallbackData | ModalBuilder) {
-    return this.api.interactions.createModal(this.id, this.token, data instanceof ModalBuilder ? data.toJSON() : data);
   }
 }
 
