@@ -44,7 +44,14 @@ interface HonocordOptions {
 }
 
 export class Honocord {
-  private commandHandlers = new Map<string, SlashCommandHandler | ContextCommandHandler>();
+  /**
+   * Map of commandName to CommandHandler instances for global commands.
+   */
+  private globalCommandHandlers = new Map<string, SlashCommandHandler | ContextCommandHandler>();
+  /**
+   * Map of `guildId:commandName` to CommandHandler instances for guild-specific commands.
+   */
+  private guildCommandHandlers = new Map<string, SlashCommandHandler | ContextCommandHandler>();
   private componentHandlers = new Map<string, ComponentHandler>();
   private modalHandlers = new Map<string, ModalHandler>();
   private isCFWorker: boolean;
@@ -67,10 +74,21 @@ export class Honocord {
 
     for (const handler of flattenedHandlers) {
       if (handler instanceof SlashCommandHandler || handler instanceof ContextCommandHandler) {
-        if (this.commandHandlers.has(handler.name)) {
+        if (handler.isGuildCommand()) {
+          for (const guildId of handler.guildIds.values()) {
+            const key = `${guildId}:${handler.name}`;
+            if (this.guildCommandHandlers.has(key)) {
+              console.warn(`Guild command handler for "${handler.name}" in guild "${guildId}" already exists. Overwriting.`);
+            }
+            this.guildCommandHandlers.set(key, handler);
+          }
+          continue;
+        }
+
+        if (this.globalCommandHandlers.has(handler.name)) {
           console.warn(`Command handler for "${handler.name}" already exists. Overwriting.`);
         }
-        this.commandHandlers.set(handler.name, handler);
+        this.globalCommandHandlers.set(handler.name, handler);
       } else if (handler instanceof ComponentHandler) {
         const prefix = handler.prefix;
         if (this.componentHandlers.has(prefix)) {
@@ -102,25 +120,48 @@ export class Honocord {
     }
   }
 
+  private executeCommandHandler(
+    handler: SlashCommandHandler | ContextCommandHandler,
+    interactionObj: ReturnType<typeof this.createCommandInteraction>,
+    commandType: ApplicationCommandType
+  ) {
+    if (handler instanceof SlashCommandHandler && commandType === ApplicationCommandType.ChatInput) {
+      return handler.execute(interactionObj as ChatInputCommandInteraction);
+    } else if (handler instanceof ContextCommandHandler) {
+      if (commandType === ApplicationCommandType.User) {
+        return handler.execute(interactionObj as UserContextInteraction);
+      } else if (commandType === ApplicationCommandType.Message) {
+        return handler.execute(interactionObj as MessageContextInteraction);
+      }
+    }
+  }
+
   private async handleCommandInteraction(ctx: BaseInteractionContext, interaction: APIApplicationCommandInteraction, api: API) {
     const interactionObj = this.createCommandInteraction(ctx, interaction, api);
     const commandName = interaction.data.name;
-    const handler = this.commandHandlers.get(commandName);
+    const handler = this.globalCommandHandlers.get(commandName);
 
     if (handler) {
       try {
-        if (handler instanceof SlashCommandHandler && interaction.data.type === ApplicationCommandType.ChatInput) {
-          await handler.execute(interactionObj as ChatInputCommandInteraction);
-        } else if (handler instanceof ContextCommandHandler) {
-          if (interaction.data.type === ApplicationCommandType.User) {
-            await handler.execute(interactionObj as UserContextInteraction);
-          } else if (interaction.data.type === ApplicationCommandType.Message) {
-            await handler.execute(interactionObj as MessageContextInteraction);
-          }
-        }
+        await this.executeCommandHandler(handler, interactionObj, interaction.data.type);
       } catch (error) {
-        console.error(`Error executing command handler for "${commandName}":`, error);
+        console.error(`Error executing command handler for "${commandName}"`, error);
         throw error;
+      }
+    }
+
+    // Could be a guild command
+    const guildId = interaction.guild_id;
+    if (guildId) {
+      const key = `${guildId}:${commandName}`;
+      const guildHandler = this.guildCommandHandlers.get(key);
+      if (guildHandler) {
+        try {
+          await this.executeCommandHandler(guildHandler, interactionObj, interaction.data.type);
+        } catch (error) {
+          console.error(`Error executing guild command handler for "${commandName}" in guild "${guildId}"`, error);
+          throw error;
+        }
       }
     }
 
@@ -134,18 +175,31 @@ export class Honocord {
   ) {
     const interactionObj = new AutocompleteInteraction(api, interaction, ctx);
     const commandName = interaction.data.name;
-    const handler = this.commandHandlers.get(commandName);
+    const handler = this.globalCommandHandlers.get(commandName);
 
     if (handler && handler instanceof SlashCommandHandler) {
       try {
         await handler.executeAutocomplete(interactionObj);
       } catch (error) {
-        console.error(`Error executing autocomplete handler for "${commandName}":`, error);
+        console.error(`Error executing autocomplete handler for "${commandName}"`, error);
         throw error;
       }
     }
 
-    return interactionObj;
+    // Could be a guild command
+    const guildId = interaction.guild_id;
+    if (guildId) {
+      const key = `${guildId}:${commandName}`;
+      const guildHandler = this.guildCommandHandlers.get(key);
+      if (guildHandler && guildHandler instanceof SlashCommandHandler) {
+        try {
+          await guildHandler.executeAutocomplete(interactionObj);
+        } catch (error) {
+          console.error(`Error executing guild autocomplete handler for "${commandName}" in guild "${guildId}"`, error);
+          throw error;
+        }
+      }
+    }
   }
 
   private async handleComponentInteraction<T extends MessageComponentType>(
@@ -162,7 +216,7 @@ export class Honocord {
       try {
         await handler.execute(interactionObj);
       } catch (error) {
-        console.error(`Error executing component handler for prefix "${prefix}":`, error);
+        console.error(`Error executing component handler for prefix "${prefix}"`, error);
         throw error;
       }
     }
@@ -186,7 +240,7 @@ export class Honocord {
       try {
         await handler.execute(interactionObj);
       } catch (error) {
-        console.error(`Error executing modal handler for prefix "${prefix}":`, error);
+        console.error(`Error executing modal handler for prefix "${prefix}"`, error);
         throw error;
       }
     }
