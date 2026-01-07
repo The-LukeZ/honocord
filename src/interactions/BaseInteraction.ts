@@ -9,6 +9,7 @@ import {
   APIApplicationCommandInteraction,
   ComponentType,
   APIMessageComponentInteraction,
+  APIMessage,
 } from "discord-api-types/v10";
 import { API } from "@discordjs/core/http-only";
 import { REST } from "@discordjs/rest";
@@ -351,6 +352,10 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
 
   isModal(): this is ModalInteraction {
     return this.raw.type === InteractionType.ModalSubmit;
+  }
+
+  isMessageModal(): this is ModalInteraction<Context & { message: APIMessage }> {
+    return this.isModal() && !!this.message;
   }
 
   isMessageComponent(): this is MessageComponentInteraction<MessageComponentType, Context> {

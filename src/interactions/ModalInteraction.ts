@@ -16,11 +16,11 @@ class ModalInteraction<Context extends BaseInteractionContext = BaseInteractionC
 > {
   public readonly fields: ModalComponentResolver;
   public readonly message?: APIMessage;
-  public readonly custom_id: string;
+  public readonly customId: string;
 
   constructor(api: API, interaction: APIModalSubmitInteraction, c: Context) {
     super(api, interaction, c);
-    this.custom_id = interaction.data.custom_id;
+    this.customId = interaction.data.custom_id;
     this.fields = new ModalComponentResolver(
       interaction.data.components as (ModalSubmitLabelComponent | ModalSubmitTextDisplayComponent)[],
       interaction.data.resolved
