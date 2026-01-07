@@ -1,4 +1,6 @@
-Welcome to the Honocord documentation! Honocord is a powerful, type-safe library for building Discord bots using interactions with the Hono web framework.
+# Honocord - Imagine an interactions bot
+
+Honocord is a powerful, type-safe library for building Discord bots using interactions with the Hono web framework.
 
 ## What is Honocord?
 
