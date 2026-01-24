@@ -6,7 +6,8 @@ import { ContainerBuilder } from "@discordjs/builders";
 interface MyEnv {
   DISCORD_PUBLIC_KEY: string;
   DISCORD_TOKEN: string;
-  DISCOR_APPLICATION_ID: string;
+  DISCORD_APPLICATION_ID: string;
+  DATABASE: D1Database;
 }
 
 interface MyVar {
@@ -16,6 +17,7 @@ interface MyVar {
 type MyContext = BaseInteractionContext<MyEnv, MyVar>;
 
 const testHandle: HandlerFunction<MyContext> = async (ctx) => {
+  console.log(!!ctx.context.env.DATABASE);
   await ctx.reply({
     flags: MessageFlags.IsComponentsV2,
     components: [new ContainerBuilder().addTextDisplayComponents((t) => t.setContent("Hello world"))],

@@ -33,19 +33,16 @@ import {
   InteractionType,
 } from "discord-api-types/v10";
 import type { Context } from "hono";
-import type { Bindings, BlankEnv, BlankInput, BlankSchema, Variables } from "hono/types";
+import type { Bindings, BlankInput, Variables } from "hono/types";
 
-/**
- * Base bindings that your library requires
- */
-export interface BaseBindings {
-  DISCORD_PUBLIC_KEY: string;
+type BaseBindings = {
   DISCORD_TOKEN: string;
-  IS_CF_WORKER?: "true" | "false";
-}
+  DISCORD_PUBLIC_KEY: string;
+  DISCORD_APPLICATION_ID: string;
+};
 
 /**
- * Base variables that your library uses
+ * Base variables that the library uses
  */
 export interface BaseVariables {
   autocomplete?: ChatInputCommandInteraction;
@@ -61,7 +58,7 @@ export interface BaseHonocordEnv<TBindings extends Bindings = any, TVariables ex
   /**
    * Bindings available in the environment (from the worker)
    */
-  Bindings: BaseBindings & TBindings;
+  Bindings: TBindings;
   /**
    * Variables available in the context (from Hono + Honocord)
    */
