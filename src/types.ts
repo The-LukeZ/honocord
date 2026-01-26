@@ -196,13 +196,14 @@ export type HandlerFunction<
 
 /**
  * Middleware function type for processing interaction contexts.
- * 
+ *
  * Helpful for implementing cross-cutting concerns such as logging, authentication, setting of the DB, etc.
+ * 
+ * To make the middleware continue to the next middleware or final handler, return 
  */
 export type MiddlewareFunction<Context extends BaseInteractionContext = BaseInteractionContext> = (
-  context: Context,
-  next: () => Promise<void>
-) => Promise<void> | void;
+  context: Context
+) => Promise<Response | void> | Response | void;
 
 // ---------------------------------------------------------------------------------------------
 // The following types are typings which are derived from discord-api-types but we are using Builders so be have to redefine them

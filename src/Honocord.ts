@@ -78,7 +78,7 @@ export class Honocord {
         return await finalHandler();
       }
 
-      await this.middleware[i](ctx, () => dispatch(i + 1));
+      await this.middleware[i](ctx);
     };
 
     await dispatch();
@@ -168,6 +168,9 @@ export class Honocord {
     const commandName = interaction.data.name;
     const handler = this.globalCommandHandlers.get(commandName);
 
+    // Store interaction in context for middleware access
+    ctx.set('command', interactionObj as any);
+
     await this.runMiddleware(ctx, async () => {
       if (handler) {
         try {
@@ -206,6 +209,9 @@ export class Honocord {
     const commandName = interaction.data.name;
     const handler = this.globalCommandHandlers.get(commandName);
 
+    // Store interaction in context for middleware access
+    ctx.set('autocomplete', interactionObj as any);
+
     await this.runMiddleware(ctx, async () => {
       if (handler && handler instanceof SlashCommandHandler) {
         try {
@@ -241,6 +247,9 @@ export class Honocord {
     const interactionObj = new MessageComponentInteraction<T>(api, interaction, ctx);
     const prefix = parseCustomId(interaction.data.custom_id, true);
 
+    // Store interaction in context for middleware access
+    ctx.set('component', interactionObj as any);
+
     await this.runMiddleware(ctx, async () => {
       // Lookup handler by prefix
       const handler = this.componentHandlers.get(prefix);
@@ -265,6 +274,9 @@ export class Honocord {
     const interactionObj = new ModalInteraction(api, interaction, ctx);
     const customId = interaction.data.custom_id;
     const prefix = parseCustomId(customId, true);
+
+    // Store interaction in context for middleware access
+    ctx.set('modal', interactionObj);
 
     await this.runMiddleware(ctx, async () => {
       // Lookup handler by prefix
@@ -394,9 +406,32 @@ export class Honocord {
   /**
    * Registers a middleware function to process interaction contexts.
    *
-   * You don't need to call `.use()` before adding handlers as this just appends to an internal array which the handlers will use when processing interactions.
+   * Middleware receives the Hono context and can:
+   * - Access/modify context variables via `ctx.get()` and `ctx.set()`
+   * - Access the interaction object via `ctx.var.command`, `ctx.var.component`, `ctx.var.modal`, or `ctx.var.autocomplete`
+   * - Access environment bindings via `ctx.env`
+   * - Call `next()` to continue to the next middleware or handler
    *
-   * @param middleware - The middleware function to register.
+   * The context is passed by reference, so all modifications persist through the middleware chain and into handlers.
+   *
+   * @example
+   * ```typescript
+   * bot.use(async (ctx, next) => {
+   *   // Set custom data in context
+   *   ctx.set('startTime', Date.now());
+   *   
+   *   // Access the interaction
+   *   const command = ctx.var.command;
+   *   
+   *   await next();
+   *   
+   *   // Post-processing
+   *   const duration = Date.now() - ctx.get('startTime');
+   *   console.log(`Command took ${duration}ms`);
+   * });
+   * ```
+   *
+   * @param middleware - The middleware function(s) to register.
    * @returns The Honocord instance for chaining.
    */
   use(...middleware: MiddlewareFunction[]): this {
