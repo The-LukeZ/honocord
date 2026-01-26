@@ -18,6 +18,7 @@ import type {
   MessageComponentInteractionPayload,
   MessageComponentType,
   FlatOrNestedArray,
+  MiddlewareFunction,
 } from "./types";
 import { UserContextInteraction } from "@ctx/UserContextCommandInteraction";
 import { MessageContextInteraction } from "@ctx/MessageContextCommandInteraction";
@@ -54,8 +55,34 @@ export class Honocord {
   private guildCommandHandlers = new Map<string, SlashCommandHandler | ContextCommandHandler>();
   private componentHandlers = new Map<string, ComponentHandler>();
   private modalHandlers = new Map<string, ModalHandler>();
+  private middleware = new Array<MiddlewareFunction>();
   private isCFWorker: boolean;
   private debugRest: boolean;
+
+  /**
+   * Executes all registered middleware in sequence.
+   * 
+   * @param ctx - The interaction context
+   * @param finalHandler - The final handler to execute after all middleware
+   */
+  private async runMiddleware(ctx: BaseInteractionContext, finalHandler: () => Promise<void>): Promise<void> {
+    if (this.middleware.length === 0) {
+      return await finalHandler();
+    }
+
+    /**
+     * Executes the next middleware in the chain.
+     */
+    const dispatch = async (i: number = 0): Promise<void> => {
+      if (i >= this.middleware.length) {
+        return await finalHandler();
+      }
+
+      await this.middleware[i](ctx, () => dispatch(i + 1));
+    };
+
+    await dispatch();
+  }
 
   constructor({ isCFWorker, debugRest }: HonocordOptions = {}) {
     this.isCFWorker = isCFWorker ?? false;
@@ -141,29 +168,31 @@ export class Honocord {
     const commandName = interaction.data.name;
     const handler = this.globalCommandHandlers.get(commandName);
 
-    if (handler) {
-      try {
-        await this.executeCommandHandler(handler, interactionObj, interaction.data.type);
-      } catch (error) {
-        console.error(`Error executing command handler for "${commandName}"`, error);
-        throw error;
-      }
-    }
-
-    // Could be a guild command
-    const guildId = interaction.guild_id;
-    if (guildId) {
-      const key = `${guildId}:${commandName}`;
-      const guildHandler = this.guildCommandHandlers.get(key);
-      if (guildHandler) {
+    await this.runMiddleware(ctx, async () => {
+      if (handler) {
         try {
-          await this.executeCommandHandler(guildHandler, interactionObj, interaction.data.type);
+          await this.executeCommandHandler(handler, interactionObj, interaction.data.type);
         } catch (error) {
-          console.error(`Error executing guild command handler for "${commandName}" in guild "${guildId}"`, error);
+          console.error(`Error executing command handler for "${commandName}"`, error);
           throw error;
         }
       }
-    }
+
+      // Could be a guild command
+      const guildId = interaction.guild_id;
+      if (guildId) {
+        const key = `${guildId}:${commandName}`;
+        const guildHandler = this.guildCommandHandlers.get(key);
+        if (guildHandler) {
+          try {
+            await this.executeCommandHandler(guildHandler, interactionObj, interaction.data.type);
+          } catch (error) {
+            console.error(`Error executing guild command handler for "${commandName}" in guild "${guildId}"`, error);
+            throw error;
+          }
+        }
+      }
+    });
 
     return interactionObj;
   }
@@ -177,29 +206,31 @@ export class Honocord {
     const commandName = interaction.data.name;
     const handler = this.globalCommandHandlers.get(commandName);
 
-    if (handler && handler instanceof SlashCommandHandler) {
-      try {
-        await handler.executeAutocomplete(interactionObj);
-      } catch (error) {
-        console.error(`Error executing autocomplete handler for "${commandName}"`, error);
-        throw error;
-      }
-    }
-
-    // Could be a guild command
-    const guildId = interaction.guild_id;
-    if (guildId) {
-      const key = `${guildId}:${commandName}`;
-      const guildHandler = this.guildCommandHandlers.get(key);
-      if (guildHandler && guildHandler instanceof SlashCommandHandler) {
+    await this.runMiddleware(ctx, async () => {
+      if (handler && handler instanceof SlashCommandHandler) {
         try {
-          await guildHandler.executeAutocomplete(interactionObj);
+          await handler.executeAutocomplete(interactionObj);
         } catch (error) {
-          console.error(`Error executing guild autocomplete handler for "${commandName}" in guild "${guildId}"`, error);
+          console.error(`Error executing autocomplete handler for "${commandName}"`, error);
           throw error;
         }
       }
-    }
+
+      // Could be a guild command
+      const guildId = interaction.guild_id;
+      if (guildId) {
+        const key = `${guildId}:${commandName}`;
+        const guildHandler = this.guildCommandHandlers.get(key);
+        if (guildHandler && guildHandler instanceof SlashCommandHandler) {
+          try {
+            await guildHandler.executeAutocomplete(interactionObj);
+          } catch (error) {
+            console.error(`Error executing guild autocomplete handler for "${commandName}" in guild "${guildId}"`, error);
+            throw error;
+          }
+        }
+      }
+    });
   }
 
   private async handleComponentInteraction<T extends MessageComponentType>(
@@ -210,16 +241,18 @@ export class Honocord {
     const interactionObj = new MessageComponentInteraction<T>(api, interaction, ctx);
     const prefix = parseCustomId(interaction.data.custom_id, true);
 
-    // Lookup handler by prefix
-    const handler = this.componentHandlers.get(prefix);
-    if (handler) {
-      try {
-        await handler.execute(interactionObj);
-      } catch (error) {
-        console.error(`Error executing component handler for prefix "${prefix}"`, error);
-        throw error;
+    await this.runMiddleware(ctx, async () => {
+      // Lookup handler by prefix
+      const handler = this.componentHandlers.get(prefix);
+      if (handler) {
+        try {
+          await handler.execute(interactionObj);
+        } catch (error) {
+          console.error(`Error executing component handler for prefix "${prefix}"`, error);
+          throw error;
+        }
       }
-    }
+    });
 
     return interactionObj;
   }
@@ -233,17 +266,19 @@ export class Honocord {
     const customId = interaction.data.custom_id;
     const prefix = parseCustomId(customId, true);
 
-    // Lookup handler by prefix
-    const handler = this.modalHandlers.get(prefix);
+    await this.runMiddleware(ctx, async () => {
+      // Lookup handler by prefix
+      const handler = this.modalHandlers.get(prefix);
 
-    if (handler) {
-      try {
-        await handler.execute(interactionObj);
-      } catch (error) {
-        console.error(`Error executing modal handler for prefix "${prefix}"`, error);
-        throw error;
+      if (handler) {
+        try {
+          await handler.execute(interactionObj);
+        } catch (error) {
+          console.error(`Error executing modal handler for prefix "${prefix}"`, error);
+          throw error;
+        }
       }
-    }
+    });
 
     return interactionObj;
   }
@@ -354,5 +389,27 @@ export class Honocord {
     app.get("*", (c) => c.text("🔥 Honocord is running!"));
     app.post("/", this.handle);
     return app;
+  }
+
+  /**
+   * Registers a middleware function to process interaction contexts.
+   *
+   * You don't need to call `.use()` before adding handlers as this just appends to an internal array which the handlers will use when processing interactions.
+   *
+   * @param middleware - The middleware function to register.
+   * @returns The Honocord instance for chaining.
+   */
+  use(...middleware: MiddlewareFunction[]): this {
+    this.middleware.push(...middleware);
+    return this;
+  }
+
+  /**
+   * Clears all registered middleware functions.
+   * @returns The Honocord instance for chaining.
+   */
+  clearMiddleware(): this {
+    this.middleware = [];
+    return this;
   }
 }

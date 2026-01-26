@@ -194,6 +194,16 @@ export type HandlerFunction<
   InteractionArg extends AnyInteraction<Context> = AnyInteraction<Context>,
 > = (interaction: InteractionArg) => Promise<any> | any;
 
+/**
+ * Middleware function type for processing interaction contexts.
+ * 
+ * Helpful for implementing cross-cutting concerns such as logging, authentication, setting of the DB, etc.
+ */
+export type MiddlewareFunction<Context extends BaseInteractionContext = BaseInteractionContext> = (
+  context: Context,
+  next: () => Promise<void>
+) => Promise<void> | void;
+
 // ---------------------------------------------------------------------------------------------
 // The following types are typings which are derived from discord-api-types but we are using Builders so be have to redefine them
 // ---------------------------------------------------------------------------------------------
