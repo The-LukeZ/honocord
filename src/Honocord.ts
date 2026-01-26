@@ -55,13 +55,13 @@ export class Honocord {
   private guildCommandHandlers = new Map<string, SlashCommandHandler | ContextCommandHandler>();
   private componentHandlers = new Map<string, ComponentHandler>();
   private modalHandlers = new Map<string, ModalHandler>();
-  private middleware = new Array<MiddlewareFunction>();
+  private middleware = new Array<MiddlewareFunction<any>>();
   private isCFWorker: boolean;
   private debugRest: boolean;
 
   /**
    * Executes all registered middleware in sequence.
-   * 
+   *
    * @param ctx - The interaction context
    * @param finalHandler - The final handler to execute after all middleware
    */
@@ -169,7 +169,7 @@ export class Honocord {
     const handler = this.globalCommandHandlers.get(commandName);
 
     // Store interaction in context for middleware access
-    ctx.set('command', interactionObj as any);
+    ctx.set("command", interactionObj as any);
 
     await this.runMiddleware(ctx, async () => {
       if (handler) {
@@ -210,7 +210,7 @@ export class Honocord {
     const handler = this.globalCommandHandlers.get(commandName);
 
     // Store interaction in context for middleware access
-    ctx.set('autocomplete', interactionObj as any);
+    ctx.set("autocomplete", interactionObj as any);
 
     await this.runMiddleware(ctx, async () => {
       if (handler && handler instanceof SlashCommandHandler) {
@@ -248,7 +248,7 @@ export class Honocord {
     const prefix = parseCustomId(interaction.data.custom_id, true);
 
     // Store interaction in context for middleware access
-    ctx.set('component', interactionObj as any);
+    ctx.set("component", interactionObj as any);
 
     await this.runMiddleware(ctx, async () => {
       // Lookup handler by prefix
@@ -276,7 +276,7 @@ export class Honocord {
     const prefix = parseCustomId(customId, true);
 
     // Store interaction in context for middleware access
-    ctx.set('modal', interactionObj);
+    ctx.set("modal", interactionObj);
 
     await this.runMiddleware(ctx, async () => {
       // Lookup handler by prefix
@@ -419,12 +419,12 @@ export class Honocord {
    * bot.use(async (ctx, next) => {
    *   // Set custom data in context
    *   ctx.set('startTime', Date.now());
-   *   
+   *
    *   // Access the interaction
    *   const command = ctx.var.command;
-   *   
+   *
    *   await next();
-   *   
+   *
    *   // Post-processing
    *   const duration = Date.now() - ctx.get('startTime');
    *   console.log(`Command took ${duration}ms`);
@@ -434,7 +434,7 @@ export class Honocord {
    * @param middleware - The middleware function(s) to register.
    * @returns The Honocord instance for chaining.
    */
-  use(...middleware: MiddlewareFunction[]): this {
+  use<Context extends BaseInteractionContext = BaseInteractionContext>(...middleware: MiddlewareFunction<Context>[]): this {
     this.middleware.push(...middleware);
     return this;
   }
