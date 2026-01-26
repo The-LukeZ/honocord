@@ -198,11 +198,10 @@ export type HandlerFunction<
  * Middleware function type for processing interaction contexts.
  *
  * Helpful for implementing cross-cutting concerns such as logging, authentication, setting of the DB, etc.
- * 
- * To make the middleware continue to the next middleware or final handler, return 
  */
 export type MiddlewareFunction<Context extends BaseInteractionContext = BaseInteractionContext> = (
-  context: Context
+  context: Context,
+  next: () => Promise<void>
 ) => Promise<Response | void> | Response | void;
 
 // ---------------------------------------------------------------------------------------------

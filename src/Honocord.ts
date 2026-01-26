@@ -78,7 +78,7 @@ export class Honocord {
         return await finalHandler();
       }
 
-      await this.middleware[i](ctx);
+      await this.middleware[i](ctx, () => dispatch(i + 1));
     };
 
     await dispatch();
@@ -406,28 +406,25 @@ export class Honocord {
   /**
    * Registers a middleware function to process interaction contexts.
    *
-   * Middleware receives the Hono context and can:
-   * - Access/modify context variables via `ctx.get()` and `ctx.set()`
-   * - Access the interaction object via `ctx.var.command`, `ctx.var.component`, `ctx.var.modal`, or `ctx.var.autocomplete`
-   * - Access environment bindings via `ctx.env`
-   * - Call `next()` to continue to the next middleware or handler
+   * Middleware receives the Hono context and a `next` callback:
+   * - Access/modify context variables via `c.get()` and `c.set()`
+   * - Access the interaction object via `c.var.command`, `c.var.component`, `c.var.modal`, or `c.var.autocomplete`
+   * - Access environment bindings via `c.env`
+   * - Call `await next()` to continue to the next middleware or handler
    *
    * The context is passed by reference, so all modifications persist through the middleware chain and into handlers.
    *
    * @example
    * ```typescript
-   * bot.use(async (ctx, next) => {
+   * bot.use(async (c, next) => {
    *   // Set custom data in context
-   *   ctx.set('startTime', Date.now());
-   *
-   *   // Access the interaction
-   *   const command = ctx.var.command;
-   *
+   *   c.set('startTime', Date.now());
+   *   
+   *   // Continue to next middleware/handler
    *   await next();
-   *
-   *   // Post-processing
-   *   const duration = Date.now() - ctx.get('startTime');
-   *   console.log(`Command took ${duration}ms`);
+   *   
+   *   // Code here runs after the handler completes
+   *   console.log('Duration:', Date.now() - c.get('startTime'));
    * });
    * ```
    *
