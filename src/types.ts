@@ -156,9 +156,10 @@ export type MessageComponentInteractionPayload<T extends MessageComponentType = 
   ValidInteraction,
   {
     type: InteractionType.MessageComponent;
-    data: MessageComponentDataTypes[T];
   }
->;
+> & {
+  data: MessageComponentDataTypes[T];
+};
 
 export enum ContextCommandType {
   User = ApplicationCommandType.User,

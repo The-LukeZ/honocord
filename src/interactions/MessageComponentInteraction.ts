@@ -1,4 +1,4 @@
-import { APIMessage, ComponentType, InteractionType } from "discord-api-types/v10";
+import { APIMessage, InteractionType } from "discord-api-types/v10";
 import { API } from "@discordjs/core/http-only";
 import type { BaseInteractionContext, MessageComponentInteractionPayload, MessageComponentType } from "../types";
 import { ModalCapableInteraction } from "./ModalCapableInteraction";
