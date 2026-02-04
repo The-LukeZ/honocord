@@ -29,7 +29,7 @@ const testHandle: HandlerFunction<MyContext, ChatInputCommandInteraction> = asyn
 };
 
 new SlashCommandHandler<MyContext>().addHandler(testHandle);
-const bot = new Honocord();
+const bot = new Honocord().use<MyContext>();
 bot.loadHandlers(...handlers);
 
 const app = new Hono<{ Bindings: MyEnv; Variables: MyVar }>();

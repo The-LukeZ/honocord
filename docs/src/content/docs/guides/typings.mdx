@@ -17,10 +17,11 @@ To get full type safety, you should first define your environment's bindings and
 
 ```ts
 // types.ts
-import type { BaseHonocordEnv, BaseInteractionContext } from "honocord";
+import type { BaseInteractionContext } from "honocord";
 
-// Define your custom environment bindings (e.g., Cloudflare Workers env)
+// Define your custom environment bindings (can also be Cloudflare Workers - you don't have to redifine this here)
 export interface MyEnv {
+  DISCORD_APPLICATION_ID: string;
   DISCORD_TOKEN: string;
   DISCORD_PUBLIC_KEY: string;
   DATABASE: D1Database; // Example Cloudflare D1
@@ -38,7 +39,7 @@ export type MyContext = BaseInteractionContext<MyEnv, MyVariables>;
 
 ## Using Custom Context with Handlers
 
-Once you have defined your custom context, you can use it when creating handlers. This ensures that `ctx.env` and `ctx.var` (via `ctx.get()`) are properly typed within your handler functions.
+Once you have defined your custom context, you can use it when creating handlers. This ensures that `context.env` and `context.var` (via `context.get()`) are properly typed within your handler functions.
 
 ### Slash Commands
 
@@ -100,19 +101,15 @@ command.addHandler(greetHandler);
 When writing middleware for Honocord, use the `MiddlewareFunction` type to ensure the context is correctly typed.
 
 ```ts
-import type { MiddlewareFunction } from "honocord";
+import type { MiddlewareFunction, Honocord } from "honocord";
 import type { MyContext } from "./types";
 
-export const authMiddleware: MiddlewareFunction<MyContext> = async (ctx, next) => {
-  const token = ctx.req.header("Authorization");
-
-  if (token === "secret") {
-    ctx.set("is_admin", true);
-    await next();
-  } else {
-    return ctx.text("Unauthorized", 401);
-  }
-};
+// Note, that c is the Hono context, NOT the interaction context - you can't access interaction properties here yet because it runs before the interaction is parsed.
+// It is still being worked on run the middleware after the interaction is created.
+const bot = new Honocord().use<MyContext>(async (c, next) => {
+  c.set("db", new DBHelper(c.env.DATABASE));
+  return next();
+});
 ```
 
 ## Built-in Interaction Types
