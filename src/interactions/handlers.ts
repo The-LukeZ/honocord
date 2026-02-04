@@ -14,6 +14,7 @@ import type {
   SlashCommandNumberOption,
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandGroupBuilder,
+  ContextMenuCommandType,
 } from "@discordjs/builders";
 import { MessageContextInteraction } from "./MessageContextCommandInteraction";
 import { UserContextInteraction } from "./UserContextCommandInteraction";
@@ -181,6 +182,7 @@ export class ContextCommandHandler<
 > extends ContextMenuCommandBuilder {
   constructor(public readonly commandType: T) {
     super();
+    this.setType(commandType as any); // ContextMenuCommandType is a type, not an enum so the values of the enum ContextCommandType isn't assignable to it directly
   }
 
   readonly handlerType = "context";
