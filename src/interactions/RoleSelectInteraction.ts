@@ -5,8 +5,8 @@ import { MessageComponentInteraction } from "./MessageComponentInteraction";
 import { Collection } from "@discordjs/collection";
 
 class RoleSelectInteraction<Context extends BaseInteractionContext = BaseInteractionContext> extends MessageComponentInteraction<
-  ComponentType.RoleSelect,
-  Context
+  Context,
+  ComponentType.RoleSelect
 > {
   public readonly roles: Collection<string, APIRole>;
   constructor(api: API, interaction: MessageComponentInteractionPayload<ComponentType.RoleSelect>, c: Context) {

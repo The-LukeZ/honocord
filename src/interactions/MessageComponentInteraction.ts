@@ -4,8 +4,8 @@ import type { BaseInteractionContext, MessageComponentInteractionPayload, Messag
 import { ModalCapableInteraction } from "./ModalCapableInteraction";
 
 class MessageComponentInteraction<
-  T extends MessageComponentType = MessageComponentType,
   Context extends BaseInteractionContext = BaseInteractionContext,
+  T extends MessageComponentType = MessageComponentType,
 > extends ModalCapableInteraction<InteractionType.MessageComponent, Context> {
   public readonly message: APIMessage;
   public readonly customId: string;

@@ -6,7 +6,7 @@ import { Collection } from "@discordjs/collection";
 
 class MentionableSelectInteraction<
   Context extends BaseInteractionContext = BaseInteractionContext,
-> extends MessageComponentInteraction<ComponentType.MentionableSelect, Context> {
+> extends MessageComponentInteraction<Context, ComponentType.MentionableSelect> {
   public readonly roles: Collection<string, APIRole>;
   public readonly users: Collection<string, APIUser>;
   constructor(api: API, interaction: MessageComponentInteractionPayload<ComponentType.MentionableSelect>, c: Context) {

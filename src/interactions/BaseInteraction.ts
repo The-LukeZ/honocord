@@ -8,7 +8,6 @@ import {
   Locale,
   APIApplicationCommandInteraction,
   ComponentType,
-  APIMessageComponentInteraction,
   APIMessage,
 } from "discord-api-types/v10";
 import { API } from "@discordjs/core/http-only";
@@ -27,6 +26,12 @@ import { CommandInteraction } from "./CommandInteraction";
 import { ChatInputCommandInteraction } from "./ChatInputInteraction";
 import { UserContextInteraction } from "./UserContextCommandInteraction";
 import { MessageContextInteraction } from "./MessageContextCommandInteraction";
+import { ButtonInteraction } from "./ButtonInteraction";
+import { StringSelectInteraction } from "./StringSelectInteraction";
+import { UserSelectInteraction } from "./UserSelectInteraction";
+import { RoleSelectInteraction } from "./RoleSelectInteraction";
+import { MentionableSelectInteraction } from "./MentionableSelectInteraction";
+import { ChannelSelectInteraction } from "./ChannelSelectInteraction";
 
 function snakeCase(str: string): string {
   return str
@@ -358,31 +363,31 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
     return this.isModal() && !!this.message;
   }
 
-  isMessageComponent(): this is MessageComponentInteraction<MessageComponentType, Context> {
+  isMessageComponent(): this is MessageComponentInteraction<Context, MessageComponentType> {
     return this.raw.type === InteractionType.MessageComponent;
   }
 
-  isButton(): this is MessageComponentInteraction<ComponentType.Button, Context> {
+  isButton(): this is ButtonInteraction<Context> {
     return this.isMessageComponent() && this.raw.data.component_type === ComponentType.Button;
   }
 
-  isStringSelect(): this is MessageComponentInteraction<ComponentType.StringSelect, Context> {
+  isStringSelect(): this is StringSelectInteraction<Context> {
     return this.isMessageComponent() && this.raw.data.component_type === ComponentType.StringSelect;
   }
 
-  isUserSelect(): this is MessageComponentInteraction<ComponentType.UserSelect, Context> {
+  isUserSelect(): this is UserSelectInteraction<Context> {
     return this.isMessageComponent() && this.raw.data.component_type === ComponentType.UserSelect;
   }
 
-  isRoleSelect(): this is MessageComponentInteraction<ComponentType.RoleSelect, Context> {
+  isRoleSelect(): this is RoleSelectInteraction<Context> {
     return this.isMessageComponent() && this.raw.data.component_type === ComponentType.RoleSelect;
   }
 
-  isMentionableSelect(): this is MessageComponentInteraction<ComponentType.MentionableSelect, Context> {
+  isMentionableSelect(): this is MentionableSelectInteraction<Context> {
     return this.isMessageComponent() && this.raw.data.component_type === ComponentType.MentionableSelect;
   }
 
-  isChannelSelect(): this is MessageComponentInteraction<ComponentType.ChannelSelect, Context> {
+  isChannelSelect(): this is ChannelSelectInteraction<Context> {
     return this.isMessageComponent() && this.raw.data.component_type === ComponentType.ChannelSelect;
   }
 

@@ -2,6 +2,7 @@ import {
   APIApplicationCommandAutocompleteInteraction,
   APIApplicationCommandInteraction,
   ApplicationCommandType,
+  ComponentType,
   InteractionResponseType,
   InteractionType,
 } from "discord-api-types/v10";
@@ -26,6 +27,12 @@ import { MessageComponentInteraction } from "@ctx/MessageComponentInteraction";
 import { ModalInteraction } from "@ctx/ModalInteraction";
 import { AutocompleteInteraction } from "@ctx/AutocompleteInteraction";
 import { SlashCommandHandler, ContextCommandHandler, ComponentHandler, ModalHandler, type Handler } from "@ctx/handlers";
+import { ButtonInteraction } from "@ctx/ButtonInteraction";
+import { StringSelectInteraction } from "@ctx/StringSelectInteraction";
+import { UserSelectInteraction } from "@ctx/UserSelectInteraction";
+import { RoleSelectInteraction } from "@ctx/RoleSelectInteraction";
+import { MentionableSelectInteraction } from "@ctx/MentionableSelectInteraction";
+import { ChannelSelectInteraction } from "@ctx/ChannelSelectInteraction";
 
 interface HonocordOptions {
   /**
@@ -239,12 +246,35 @@ export class Honocord {
     });
   }
 
+  private createMessageComponentInteraction<T extends MessageComponentType>(
+    ctx: BaseInteractionContext,
+    interactionObj: MessageComponentInteractionPayload<T>,
+    api: API
+  ) {
+    switch (interactionObj.data.component_type) {
+      case ComponentType.Button:
+        return new ButtonInteraction(api, interactionObj as any, ctx);
+      case ComponentType.StringSelect:
+        return new StringSelectInteraction(api, interactionObj as any, ctx);
+      case ComponentType.UserSelect:
+        return new UserSelectInteraction(api, interactionObj as any, ctx);
+      case ComponentType.RoleSelect:
+        return new RoleSelectInteraction(api, interactionObj as any, ctx);
+      case ComponentType.MentionableSelect:
+        return new MentionableSelectInteraction(api, interactionObj as any, ctx);
+      case ComponentType.ChannelSelect:
+        return new ChannelSelectInteraction(api, interactionObj as any, ctx);
+      default:
+        throw new Error(`Unsupported message component type: ${(interactionObj.data as any).component_type}`);
+    }
+  }
+
   private async handleComponentInteraction<T extends MessageComponentType>(
     ctx: BaseInteractionContext,
     interaction: MessageComponentInteractionPayload<T>,
     api: API
   ) {
-    const interactionObj = new MessageComponentInteraction<T>(api, interaction, ctx);
+    const interactionObj = this.createMessageComponentInteraction(ctx, interaction, api);
     const prefix = parseCustomId(interaction.data.custom_id, true);
 
     // Store interaction in context for middleware access
@@ -419,10 +449,10 @@ export class Honocord {
    * bot.use(async (c, next) => {
    *   // Set custom data in context
    *   c.set('startTime', Date.now());
-   *   
+   *
    *   // Continue to next middleware/handler
    *   await next();
-   *   
+   *
    *   // Code here runs after the handler completes
    *   console.log('Duration:', Date.now() - c.get('startTime'));
    * });

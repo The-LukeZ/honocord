@@ -5,7 +5,7 @@ import { MessageComponentInteraction } from "./MessageComponentInteraction";
 
 class StringSelectInteraction<
   Context extends BaseInteractionContext = BaseInteractionContext,
-> extends MessageComponentInteraction<ComponentType.StringSelect, Context> {
+> extends MessageComponentInteraction<Context, ComponentType.StringSelect> {
   public readonly values: string[];
   constructor(api: API, interaction: MessageComponentInteractionPayload<ComponentType.StringSelect>, c: Context) {
     super(api, interaction, c);

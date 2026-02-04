@@ -1,14 +1,11 @@
 import { AutocompleteInteraction } from "@ctx/AutocompleteInteraction";
 import type { ChatInputCommandInteraction } from "@ctx/ChatInputInteraction";
-import type { MessageComponentInteraction } from "@ctx/MessageComponentInteraction";
 import type { ModalInteraction } from "@ctx/ModalInteraction";
 import type { UserContextInteraction } from "@ctx/UserContextCommandInteraction";
 import type { MessageContextInteraction } from "@ctx/MessageContextCommandInteraction";
 import type { Collection } from "@discordjs/collection";
 import type { Snowflake } from "discord-api-types/globals";
 import {
-  APIApplicationCommandAutocompleteInteraction,
-  APIApplicationCommandInteractionData,
   APIAttachment,
   APIEmbed,
   APIInteraction,
@@ -23,7 +20,6 @@ import {
   APIMessageStringSelectInteractionData,
   APIMessageTopLevelComponent,
   APIMessageUserSelectInteractionData,
-  APIModalComponent,
   APIModalInteractionResponseCallbackData,
   APIPingInteraction,
   APIRole,
@@ -34,12 +30,12 @@ import {
 } from "discord-api-types/v10";
 import type { Context } from "hono";
 import type { Bindings, BlankInput, Variables } from "hono/types";
-
-type BaseBindings = {
-  DISCORD_TOKEN: string;
-  DISCORD_PUBLIC_KEY: string;
-  DISCORD_APPLICATION_ID: string;
-};
+import { ButtonInteraction } from "@ctx/ButtonInteraction";
+import { StringSelectInteraction } from "@ctx/StringSelectInteraction";
+import { UserSelectInteraction } from "@ctx/UserSelectInteraction";
+import { MentionableSelectInteraction } from "@ctx/MentionableSelectInteraction";
+import { RoleSelectInteraction } from "@ctx/RoleSelectInteraction";
+import { ChannelSelectInteraction } from "@ctx/ChannelSelectInteraction";
 
 /**
  * Base variables that the library uses
@@ -48,8 +44,16 @@ export interface BaseVariables {
   autocomplete?: ChatInputCommandInteraction;
   command?: ChatInputCommandInteraction;
   modal?: ModalInteraction;
-  component?: MessageComponentInteraction;
+  component?: TMessageComponentInteraction;
 }
+
+export type TMessageComponentInteraction<Context extends BaseInteractionContext = BaseInteractionContext> =
+  | ButtonInteraction<Context>
+  | StringSelectInteraction<Context>
+  | UserSelectInteraction<Context>
+  | RoleSelectInteraction<Context>
+  | MentionableSelectInteraction<Context>
+  | ChannelSelectInteraction<Context>;
 
 /**
  * Base context environment
@@ -186,7 +190,7 @@ export type AnyInteraction<Context extends BaseInteractionContext = BaseInteract
   | ChatInputCommandInteraction<Context>
   | UserContextInteraction<Context>
   | MessageContextInteraction<Context>
-  | MessageComponentInteraction<MessageComponentType, Context>
+  | TMessageComponentInteraction<Context>
   | ModalInteraction<Context>
   | AutocompleteInteraction<Context>;
 

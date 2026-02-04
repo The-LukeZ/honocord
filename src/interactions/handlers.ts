@@ -176,10 +176,14 @@ export class SlashCommandHandler<Context extends BaseInteractionContext = BaseIn
 }
 
 export class ContextCommandHandler<
-  T extends ContextCommandType = ContextCommandType,
   Context extends BaseInteractionContext = BaseInteractionContext,
+  T extends ContextCommandType = ContextCommandType,
   InteractionData = T extends ContextCommandType.User ? UserContextInteraction<Context> : MessageContextInteraction<Context>,
 > extends ContextMenuCommandBuilder {
+  constructor(public readonly commandType: T) {
+    super();
+  }
+
   readonly handlerType = "context";
   private handlerFn?: (interaction: InteractionData) => Promise<any> | any;
   /**
@@ -215,7 +219,7 @@ export class ContextCommandHandler<
 
   public addHandler(
     handler: (interaction: InteractionData) => Promise<any> | any
-  ): ContextCommandHandler<T, Context, InteractionData> {
+  ): ContextCommandHandler<Context, T, InteractionData> {
     this.handlerFn = handler;
     return this;
   }
@@ -235,14 +239,18 @@ export class ContextCommandHandler<
  * Handler for message components (buttons, select menus) based on custom ID prefix
  */
 export class ComponentHandler<
-  T extends MessageComponentType = MessageComponentType,
   Context extends BaseInteractionContext = BaseInteractionContext,
+  T extends MessageComponentType = MessageComponentType,
 > {
   readonly handlerType = "component";
   public readonly prefix: string;
-  private handlerFn?: (interaction: MessageComponentInteraction<T, Context>) => Promise<any> | any;
+  private handlerFn?: (interaction: MessageComponentInteraction<Context, T>) => Promise<any> | any;
 
-  constructor(prefix: string, handler?: (interaction: MessageComponentInteraction<T, Context>) => Promise<any> | any) {
+  constructor(
+    prefix: string,
+    public readonly componentType: T,
+    handler?: (interaction: MessageComponentInteraction<Context, T>) => Promise<any> | any
+  ) {
     if (!prefix || typeof prefix !== "string") {
       throw new TypeError("Component handler prefix must be a non-empty string");
     }
@@ -252,8 +260,8 @@ export class ComponentHandler<
   }
 
   addHandler(
-    handler: (interaction: MessageComponentInteraction<T, Context>) => Promise<any> | any
-  ): ComponentHandler<T, Context> {
+    handler: (interaction: MessageComponentInteraction<Context, T>) => Promise<any> | any
+  ): ComponentHandler<Context, T> {
     this.handlerFn = handler;
     return this;
   }
@@ -261,7 +269,7 @@ export class ComponentHandler<
   /**
    * Executes the component handler
    */
-  async execute(interaction: MessageComponentInteraction<T, Context>): Promise<void> {
+  async execute(interaction: MessageComponentInteraction<Context, T>): Promise<void> {
     if (!this.handlerFn) {
       throw new Error(`Component handler with prefix "${this.prefix}" does not have a handler`);
     }
@@ -323,10 +331,10 @@ export class ModalHandler<Context extends BaseInteractionContext = BaseInteracti
  */
 export type Handler<Context extends BaseInteractionContext = BaseInteractionContext> =
   | SlashCommandHandler<Context>
-  | ContextCommandHandler<ContextCommandType, Context>
-  | ComponentHandler<MessageComponentType, Context>
+  | ContextCommandHandler<Context, ContextCommandType>
+  | ComponentHandler<Context, MessageComponentType>
   | ModalHandler<Context>;
 
 export type CommandHandler<Context extends BaseInteractionContext = BaseInteractionContext> =
   | SlashCommandHandler<Context>
-  | ContextCommandHandler<ContextCommandType, Context>;
+  | ContextCommandHandler<Context, ContextCommandType>;

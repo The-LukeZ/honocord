@@ -13,4 +13,8 @@ commandHandler.addHandler(async (ctx) => {
   });
 });
 
-const buttonHandler = new ComponentHandler<ComponentType.Button>("test_button");
+const buttonHandler = new ComponentHandler("test_button", ComponentType.Button).addHandler(async (ctx) => {
+  if (ctx.isButton()) {
+    console.log("Button clicked with custom ID:", ctx.customId);
+  }
+});

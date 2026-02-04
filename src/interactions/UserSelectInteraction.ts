@@ -5,8 +5,8 @@ import { MessageComponentInteraction } from "./MessageComponentInteraction";
 import { Collection } from "@discordjs/collection";
 
 class UserSelectInteraction<Context extends BaseInteractionContext = BaseInteractionContext> extends MessageComponentInteraction<
-  ComponentType.UserSelect,
-  Context
+  Context,
+  ComponentType.UserSelect
 > {
   public readonly users: Collection<string, APIUser>;
   constructor(api: API, interaction: MessageComponentInteractionPayload<ComponentType.UserSelect>, c: Context) {

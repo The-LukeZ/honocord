@@ -2,6 +2,7 @@ import { ComponentHandler, SlashCommandHandler } from "@ctx/handlers";
 import { BaseInteractionContext, HandlerFunction } from "../types";
 import { ComponentType, MessageFlags } from "discord-api-types/v10";
 import { ContainerBuilder } from "@discordjs/builders";
+import { ChatInputCommandInteraction } from "@ctx/ChatInputInteraction";
 
 interface MyEnv {
   DISCORD_PUBLIC_KEY: string;
@@ -16,7 +17,7 @@ interface MyVar {
 
 type MyContext = BaseInteractionContext<MyEnv, MyVar>;
 
-const testHandle: HandlerFunction<MyContext> = async (ctx) => {
+const testHandle: HandlerFunction<MyContext, ChatInputCommandInteraction> = async (ctx) => {
   console.log(!!ctx.context.env.DATABASE);
   await ctx.reply({
     flags: MessageFlags.IsComponentsV2,
@@ -26,7 +27,7 @@ const testHandle: HandlerFunction<MyContext> = async (ctx) => {
 
 new SlashCommandHandler<MyContext>().addHandler(testHandle);
 
-new ComponentHandler<ComponentType.Button, MyContext>("some_id").addHandler(async (ctx) => {
+new ComponentHandler<MyContext>("some_id", ComponentType.Button).addHandler(async (ctx) => {
   console.log("Button clicked");
   await ctx.update("Button clicked!");
   await ctx.editReply("Edited reply!");

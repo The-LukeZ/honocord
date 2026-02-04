@@ -6,7 +6,7 @@ import { Collection } from "@discordjs/collection";
 
 class ChannelSelectInteraction<
   Context extends BaseInteractionContext = BaseInteractionContext,
-> extends MessageComponentInteraction<ComponentType.ChannelSelect, Context> {
+> extends MessageComponentInteraction<Context, ComponentType.ChannelSelect> {
   public readonly channels: Collection<string, APIInteractionDataResolvedChannel>;
   constructor(api: API, interaction: MessageComponentInteractionPayload<ComponentType.ChannelSelect>, c: Context) {
     super(api, interaction, c);
