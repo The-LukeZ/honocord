@@ -341,3 +341,8 @@ export type Handler<Context extends BaseInteractionContext = BaseInteractionCont
 export type CommandHandler<Context extends BaseInteractionContext = BaseInteractionContext> =
   | SlashCommandHandler<Context>
   | ContextCommandHandler<Context, ContextCommandType>;
+
+/**
+ * Helper type to allow handlers with any context extending BaseInteractionContext
+ */
+export type AnyHandler = Handler<any>;

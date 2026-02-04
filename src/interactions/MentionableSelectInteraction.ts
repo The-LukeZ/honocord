@@ -7,10 +7,12 @@ import { Collection } from "@discordjs/collection";
 class MentionableSelectInteraction<
   Context extends BaseInteractionContext = BaseInteractionContext,
 > extends MessageComponentInteraction<Context, ComponentType.MentionableSelect> {
+  public readonly values: string[];
   public readonly roles: Collection<string, APIRole>;
   public readonly users: Collection<string, APIUser>;
   constructor(api: API, interaction: MessageComponentInteractionPayload<ComponentType.MentionableSelect>, c: Context) {
     super(api, interaction, c);
+    this.values = interaction.data.values;
     this.roles = new Collection(interaction.data.resolved.roles ? Object.entries(interaction.data.resolved.roles) : []);
     this.users = new Collection(interaction.data.resolved.users ? Object.entries(interaction.data.resolved.users) : []);
   }

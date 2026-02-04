@@ -8,9 +8,11 @@ class UserSelectInteraction<Context extends BaseInteractionContext = BaseInterac
   Context,
   ComponentType.UserSelect
 > {
+  public readonly values: string[];
   public readonly users: Collection<string, APIUser>;
   constructor(api: API, interaction: MessageComponentInteractionPayload<ComponentType.UserSelect>, c: Context) {
     super(api, interaction, c);
+    this.values = interaction.data.values;
     this.users = new Collection(interaction.data.resolved.users ? Object.entries(interaction.data.resolved.users) : []);
   }
 }

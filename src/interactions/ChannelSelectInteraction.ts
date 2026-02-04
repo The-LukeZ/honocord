@@ -7,9 +7,11 @@ import { Collection } from "@discordjs/collection";
 class ChannelSelectInteraction<
   Context extends BaseInteractionContext = BaseInteractionContext,
 > extends MessageComponentInteraction<Context, ComponentType.ChannelSelect> {
+  public readonly values: string[];
   public readonly channels: Collection<string, APIInteractionDataResolvedChannel>;
   constructor(api: API, interaction: MessageComponentInteractionPayload<ComponentType.ChannelSelect>, c: Context) {
     super(api, interaction, c);
+    this.values = interaction.data.values;
     this.channels = new Collection(interaction.data.resolved.channels ? Object.entries(interaction.data.resolved.channels) : []);
   }
 }

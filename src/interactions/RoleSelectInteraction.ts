@@ -8,9 +8,11 @@ class RoleSelectInteraction<Context extends BaseInteractionContext = BaseInterac
   Context,
   ComponentType.RoleSelect
 > {
+  public readonly values: string[];
   public readonly roles: Collection<string, APIRole>;
   constructor(api: API, interaction: MessageComponentInteractionPayload<ComponentType.RoleSelect>, c: Context) {
     super(api, interaction, c);
+    this.values = interaction.data.values;
     this.roles = new Collection(interaction.data.resolved.roles ? Object.entries(interaction.data.resolved.roles) : []);
   }
 }

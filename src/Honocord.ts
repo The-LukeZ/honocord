@@ -26,7 +26,14 @@ import { MessageContextInteraction } from "@ctx/MessageContextCommandInteraction
 import { MessageComponentInteraction } from "@ctx/MessageComponentInteraction";
 import { ModalInteraction } from "@ctx/ModalInteraction";
 import { AutocompleteInteraction } from "@ctx/AutocompleteInteraction";
-import { SlashCommandHandler, ContextCommandHandler, ComponentHandler, ModalHandler, type Handler } from "@ctx/handlers";
+import {
+  SlashCommandHandler,
+  ContextCommandHandler,
+  ComponentHandler,
+  ModalHandler,
+  type Handler,
+  AnyHandler,
+} from "@ctx/handlers";
 import { ButtonInteraction } from "@ctx/ButtonInteraction";
 import { StringSelectInteraction } from "@ctx/StringSelectInteraction";
 import { UserSelectInteraction } from "@ctx/UserSelectInteraction";
@@ -103,7 +110,7 @@ export class Honocord {
    *
    * For an example of usage, see the [Example Repository](https://github.com/The-LukeZ/honocord-examples).
    */
-  loadHandlers(...handlers: FlatOrNestedArray<Handler>): void {
+  loadHandlers(...handlers: FlatOrNestedArray<AnyHandler>): void {
     const flattenedHandlers = handlers.flat(Infinity) as Handler[];
 
     for (const handler of flattenedHandlers) {
