@@ -55,4 +55,10 @@ For Cloudflare Workers, add:
 IS_CF_WORKER=true
 ```
 
-or use the parameter in the `Honocord` constructor.
+or use the parameter in the `Honocord` constructor: `new Honocord({ isCFWorker: true })`
+
+## Common Errors
+
+- "Bad request signature" → Wrong `DISCORD_PUBLIC_KEY`
+- "Unauthorized" → Invalid `DISCORD_TOKEN`
+- "Application not found" → Wrong `DISCORD_APPLICATION_ID`
