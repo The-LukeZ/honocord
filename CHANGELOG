@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Order of generic parameters in ComponentHandler to have Context first, improving consistency with other handlers
+- Updated dependencies to latest versions
 
 ## [1.3.2] - 2026-01-26
 
