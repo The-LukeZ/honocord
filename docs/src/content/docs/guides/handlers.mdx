@@ -5,9 +5,27 @@ sidebar:
   order: 4
 ---
 
+import { Aside } from "@astrojs/starlight/components";
+
 Handlers are the core of Honocord. They allow you to define both the metadata for Discord (like command names, descriptions, and options) and the logic that should run when an interaction occurs.
 
 Honocord provides specialized handler classes for different types of interactions.
+
+<Aside type="caution" title="Explicit Type Arguments">
+Currently, for `ComponentHandler` and `ContextCommandHandler`, you must pass the specific type **twice**: once as a generic type argument and once as a constructor parameter.
+
+```ts
+// Component Handlers
+const mySelect = new ComponentHandler<MyContext, ComponentType.RoleSelect>("role_select", ComponentType.RoleSelect);
+
+// Context Menu Commands
+const myMessageCommand = new ContextCommandHandler<MyContext, ContextCommandType.Message>(ContextCommandType.Message);
+```
+
+The type argument is used for IDE IntelliSense and type safety (ensuring `ctx` is of type `RoleSelectInteraction` for example), while the constructor parameter is used for internal validation and routing.
+Automatic inference is currently bugged and being worked on.
+
+</Aside>
 
 ## Slash Commands
 
@@ -153,4 +171,12 @@ import { Honocord } from "honocord";
 const bot = new Honocord();
 
 bot.loadHandlers(pingCommand, userCommand, voteButton, feedbackModal);
+```
+
+Or if you have many handlers, you can load them from an array:
+
+```ts
+import * as handlers from "./handlers"; // assuming handlers/index.ts exports all (and ONLY) handlers
+
+bot.loadHandlers(...Object.values(handlers));
 ```

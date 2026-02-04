@@ -26,7 +26,7 @@ commandHandler.addHandler(async (ctx) => {
   });
 });
 
-const buttonHandler = new ComponentHandler<MyContext>("test_button", ComponentType.Button);
+const buttonHandler = new ComponentHandler<MyContext, ComponentType.Button>("test_button", ComponentType.Button);
 
 buttonHandler.addHandler(async (ctx) => {
   if (ctx.isButton()) {
@@ -34,22 +34,24 @@ buttonHandler.addHandler(async (ctx) => {
   }
 });
 
-const userContextCommandHandler = new ContextCommandHandler<MyContext>(ContextCommandType.User)
+const userContextCommandHandler = new ContextCommandHandler<MyContext, ContextCommandType.User>(ContextCommandType.User)
   .setName("user_command")
   .addHandler(async (ctx) => {
     console.log("User context command executed");
   });
 
-const messageContextCommandHandler = new ContextCommandHandler<MyContext>(ContextCommandType.Message)
+const messageContextCommandHandler = new ContextCommandHandler<MyContext, ContextCommandType.Message>(ContextCommandType.Message)
   .setName("message_command")
   .addHandler(async (ctx) => {
     console.log("Message context command executed");
   });
 
 // all component interaction handlers
-const buttonComponentHandler = new ComponentHandler<MyContext>("some_id", ComponentType.Button).addHandler(async (ctx) => {
-  console.log("Button clicked");
-});
+const buttonComponentHandler = new ComponentHandler<MyContext, ComponentType.Button>("some_id", ComponentType.Button).addHandler(
+  async (ctx) => {
+    console.log("Button clicked");
+  }
+);
 
 const stringSelectComponentHandler = new ComponentHandler<MyContext, ComponentType.StringSelect>(
   "select_1",
