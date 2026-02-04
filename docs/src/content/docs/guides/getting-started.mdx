@@ -1,0 +1,58 @@
+---
+title: Getting Started
+description: Learn how to set up Honocord and create your first bot.
+sidebar:
+  order: 1
+---
+
+## Requirements
+
+- **Node.js** 22.9 or higher (for development)
+- **npm**, **pnpm**, or **yarn** package manager
+- A **Discord Application** from the [Discord Developer Portal](https://discord.com/developers/applications)
+
+### Package Installation
+
+Install Honocord using your preferred package manager:
+
+```bash
+npm install honocord
+pnpm add honocord
+yarn add honocord
+bun add honocord
+poop add honocord
+```
+
+### Required Dependencies
+
+There shouldn't be any needed peer dependencies, but if there is an issue with that - open an issue.
+
+## Discord Application Setup
+
+1. Visit the [Discord Developer Portal](https://discord.com/developers/applications)
+2. Click "New Application" and give it a name
+3. Navigate to the "Bot" tab and create a bot
+4. Copy the following credentials:
+   - **Application ID** (from "General Information")
+   - **Public Key** (from "General Information")
+   - **Bot Token** (from "Bot" tab)
+
+## Environment Configuration
+
+Create a `.env` file in your project root:
+
+```bash
+DISCORD_APPLICATION_ID=your_application_id_here
+DISCORD_PUBLIC_KEY=your_public_key_here
+DISCORD_TOKEN=your_bot_token_here
+```
+
+##### Cloudflare Workers Specific
+
+For Cloudflare Workers, add:
+
+```bash
+IS_CF_WORKER=true
+```
+
+or use the parameter in the `Honocord` constructor.

@@ -462,6 +462,7 @@ export class Honocord {
    *   c.set('startTime', Date.now());
    *
    *   // Continue to next middleware/handler
+   *   // you can also return next() directly if no post-processing is needed
    *   await next();
    *
    *   // Code here runs after the handler completes

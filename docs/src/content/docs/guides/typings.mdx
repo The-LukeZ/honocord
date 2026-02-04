@@ -1,0 +1,128 @@
+---
+title: Typings
+description: Learn about type safety in Honocord.
+sidebar:
+  order: 3
+---
+
+Honocord is built with TypeScript and provides deep type-safety for your Discord interactions. Since it's built on top of [Hono](https://hono.dev), it leverages Hono's powerful context system while adding Discord-specific enhancements.
+
+## Base Interaction Context
+
+The core of Honocord's type safety is the `BaseInteractionContext`. This type extends Hono's context and provides access to your environment bindings (like Cloudflare Workers environment variables) and custom Hono variables.
+
+### Defining your Environment
+
+To get full type safety, you should first define your environment's bindings and variables.
+
+```ts
+// types.ts
+import type { BaseHonocordEnv, BaseInteractionContext } from "honocord";
+
+// Define your custom environment bindings (e.g., Cloudflare Workers env)
+export interface MyEnv {
+  DISCORD_TOKEN: string;
+  DISCORD_PUBLIC_KEY: string;
+  DATABASE: D1Database; // Example Cloudflare D1
+}
+
+// Define your custom Hono variables (can be populated by middleware)
+export interface MyVariables {
+  db: DBHelper; // Example database helper instance
+  is_admin: boolean;
+}
+
+// Create a reusable context type
+export type MyContext = BaseInteractionContext<MyEnv, MyVariables>;
+```
+
+## Using Custom Context with Handlers
+
+Once you have defined your custom context, you can use it when creating handlers. This ensures that `ctx.env` and `ctx.var` (via `ctx.get()`) are properly typed within your handler functions.
+
+### Slash Commands
+
+Pass your custom context type as a generic parameter to `SlashCommandHandler`.
+
+```ts
+import { SlashCommandHandler } from "honocord";
+import type { MyContext } from "./types";
+
+const command = new SlashCommandHandler<MyContext>().setName("greet").setDescription("Greet a user");
+
+command.addHandler(async (ctx) => {
+  // ctx.env.DATABASE is typed!
+  const db = ctx.env.DATABASE;
+
+  // Use Hono's typed variables
+  const isAdmin = ctx.get("is_admin");
+
+  await ctx.reply(`Hello! Admin status: ${isAdmin}`);
+});
+```
+
+### Component Handlers
+
+Similarly, you can use it with `ComponentHandler`.
+
+```ts
+import { ComponentHandler } from "honocord";
+import { ComponentType } from "discord-api-types/v10";
+import type { MyContext } from "./types";
+
+const buttonHandler = new ComponentHandler<MyContext>("my_button_id", ComponentType.Button);
+
+buttonHandler.addHandler(async (ctx) => {
+  // ctx is a ButtonInteraction with MyContext
+  console.log(`Button clicked by user ${ctx.get("user_id")}`);
+  await ctx.reply("Button clicked!");
+});
+```
+
+## Typing Handler Functions Separately
+
+If you prefer to define your handler functions separately from the command registration, you can use the `HandlerFunction` type.
+
+```ts
+import type { HandlerFunction, ChatInputCommandInteraction } from "honocord";
+import type { MyContext } from "./types";
+
+export const greetHandler: HandlerFunction<MyContext, ChatInputCommandInteraction<MyContext>> = async (ctx) => {
+  await ctx.reply("Hello from a typed function!");
+};
+
+// Usage
+command.addHandler(greetHandler);
+```
+
+## Middleware Type Safety
+
+When writing middleware for Honocord, use the `MiddlewareFunction` type to ensure the context is correctly typed.
+
+```ts
+import type { MiddlewareFunction } from "honocord";
+import type { MyContext } from "./types";
+
+export const authMiddleware: MiddlewareFunction<MyContext> = async (ctx, next) => {
+  const token = ctx.req.header("Authorization");
+
+  if (token === "secret") {
+    ctx.set("is_admin", true);
+    await next();
+  } else {
+    return ctx.text("Unauthorized", 401);
+  }
+};
+```
+
+## Built-in Interaction Types
+
+Honocord provides typed interactions for all supported Discord interaction types. These inherit your custom context:
+
+- `ChatInputCommandInteraction<Context>`: For slash commands.
+- `AutocompleteInteraction<Context>`: For autocomplete options.
+- `ButtonInteraction<Context>`: For button components.
+- `StringSelectInteraction<Context>`: For string select menus.
+- `UserSelectInteraction<Context>`, `RoleSelectInteraction<Context>`, etc.
+- `ModalInteraction<Context>`: For modal submissions.
+- `UserContextInteraction<Context>` & `MessageContextInteraction<Context>`: For context menu commands.
