@@ -55,6 +55,16 @@ export type TMessageComponentInteraction<Context extends BaseInteractionContext 
   | MentionableSelectInteraction<Context>
   | ChannelSelectInteraction<Context>;
 
+export type MessageComponentInteractionObj<
+  Context extends BaseInteractionContext = BaseInteractionContext,
+  T extends MessageComponentType = MessageComponentType,
+> = Extract<
+  TMessageComponentInteraction<Context>,
+  {
+    componentType: T;
+  }
+>;
+
 /**
  * Base context environment
  */

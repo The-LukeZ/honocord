@@ -1,6 +1,5 @@
 import type { ChatInputCommandInteraction } from "./ChatInputInteraction";
 import type { AutocompleteInteraction } from "./AutocompleteInteraction";
-import type { MessageComponentInteraction } from "./MessageComponentInteraction";
 import type { ModalInteraction } from "./ModalInteraction";
 import { ContextMenuCommandBuilder, SlashCommandBuilder } from "@discordjs/builders";
 import type {
@@ -19,7 +18,7 @@ import type {
 import { MessageContextInteraction } from "./MessageContextCommandInteraction";
 import { UserContextInteraction } from "./UserContextCommandInteraction";
 import { parseCustomId } from "@utils/index";
-import { BaseInteractionContext, ContextCommandType, MessageComponentType } from "../types";
+import { BaseInteractionContext, ContextCommandType, MessageComponentInteractionObj, MessageComponentType } from "../types";
 
 /**
  * Handler for chat input commands with optional autocomplete support
@@ -240,17 +239,19 @@ export class ContextCommandHandler<
  */
 export class ComponentHandler<
   Context extends BaseInteractionContext = BaseInteractionContext,
-  T extends MessageComponentType = MessageComponentType,
+  CType extends MessageComponentType = MessageComponentType,
 > {
   readonly handlerType = "component";
   public readonly prefix: string;
-  private handlerFn?: (interaction: MessageComponentInteraction<Context, T>) => Promise<any> | any;
+  public readonly componentType: CType;
+  private handlerFn?: (interaction: MessageComponentInteractionObj<Context, CType>) => Promise<any> | any;
 
   constructor(
     prefix: string,
-    public readonly componentType: T,
-    handler?: (interaction: MessageComponentInteraction<Context, T>) => Promise<any> | any
+    componentType: CType,
+    handler?: (interaction: MessageComponentInteractionObj<Context, CType>) => Promise<any> | any
   ) {
+    this.componentType = componentType;
     if (!prefix || typeof prefix !== "string") {
       throw new TypeError("Component handler prefix must be a non-empty string");
     }
@@ -260,8 +261,8 @@ export class ComponentHandler<
   }
 
   addHandler(
-    handler: (interaction: MessageComponentInteraction<Context, T>) => Promise<any> | any
-  ): ComponentHandler<Context, T> {
+    handler: (interaction: MessageComponentInteractionObj<Context, CType>) => Promise<any> | any
+  ): ComponentHandler<Context, CType> {
     this.handlerFn = handler;
     return this;
   }
@@ -269,7 +270,7 @@ export class ComponentHandler<
   /**
    * Executes the component handler
    */
-  async execute(interaction: MessageComponentInteraction<Context, T>): Promise<void> {
+  async execute(interaction: MessageComponentInteractionObj<Context, CType>): Promise<void> {
     if (!this.handlerFn) {
       throw new Error(`Component handler with prefix "${this.prefix}" does not have a handler`);
     }

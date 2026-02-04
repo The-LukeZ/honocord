@@ -3,7 +3,7 @@ import { API } from "@discordjs/core/http-only";
 import type { BaseInteractionContext, MessageComponentInteractionPayload, MessageComponentType } from "../types";
 import { ModalCapableInteraction } from "./ModalCapableInteraction";
 
-class MessageComponentInteraction<
+abstract class MessageComponentInteraction<
   Context extends BaseInteractionContext = BaseInteractionContext,
   T extends MessageComponentType = MessageComponentType,
 > extends ModalCapableInteraction<InteractionType.MessageComponent, Context> {

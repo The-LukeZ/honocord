@@ -283,13 +283,17 @@ export class Honocord {
     await this.runMiddleware(ctx, async () => {
       // Lookup handler by prefix
       const handler = this.componentHandlers.get(prefix);
-      if (handler) {
+      if (handler?.componentType === interaction.data.component_type) {
         try {
           await handler.execute(interactionObj);
         } catch (error) {
           console.error(`Error executing component handler for prefix "${prefix}"`, error);
           throw error;
         }
+      } else {
+        throw new Error(
+          `No component handler found for prefix "${prefix}" and component type "${interaction.data.component_type}"`
+        );
       }
     });
 
