@@ -2,6 +2,7 @@ import type { ChatInputCommandInteraction } from "./ChatInputInteraction";
 import type { AutocompleteInteraction } from "./AutocompleteInteraction";
 import type { ModalInteraction } from "./ModalInteraction";
 import { ContextMenuCommandBuilder, SlashCommandBuilder } from "@discordjs/builders";
+import { ComponentType } from "discord-api-types/v10";
 import type {
   SlashCommandBooleanOption,
   SlashCommandUserOption,
@@ -334,13 +335,20 @@ export class ModalHandler<Context extends BaseInteractionContext = BaseInteracti
  */
 export type Handler<Context extends BaseInteractionContext = BaseInteractionContext> =
   | SlashCommandHandler<Context>
-  | ContextCommandHandler<Context, ContextCommandType>
-  | ComponentHandler<Context, any>
+  | ContextCommandHandler<Context, ContextCommandType.User, UserContextInteraction<Context>>
+  | ContextCommandHandler<Context, ContextCommandType.Message, MessageContextInteraction<Context>>
+  | ComponentHandler<Context, ComponentType.Button>
+  | ComponentHandler<Context, ComponentType.StringSelect>
+  | ComponentHandler<Context, ComponentType.UserSelect>
+  | ComponentHandler<Context, ComponentType.RoleSelect>
+  | ComponentHandler<Context, ComponentType.MentionableSelect>
+  | ComponentHandler<Context, ComponentType.ChannelSelect>
   | ModalHandler<Context>;
 
 export type CommandHandler<Context extends BaseInteractionContext = BaseInteractionContext> =
   | SlashCommandHandler<Context>
-  | ContextCommandHandler<Context, ContextCommandType>;
+  | ContextCommandHandler<Context, ContextCommandType.User, UserContextInteraction<Context>>
+  | ContextCommandHandler<Context, ContextCommandType.Message, MessageContextInteraction<Context>>;
 
 /**
  * Helper type to allow handlers with any context extending BaseInteractionContext
