@@ -37,63 +37,28 @@ export interface MyVariables {
 export type MyContext = BaseInteractionContext<MyEnv, MyVariables>;
 ```
 
-## Using Custom Context with Handlers
+## Applying Types to Handlers
 
-Once you have defined your custom context, you can use it when creating handlers. This ensures that `context.env` and `context.var` (via `context.get()`) are properly typed within your handler functions.
-
-### Slash Commands
-
-Pass your custom context type as a generic parameter to `SlashCommandHandler`.
+To get full type safety within your handlers, pass your custom context type as a generic parameter when instantiating them. See the [Handlers guide](/guides/handlers) for more details on creates handlers.
 
 ```ts
-import { SlashCommandHandler } from "honocord";
-import type { MyContext } from "./types";
-
-const command = new SlashCommandHandler<MyContext>().setName("greet").setDescription("Greet a user");
-
-command.addHandler(async (ctx) => {
-  // ctx.env.DATABASE is typed!
-  const db = ctx.env.DATABASE;
-
-  // Use Hono's typed variables
-  const isAdmin = ctx.get("is_admin");
-
-  await ctx.reply(`Hello! Admin status: ${isAdmin}`);
-});
-```
-
-### Component Handlers
-
-Similarly, you can use it with `ComponentHandler`.
-
-```ts
-import { ComponentHandler } from "honocord";
+import { SlashCommandHandler, ComponentHandler } from "honocord";
 import { ComponentType } from "discord-api-types/v10";
 import type { MyContext } from "./types";
 
-const buttonHandler = new ComponentHandler<MyContext>("my_button_id", ComponentType.Button);
+// Slash Commands
+const command = new SlashCommandHandler<MyContext>()
+  .setName("greet")
+  .addHandler(async (ctx) => {
+    // ctx.env and ctx.var are now fully typed!
+    const db = ctx.env.DATABASE;
+  });
 
-buttonHandler.addHandler(async (ctx) => {
-  // ctx is a ButtonInteraction with MyContext
-  console.log(`Button clicked by user ${ctx.get("user_id")}`);
-  await ctx.reply("Button clicked!");
-});
-```
-
-## Typing Handler Functions Separately
-
-If you prefer to define your handler functions separately from the command registration, you can use the `HandlerFunction` type.
-
-```ts
-import type { HandlerFunction, ChatInputCommandInteraction } from "honocord";
-import type { MyContext } from "./types";
-
-export const greetHandler: HandlerFunction<MyContext, ChatInputCommandInteraction<MyContext>> = async (ctx) => {
-  await ctx.reply("Hello from a typed function!");
-};
-
-// Usage
-command.addHandler(greetHandler);
+// Component Handlers
+const button = new ComponentHandler<MyContext>("my_id", ComponentType.Button)
+  .addHandler(async (ctx) => {
+    const userId = ctx.get("user_id");
+  });
 ```
 
 ## Middleware Type Safety

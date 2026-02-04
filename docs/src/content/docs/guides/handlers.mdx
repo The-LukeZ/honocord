@@ -1,0 +1,156 @@
+---
+title: Handlers
+description: Learn how to use handlers in Honocord.
+sidebar:
+  order: 4
+---
+
+Handlers are the core of Honocord. They allow you to define both the metadata for Discord (like command names, descriptions, and options) and the logic that should run when an interaction occurs.
+
+Honocord provides specialized handler classes for different types of interactions.
+
+## Slash Commands
+
+`SlashCommandHandler` is used for chat input commands. It extends the `@discordjs/builders` `SlashCommandBuilder`, so you can use all the familiar methods to define your command's structure.
+
+```ts
+import { SlashCommandHandler } from "honocord";
+
+const pingCommand = new SlashCommandHandler()
+  .setName("ping")
+  .setDescription("Replies with Pong!")
+  .addHandler(async (ctx) => {
+    await ctx.reply("Pong!");
+  });
+```
+
+### Options and Subcommands
+
+Since it extends `SlashCommandBuilder`, you can add options and subcommands directly.
+
+```ts
+const userCommand = new SlashCommandHandler()
+  .setName("userinfo")
+  .setDescription("Get info about a user")
+  .addUserOption((option) => option.setName("target").setDescription("The user to lookup").setRequired(true))
+  .addHandler(async (ctx) => {
+    const user = ctx.options.getUser("target", true); // if required option, pass true as second argument!
+    await ctx.reply(`User: ${user.username} (${user.id})`);
+  });
+```
+
+### Autocomplete
+
+You can handle autocomplete interactions by adding an autocomplete handler to your command.
+
+```ts
+const searchCommand = new SlashCommandHandler()
+  .setName("search")
+  .setDescription("Search something")
+  .addStringOption((option) => option.setName("query").setDescription("The search query").setAutocomplete(true))
+  .addAutocompleteHandler(async (ctx) => {
+    const focused = ctx.options.getFocused();
+    const results = ["apple", "banana", "cherry"].filter((s) => s.startsWith(focused.value));
+
+    await ctx.respond(results.map((r) => ({ name: r, value: r })));
+  });
+```
+
+### Autocomplete Helper
+
+Honocord provides an `AutocompleteHelper` utility to simplify filtering choices based on user input.
+
+```ts
+import { AutocompleteHelper } from "honocord";
+
+command.addAutocompleteHandler(async (ctx) => {
+  const focused = ctx.options.getFocused()!;
+
+  const helper = new AutocompleteHelper(focused.value).addChoices(
+    { name: "Apple", value: "apple" },
+    { name: "Banana", value: "banana" },
+    { name: "Cherry", value: "cherry" }
+  );
+
+  // Automatically filters choices that start with the user's input
+  await ctx.respond(helper.response(["name"]));
+});
+```
+
+## Context Menu Commands
+
+Use `ContextCommandHandler` to create User or Message context menu commands.
+
+```ts
+import { ContextCommandHandler, ContextCommandType } from "honocord";
+
+const userContext = new ContextCommandHandler(ContextCommandType.User).setName("Get ID").addHandler(async (ctx) => {
+  await ctx.reply(`The user's ID is ${ctx.targetId}`);
+});
+```
+
+## Message Components
+
+`ComponentHandler` manages interactions from buttons and select menus. It uses a **prefix-based matching** system for `custom_id`s.
+
+```ts
+import { ComponentHandler } from "honocord";
+import { ComponentType } from "discord-api-types/v10";
+
+// Matches any button with a custom_id starting with "vote:"
+const voteButton = new ComponentHandler("vote", ComponentType.Button).addHandler(async (ctx) => {
+  const [_, candidate] = ctx.customId.split(":");
+  await ctx.reply(`You voted for ${candidate}!`);
+});
+```
+
+### Select Menus
+
+You can create handlers for all types of select menus by specifying the correct `ComponentType`.
+
+```ts
+const menuHandler = new ComponentHandler("select_role", ComponentType.RoleSelect).addHandler(async (ctx) => {
+  // ctx is typed specifically for RoleSelect interactions
+  const roles = ctx.roles;
+  await ctx.reply(`Selected ${roles.size} roles.`);
+});
+```
+
+## Modals
+
+`ModalHandler` works similarly to component handlers, matching the `custom_id` of a submitted modal.
+
+```ts
+import { ModalHandler } from "honocord";
+
+const feedbackModal = new ModalHandler("feedback_form").addHandler(async (ctx) => {
+  const feedback = ctx.components.getTextInputValue("feedback_input");
+  await ctx.reply("Thank you for your feedback!");
+});
+```
+
+## Guild-Specific Commands
+
+By default, commands are registered globally. You can restrict a command to specific guilds using `.setGuildIds()`.
+
+```ts
+const adminCommand = new SlashCommandHandler()
+  .setName("admin")
+  .setDescription("Restricted command")
+  .setGuildIds(["123456789012345678"]) // Only available in this guild
+  .addHandler(async (ctx) => {
+    await ctx.reply("Welcome, Admin.");
+  });
+```
+
+## Loading Handlers
+
+Finally, you must load your handlers into the `Honocord` instance for them to be processed.
+
+```ts
+import { Honocord } from "honocord";
+
+const bot = new Honocord();
+
+bot.loadHandlers(pingCommand, userCommand, voteButton, feedbackModal);
+```
