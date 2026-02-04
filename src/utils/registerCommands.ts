@@ -1,4 +1,4 @@
-import { Handler } from "@ctx/handlers";
+import { AnyHandler } from "@ctx/handlers";
 import { API } from "@discordjs/core/http-only";
 import { REST } from "@discordjs/rest";
 import { FlatOrNestedArray } from "../types";
@@ -7,9 +7,9 @@ import type { RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIApplicationGuil
 export async function registerCommands(
   token: string | undefined,
   applicationId: string | undefined,
-  ...handlers: FlatOrNestedArray<Handler>
+  ...handlers: FlatOrNestedArray<AnyHandler>
 ) {
-  const flatCommands = handlers.flat(Infinity) as Handler[];
+  const flatCommands = handlers.flat(Infinity) as AnyHandler[];
   const { globalCommands, guildCommands } = flatCommands
     .map((handler) => {
       if (handler.handlerType === "slash" || handler.handlerType === "context") {
