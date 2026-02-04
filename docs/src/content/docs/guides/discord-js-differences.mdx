@@ -1,0 +1,49 @@
+---
+title: Most Important Discord.js Differences
+description: Learn about the major differences between Honocord and discord.js.
+sidebar:
+  order: 6
+---
+
+Handling Discord interactions in Honocord differs not much from discord.js, but there are some key differences to be aware of:
+
+## No internal convinience classes for Discord objects
+
+Honocord does not provide internal classes for Discord objects like `User`, `Guild`, `Message`, etc.
+Instead, it provides raw interaction data as defined by the [Discord API](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object-interaction-structure).
+
+Most of the types are defined in the [discord-api-types](https://www.npmjs.com/package/discord-api-types) package, which Honocord depends on.
+This means you will often work with plain objects instead of class instances.
+
+## No built-in caching
+
+It is definitly planned to add optional caching in the future, but currently Honocord does not cache any data due to it being designed for serverless environments like Cloudflare Workers.
+
+## Responding to interactions
+
+### Replying
+
+Usually you need to provide the raw API callback data, instead of discord.js structures. However, there are a few exceptions where Honocord accepts builders from `@discordjs/builders`:
+
+- Components: Every component builder from `@discordjs/builders` is accepted in `ctx.reply()` and similar methods.
+- Modals: Every modal builder from `@discordjs/builders` is accepted in `ctx.showModal()`.
+
+### Force Ephemeral
+
+For `ctx.reply()` and `ctx.followUp()`, you can force the message to be ephemeral by passing `true` as the second argument:
+
+```ts
+await ctx.reply("This is an ephemeral message", true);
+```
+
+This was done because I got annoyed having to always set the ephemeral flag in the response data manually, which was very clunky.
+
+### Defering
+
+You can defer, but can't pass flags at the moment. However you **can** set whether it should be ephemeral or not:
+
+```ts
+await ctx.deferReply(true);
+// or
+await ctx.deferUpdate(false);
+```
