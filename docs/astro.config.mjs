@@ -67,6 +67,10 @@ export default defineConfig({
           autogenerate: { directory: "guides" },
         },
         {
+          label: "Built With Honocord",
+          slug: "built-with",
+        },
+        {
           label: "Reference",
           items: [
             { label: "Classes", autogenerate: { directory: "reference/classes" } },
