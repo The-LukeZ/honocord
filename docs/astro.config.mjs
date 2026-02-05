@@ -51,7 +51,6 @@ export default defineConfig({
             { label: "Functions", autogenerate: { directory: "reference/functions" } },
             { label: "Constants", autogenerate: { directory: "reference/constants" } },
             { label: "Types", autogenerate: { directory: "reference/types" } },
-            { label: "Other", autogenerate: { directory: "reference/other" } },
           ],
         },
       ],
