@@ -1,0 +1,47 @@
+---
+title: ComponentHandler
+---
+
+`ComponentHandler` is used to handle interactions from message components like buttons and select menus, based on a custom ID prefix.
+
+## Constructor
+
+```ts
+new ComponentHandler(
+  prefix: string,
+  componentType: CType,
+  handler?: (interaction: MessageComponentInteractionObj<Context, CType>) => Promise<any> | any
+)
+```
+
+- `prefix: string` — The unique prefix of the `custom_id` to match this handler.
+- `componentType: CType` — The type of component (e.g., `ComponentType.Button`, `ComponentType.StringSelect`).
+- `handler?` — An optional initial handler function.
+
+## Public Properties
+
+###### `componentType: CType` (readonly)
+
+The type of component this handler is registered for.
+
+###### `handlerType: "component"` (readonly)
+
+The type identifier for this handler.
+
+###### `prefix: string` (readonly)
+
+The custom ID prefix this handler listens for.
+
+## Public Methods
+
+###### `addHandler(handler: (interaction: MessageComponentInteractionObj<Context, CType>) => Promise<any> | any): this`
+
+Sets the function to handle the component interaction.
+
+###### `execute(interaction: MessageComponentInteractionObj<Context, CType>): Promise<void>`
+
+Executes the registered handler.
+
+###### `matches(customId: string): boolean`
+
+Checks if a given `customId` matches this handler's prefix.

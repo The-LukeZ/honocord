@@ -1,5 +1,7 @@
 :root {
   --sl-font: "Poppins", sans-serif;
+  --sl-content-width: 1000px;
+  --sl-sidebar-width: 300px;
 }
 
 code[dir="auto"] {

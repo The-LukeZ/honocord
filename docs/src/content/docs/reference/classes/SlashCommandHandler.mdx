@@ -1,0 +1,71 @@
+---
+title: SlashCommandHandler
+---
+
+`SlashCommandHandler` is used to define and manage Discord slash commands. It extends `@discordjs/builders`'s `SlashCommandBuilder`.
+
+## Constructor
+
+```ts
+new SlashCommandHandler();
+```
+
+## Public Properties
+
+###### `addAutocompleteHandler(handler: (interaction: AutocompleteInteraction<Context>) => Promise<any> | any): this`
+
+Sets the function that will handle autocomplete interactions for this command.
+
+###### `addGuildIds(...guildIds: string[]): this`
+
+Adds additional guild IDs to the existing set.
+
+###### `addHandler(handler: (interaction: ChatInputCommandInteraction<Context>) => Promise<any> | any): this`
+
+Sets the function that will handle the slash command interaction.
+
+###### `execute(interaction: ChatInputCommandInteraction<Context>): Promise<void>`
+
+Executes the registered command handler.
+
+###### `executeAutocomplete(interaction: AutocompleteInteraction<Context>): Promise<void>`
+
+Executes the registered autocomplete handler.
+
+###### `guildIds: Set<string>` (readonly)
+
+A set of guild IDs where this command is registered. If empty, the command is treated as a global command.
+
+###### `handlerType: "slash"` (readonly)
+
+The type identifier for this handler.
+
+###### `isGuildCommand(): boolean`
+
+Returns whether the command is restricted to specific guilds.
+
+###### `removeGuildIds(...guildIds: string[]): this`
+
+Removes specific guild IDs from the set.
+
+###### `setGuildIds(guildIds: string[]): this`
+
+Clears existing guild IDs and sets the provided ones.
+
+## Public Methods
+
+### Overridden SlashCommandBuilder Methods
+
+The following methods from `SlashCommandBuilder` are overridden to return the `SlashCommandHandler` instance, allowing for fluent chaining:
+
+- `addBooleanOption`
+- `addChannelOption`
+- `addIntegerOption`
+- `addMentionableOption`
+- `addNumberOption`
+- `addRoleOption`
+- `addStringOption`
+- `addSubcommand`
+- `addSubcommandGroup`
+- `addUserOption`
+- `addAttachmentOption`
