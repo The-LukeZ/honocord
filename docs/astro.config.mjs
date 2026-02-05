@@ -19,6 +19,10 @@ export default defineConfig({
       destination: "https://thelukez.com",
       status: 302,
     },
+    "/npm": {
+      destination: "https://www.npmjs.com/package/honocord",
+      status: 302,
+    },
   },
   integrations: [
     starlight({
@@ -41,6 +45,11 @@ export default defineConfig({
         alt: "Honocord Logo",
       },
       social: [
+        {
+          icon: "npm",
+          label: "NPM",
+          href: "/npm",
+        },
         {
           icon: "github",
           label: "GitHub",
