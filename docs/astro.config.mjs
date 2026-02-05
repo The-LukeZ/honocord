@@ -12,7 +12,7 @@ export default defineConfig({
       status: 302,
     },
     "/discord": {
-      destination: "https://discord.gg/X4DjpZj6Nz",
+      destination: "https://discord.gg/X4DjpZj6Nz", // this is unique
       status: 302,
     },
     "/lukez": {
@@ -44,12 +44,12 @@ export default defineConfig({
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/The-LukeZ/honocord",
+          href: "/github",
         },
         {
           icon: "discord",
           label: "Discord",
-          href: "https://discord.gg/X4DjpZj6Nz", // this is unique
+          href: "/discord",
         },
       ],
       sidebar: [
