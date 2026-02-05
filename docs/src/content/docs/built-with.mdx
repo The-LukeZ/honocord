@@ -1,6 +1,8 @@
 ---
 title: Built with Honocord
 pagefind: false
+
+# This page is excluded from prettier auto-formatting as well, because prettier doesn't like the way MDX comments are formatted - the `{/* ... */}` gets escaped to `{\/* ... \*/}` somehow.
 ---
 
 import { LinkCard } from "@astrojs/starlight/components";
@@ -9,7 +11,7 @@ Do you use Honocord for your Discord bot? Open a PR where you add your Bot to th
 Please include the following information:
 
 - Bot Name
-- Short Description
+- Short Description (Max. 200 characters)
 - Link to the Bot's repository or website/docs
 
 ## Bots built with Honocord
@@ -19,3 +21,21 @@ Please include the following information:
   description="A BYOK translator bot that uses DeepL to provide high-quality translations in Discord."
   href="https://linguadeep.thelukez.com"
 />
+
+<LinkCard
+  title="UpvoteEngine"
+  description="Handles votes from platforms like top.gg and applies roles, either temporary or permanently, in your associated discord server."
+  href="https://linguadeep.thelukez.com"
+/>
+
+{/*
+
+Always indent, do not make a link card in 1 line!
+
+<LinkCard
+  title="Your Bot Here"
+  description="A short description of your bot."
+  href="https://link-to-your-bot.com"
+/>
+
+*/}
