@@ -1,0 +1,43 @@
+---
+title: Honocord
+---
+
+## Constructor
+
+```ts
+new Honocord(options?: {
+  isCFWorker?: boolean;
+  debugRest?: boolean;
+})
+```
+
+- `isCFWorker?: boolean` — enable Cloudflare Workers async processing (also detected via env `c.env.IS_CF_WORKER === "true"`).
+- `debugRest?: boolean` — enable [REST](https://github.com/discordjs/discord.js/tree/main/packages/rest) debug listeners to log requests/responses.
+
+## Public methods
+
+###### `loadHandlers(...handlers: Handler[]): void`
+
+Register Slash/Context/Component/Modal handlers. Guild-scoped command handlers are registered under `guildId:commandName`.
+
+###### `use<Context extends BaseInteractionContext = BaseInteractionContext>(...middleware: MiddlewareFunction<Context>[]): this`
+
+Register middleware functions that run in-order before handlers. Middleware signature: `async (c, next) => Promise<void>`. Use `c.get`/`c.set` to share data.
+
+###### `clearMiddleware(): this`
+
+Remove all registered middleware.
+
+###### `handle: (c: BaseInteractionContext) => Promise<Response | void>`
+
+Hono-compatible POST handler for interactions. Verifies requests, replies to Ping interactions, and dispatches other interaction types. If running on CF Workers, processing can be deferred via `c.executionCtx.waitUntil` (returns 202). Synchronous mode returns error status on unhandled exceptions.
+
+###### `getApp(): Hono<{ Variables: BaseVariables }>`
+
+Returns a Hono application with a basic health GET and the interaction POST mounted at the root.
+
+## Runtime notes
+
+- Requests are verified using the configured public key; invalid signatures receive 401.
+- For CF Workers use `c.executionCtx.waitUntil` to offload processing and return 202 immediately.
+- When `debugRest` is enabled the internal REST client logs request/response details to aid troubleshooting.

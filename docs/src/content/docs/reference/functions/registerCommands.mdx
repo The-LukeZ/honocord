@@ -1,0 +1,30 @@
+---
+title: registerCommands
+---
+
+The `registerCommands` function is a utility used to deploy your application commands (Slash Commands and Context Menus) to Discord. It automatically handles the distinction between global commands and guild-specific commands based on the handler configuration.
+
+## Parameters
+
+| Parameter      | Type                            | Description                                                          |
+| -------------- | ------------------------------- | -------------------------------------------------------------------- |
+| token?         | string                          | Your Discord bot token.                                              |
+| applicationId? | string                          | Your Discord application ID.                                         |
+| ...handlers    | FlatOrNestedArray\<AnyHandler\> | Rest parameter containing individual handlers or arrays of handlers. |
+
+## Behavior
+
+- **Internal Filtering**: The function automatically extracts handlers with a `handlerType` of `slash` or `context`. Other handler types are ignored during registration.
+- **Global vs Guild**:
+  - If a command is marked as a guild command (via `guildIds`), it will be registered specifically to those guilds using `bulkOverwriteGuildCommands`.
+  - Otherwise, it is registered globally via `bulkOverwriteGlobalCommands`.
+- **Validation**: If `token` or `applicationId` is missing, the function logs a warning and skips registration. These can be `undefined` because your types may be not working.
+
+## Example
+
+```ts
+import { registerCommands } from "honocord";
+import { myCommands } from "./commands";
+
+await registerCommands(process.env.DISCORD_TOKEN, process.env.APPLICATION_ID, ...myCommands);
+```

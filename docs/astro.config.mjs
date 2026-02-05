@@ -5,6 +5,8 @@ import starlightCatppuccin from "@catppuccin/starlight";
 
 // https://astro.build/config
 export default defineConfig({
+  trailingSlash: "ignore",
+  
   integrations: [
     starlight({
       plugins: [
@@ -44,7 +46,13 @@ export default defineConfig({
         },
         {
           label: "Reference",
-          autogenerate: { directory: "reference" },
+          items: [
+            { label: "Classes", autogenerate: { directory: "reference/classes" } },
+            { label: "Functions", autogenerate: { directory: "reference/functions" } },
+            { label: "Constants", autogenerate: { directory: "reference/constants" } },
+            { label: "Types", autogenerate: { directory: "reference/types" } },
+            { label: "Other", autogenerate: { directory: "reference/other" } },
+          ],
         },
       ],
       customCss: [
@@ -65,7 +73,7 @@ export default defineConfig({
         maxHeadingLevel: 4,
       },
       components: {
-        MarkdownContent: "./src/components/overrides/MarkdownContent.astro",
+        Head: "./src/components/overrides/Head.astro",
       },
       head: [
         {

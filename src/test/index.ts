@@ -7,6 +7,7 @@ import { handlers } from "./handlers";
 import { Honocord } from "../Honocord";
 import { Hono } from "hono/tiny";
 import { AutocompleteHelper } from "@utils/Autocomplete";
+import { registerCommands } from "@utils/registerCommands";
 
 interface MyEnv {
   DISCORD_PUBLIC_KEY: string;
@@ -53,3 +54,6 @@ bot.loadHandlers(...handlers);
 
 const app = new Hono<{ Bindings: MyEnv; Variables: MyVar }>();
 app.post("/interactions", bot.handle);
+
+// other file
+const register = () => registerCommands("asd", "123123123", ...handlers);

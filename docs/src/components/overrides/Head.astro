@@ -1,0 +1,21 @@
+---
+const { head } = Astro.locals.starlightRoute;
+---
+
+{head.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
+
+<script is:inline>
+  document.addEventListener(
+    "click",
+    function (e) {
+      console.log("Clicked element:", e.target);
+      /** @type {HTMLAnchorElement | null} */
+      const target = e.target.closest("a");
+      if (target && !target.href.includes(location.hostname)) {
+        e.preventDefault();
+        window.open(target.href, "_blank", "noopener");
+      }
+    },
+    true
+  );
+</script>

@@ -1,3 +1,13 @@
 :root {
   --sl-font: "Poppins", sans-serif;
 }
+
+code[dir="auto"] {
+  transition: background-color 80ms ease-in-out;
+  border-radius: 4px;
+  padding: 0.2em 0.4em;
+
+  &:hover {
+    background-color: color-mix(in oklab, var(--sl-color-bg-inline-code) 90%, var(--sl-color-text));
+  }
+}

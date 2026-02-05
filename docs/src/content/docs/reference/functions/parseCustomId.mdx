@@ -1,0 +1,52 @@
+---
+title: parseCustomId
+---
+
+import { LinkCard } from "@astrojs/starlight/components";
+
+Parses a custom ID string into its constituent parts. A custom ID is expected in the form:
+`"prefix[/component/...][?param1/param2/...]"`. The `?` separates path and params.
+
+## Parameters
+
+- `customId` (string) — The custom ID to parse. Examples:
+  - `"modal/user/profile?123/abc"`
+  - `"button/click?123"`
+  - `"prefix?param"`
+- `onlyPrefix?` (boolean) — If true, the function returns only the prefix string (the segment before the first `/` or `?`). Default: `false`.
+
+## Returns
+
+- If `onlyPrefix` is `true`: `string` — the prefix (e.g. `"button"`).
+- Otherwise: `object` with:
+  - `compPath: string[]` — full path split by `/`.
+  - `prefix: string` — first item of `compPath`.
+  - `lastPathItem: string` — last item of `compPath`.
+  - `component: string | null` — second item of `compPath` or `null`.
+  - `params: string[]` — parameters split by `/` after the `?` (empty array if none).
+  - `firstParam: string | null`
+  - `lastParam: string | null`
+
+## Example
+
+```ts
+import { parseCustomId } from "@utils";
+
+parseCustomId("modal/user/profile?123/abc");
+// {
+//   compPath: ["modal","user","profile"],
+//   prefix: "modal",
+//   lastPathItem: "profile",
+//   component: "user",
+//   params: ["123","abc"],
+//   firstParam: "123",
+//   lastParam: "abc"
+// }
+
+parseCustomId("button/click?123", true);
+// -> "button"
+```
+
+<div style="height: 20px"></div>
+
+<LinkCard href="/guides/custom-id-system" title="Further Reading" />
