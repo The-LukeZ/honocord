@@ -98,9 +98,24 @@ export default defineConfig({
       },
       head: [
         {
-          tag: "script",
+          tag: "meta",
           attrs: {
-            src: "/src/scripts/utils.js",
+            property: "og:image",
+            content: "https://honocord.thelukez.com/favicon.svg",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            name: "twitter:card",
+            content: "-", // Reset because of SEO issues
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            name: "theme-color",
+            content: "#FF3300",
           },
         },
       ],
