@@ -30,6 +30,19 @@ export * from "@utils/registerCommands";
  * parseCustomId("button/click", true)
  * // => "button"
  */
+export function parseCustomId(customId: string, onlyPrefix: true): string;
+export function parseCustomId(
+  customId: string,
+  onlyPrefix?: false
+): {
+  compPath: string[];
+  prefix: string;
+  lastPathItem: string;
+  component: string | null;
+  params: string[];
+  firstParam: string | null;
+  lastParam: string | null;
+};
 export function parseCustomId(customId: string, onlyPrefix: boolean = false) {
   if (onlyPrefix) {
     const match = customId.match(/^(.+?)(\/|\?)/i);
