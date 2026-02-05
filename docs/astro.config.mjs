@@ -6,7 +6,20 @@ import starlightCatppuccin from "@catppuccin/starlight";
 // https://astro.build/config
 export default defineConfig({
   trailingSlash: "ignore",
-  
+  redirects: {
+    "/github": {
+      destination: "https://github.com/The-LukeZ/honocord",
+      status: 302,
+    },
+    "/discord": {
+      destination: "https://discord.gg/X4DjpZj6Nz",
+      status: 302,
+    },
+    "/lukez": {
+      destination: "https://thelukez.com",
+      status: 302,
+    },
+  },
   integrations: [
     starlight({
       plugins: [
