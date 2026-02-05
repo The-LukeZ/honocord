@@ -86,7 +86,7 @@ export default defineConfig({
       credits: true,
       expressiveCode: true,
       pagefind: true,
-      editLink: { baseUrl: "https://github.com/The-LukeZ/honocord/tree/main/docs/src/content" },
+      editLink: { baseUrl: "https://github.com/The-LukeZ/honocord/tree/main/docs" },
       lastUpdated: true,
       prerender: true,
       tableOfContents: {
