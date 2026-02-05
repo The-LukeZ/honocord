@@ -18,6 +18,8 @@ export {
 } from "@ctx/handlers";
 
 export * from "@utils/index";
+export type * from "./types";
+export { ContextCommandType } from "./types";
 
 // Re-export commonly used types from dependencies
 export type {
@@ -62,4 +64,4 @@ export type { REST } from "@discordjs/rest";
 export type { API } from "@discordjs/core/http-only";
 export { Collection, type ReadonlyCollection } from "@discordjs/collection";
 
-export type * from "./types";
+export { APIInteractionDataResolvedCollections } from "./types";
