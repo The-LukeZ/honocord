@@ -63,5 +63,3 @@ export {
 export type { REST } from "@discordjs/rest";
 export type { API } from "@discordjs/core/http-only";
 export { Collection, type ReadonlyCollection } from "@discordjs/collection";
-
-export { APIInteractionDataResolvedCollections } from "./types";
