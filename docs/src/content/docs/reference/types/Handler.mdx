@@ -1,0 +1,33 @@
+---
+title: Handler
+---
+
+The `Handler` type is a union of all specific handler classes provided by Honocord. It is primarily used when passing handlers to the `loadHandlers` method of the `Honocord` class.
+
+## Definition
+
+```ts
+export type Handler<Context extends BaseInteractionContext = BaseInteractionContext> =
+  | SlashCommandHandler<Context>
+  | ContextCommandHandler<Context, ContextCommandType.User, UserContextInteraction<Context>>
+  | ContextCommandHandler<Context, ContextCommandType.Message, MessageContextInteraction<Context>>
+  | ComponentHandler<Context, ComponentType.Button>
+  | ComponentHandler<Context, ComponentType.StringSelect>
+  | ComponentHandler<Context, ComponentType.UserSelect>
+  | ComponentHandler<Context, ComponentType.RoleSelect>
+  | ComponentHandler<Context, ComponentType.MentionableSelect>
+  | ComponentHandler<Context, ComponentType.ChannelSelect>
+  | ModalHandler<Context>;
+```
+
+## Description
+
+This union ensures that only valid handler instances are passed to the bot. Each member of the union corresponds to a specific type of Discord interaction (Slash Commands, User context menus, Message context menus, Buttons, Select Menus, and Modals).
+
+## AnyHandler
+
+`AnyHandler` is a helper type that allows handlers with any context extending `BaseInteractionContext`.
+
+```ts
+export type AnyHandler = Handler<any>;
+```

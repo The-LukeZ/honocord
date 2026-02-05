@@ -1,0 +1,63 @@
+---
+title: AutocompleteHelper
+---
+
+A utility class designed to manage and filter autocomplete choices for Discord application commands. It simplifies the process of providing suggestions based on user input.
+
+## Constructor
+
+###### `new AutocompleteHelper<T>(value, user?)`
+
+| Parameter | Type      | Description                                                      |
+| :-------- | :-------- | :--------------------------------------------------------------- |
+| `value`   | `T`       | The current input value from the user to filter against.         |
+| `user?`   | `APIUser` | The user object, used to provide localized results if available. |
+
+## Properties
+
+###### readonly `choices`
+
+- **Type**: `APIApplicationCommandOptionChoice<T>[]`
+- Returns the current array of choices stored in the helper.
+
+## Methods
+
+###### `addChoices(...choices)`
+
+Adds one or more choices to the existing list.
+
+- **Returns**: `this`
+
+###### `setChoices(...choices)`
+
+Overwrites the current list of choices with a new set.
+
+- **Returns**: `this`
+
+###### `clear()`
+
+Removes all choices from the helper.
+
+- **Returns**: `this`
+
+###### `response(filterFields?)`
+
+Filters the stored choices based on the `value` provided in the constructor.
+
+- **Parameters**:
+  - `filterFields?`: `(keyof APIApplicationCommandOptionChoice<T>)[]` — Fields to include in the search (e.g., `['name', 'value']`). If omitted, it filters by all available fields including localizations.
+- **Returns**: `APIApplicationCommandOptionChoice<T>[]` — The filtered list of choices.
+
+## Usage Example
+
+```ts
+const helper = new AutocompleteHelper<string>("apple").addChoices(
+  { name: "Apple", value: "apple" },
+  { name: "Banana", value: "banana" },
+  { name: "Cherry", value: "cherry" },
+  { name: "Something else", value: "applejuice" }
+);
+
+// Returns only the "Apple" choice because "applejuice" is a value and not a name
+const results = helper.response(["name"]);
+```

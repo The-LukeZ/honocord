@@ -1,28 +1,34 @@
 export * from "@utils/Colors";
 export * from "@utils/registerCommands";
 
-export function parseCustomId(customId: string, onlyPrefix: true): string;
-export function parseCustomId(
-  customId: string,
-  onlyPrefix?: false
-): {
-  compPath: string[];
-  prefix: string;
-  lastPathItem: string;
-  component: string | null;
-  params: string[];
-  firstParam: string | null;
-  lastParam: string | null;
-};
-
 /**
- * Parses a custom ID into its components.
+ * Parse a custom ID string into its parts.
+ *
+ * Supports two modes:
+ * - onlyPrefix = true: returns the prefix string before the first '/' or '?'.
+ * - onlyPrefix = false (default): returns an object with parsed pieces.
+ *
+ * Expected customId shapes:
+ * - "prefix/component/other/path?param1/param2"
+ * - "prefix?param1/param2"
  *
  * @param customId - The custom ID to parse.
- * @param onlyPrefix - If true, only returns the prefix of the custom ID.
- * @returns An object containing the parsed components or just the prefix.
+ * @param onlyPrefix - If true, only return the prefix string (default: false).
+ * @returns If onlyPrefix is true: string (the prefix). Otherwise an object with:
+ *  - compPath: string[] (full path split by '/'),
+ *  - prefix: string (first item of compPath),
+ *  - lastPathItem: string (last item of compPath),
+ *  - component: string | null (second item of compPath or null),
+ *  - params: string[] (params split by '/'; empty array when none),
+ *  - firstParam: string | null,
+ *  - lastParam: string | null
  *
- * A custom ID is expected to be in the format: "prefix/component/other/path?param1/param2"
+ * @example
+ * parseCustomId("modal/user/profile?123/abc")
+ * // => { compPath: ["modal","user","profile"], prefix: "modal", ... params: ["123","abc"], ... }
+ *
+ * parseCustomId("button/click", true)
+ * // => "button"
  */
 export function parseCustomId(customId: string, onlyPrefix: boolean = false) {
   if (onlyPrefix) {

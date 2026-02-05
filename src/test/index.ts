@@ -6,6 +6,8 @@ import { ChatInputCommandInteraction } from "@ctx/ChatInputInteraction";
 import { handlers } from "./handlers";
 import { Honocord } from "../Honocord";
 import { Hono } from "hono/tiny";
+import { AutocompleteHelper } from "@utils/Autocomplete";
+import { registerCommands } from "@utils/registerCommands";
 
 interface MyEnv {
   DISCORD_PUBLIC_KEY: string;
@@ -28,9 +30,30 @@ const testHandle: HandlerFunction<MyContext, ChatInputCommandInteraction> = asyn
   });
 };
 
-new SlashCommandHandler<MyContext>().addHandler(testHandle);
-const bot = new Honocord();
+new SlashCommandHandler<MyContext>().addHandler(testHandle).addAutocompleteHandler(async (ctx) => {
+  const option = ctx.options.getFocused()!; // autocomplete is triggered on any option - so we need to filter
+  if (option?.name === "option-1") {
+    await ctx.respond([
+      { name: "Option 1", value: "option_1" },
+      { name: "Option 2", value: "option_2" },
+    ]);
+    return;
+  }
+
+  // Autocomplete with integrated class
+  const autocomplete = new AutocompleteHelper(option?.value).setChoices(
+    { name: "Choice 1", value: "choice_1" },
+    { name: "Choice 2", value: "choice_2" },
+    { name: "Choice 3", value: "choice_3" }
+  );
+  return ctx.respond(autocomplete.response(["name", "value"])); // Filter by name and value (name_localizations is also supported)
+});
+
+const bot = new Honocord().use<MyContext>();
 bot.loadHandlers(...handlers);
 
 const app = new Hono<{ Bindings: MyEnv; Variables: MyVar }>();
 app.post("/interactions", bot.handle);
+
+// other file
+const register = () => registerCommands("asd", "123123123", ...handlers);

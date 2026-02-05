@@ -4,9 +4,6 @@ import { APIApplicationCommandOptionChoice, APIUser, Locale } from "discord-api-
  * Represents an autocomplete response for Discord API application commands.
  * Manages a collection of command option choices and filters them based on user input.
  *
- * **IMPORTANT:** If you use this class, you HAVE to set the type for the generic parameter `T`.
- * Like `AutocompleteHelper<string>()` or `AutocompleteHelper<number>()`.
- *
  * This is because Typescript cannot infer the type of `T` from the constructor argument `value` somehow.
  *
  * @template T - The type of choice values, must be either `string` or `number`.

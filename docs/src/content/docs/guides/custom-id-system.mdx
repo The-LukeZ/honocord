@@ -1,0 +1,56 @@
+---
+title: Custom ID System
+description: Learn how Honocord's custom ID system works for component and modal interactions.
+sidebar:
+  order: 5
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Honocord uses a path-based custom ID system for components and modals:
+
+```
+prefix/component/path?param1/param2/param3
+```
+
+The custom ID is split into two parts:
+
+- **Path**: The part before the `?`, split by `/`. The first item is the **prefix** used for matching handlers. The rest form the **component path**.
+- **Parameters**: The part after the `?`, split by `/`. These are additional parameters you can use in your handler.
+
+You must mind the limit of 100 characters for `custom_id`s imposed by Discord.
+
+**Example:**
+
+```ts
+import { ComponentHandler, ButtonBuilder, parseCustomId } from "honocord";
+
+new ButtonBuilder().setCustomId("report/user?123456789").setLabel("Report User");
+
+// Handler matches by prefix
+const reportHandler = new ComponentHandler("report").addHandler(async (interaction) => {
+  const { component, firstParam, compPath } = parseCustomId(interaction.custom_id);
+  // component = "user"
+  // firstParam = "123456789"
+  // compPath = ["report", "user"]
+});
+```
+
+This enables:
+
+- **Prefix matching** - One handler for multiple related components
+- **Parameter passing** - Pass data through custom IDs
+- **Hierarchical organization** - Structure your component logic
+
+<Aside type="tip">
+
+It is recommended to make factory functions for creating components with complex custom IDs to avoid mistakes.
+(I can tell you from experience that typos in custom IDs are a thing...)
+
+**Example:**
+
+```ts
+const ReportButton = (userId: string) => new ButtonBuilder().setCustomId(`report/user?${userId}`).setLabel("Report User");
+```
+
+</Aside>

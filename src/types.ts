@@ -92,14 +92,23 @@ export interface BaseHonocordEnv<TBindings extends Bindings = any, TVariables ex
  * import type { BaseHonocordEnv, BaseInteractionContext } from "honocord";
  *
  * // Define your custom environment
- * interface MyEnv {
+ * import type { BaseHonocordEnv, BaseInteractionContext } from "honocord";
+ *
+ * // Define your custom environment bindings (e.g., Cloudflare Workers env)
+ * export interface MyEnv {
  *   DISCORD_TOKEN: string;
  *   DISCORD_PUBLIC_KEY: string;
- *   DATABASE: D1Database;
+ *   DATABASE: D1Database; // Example Cloudflare D1
  * }
  *
- * export type MyHonoEnv = BaseHonocordEnv<MyEnv>;
- * export type MyContext = BaseInteractionContext<MyEnv>;
+ * // Define your custom Hono variables (can be populated by middleware)
+ * export interface MyVariables {
+ *   user_id: string;
+ *   is_admin: boolean;
+ * }
+ *
+ * // Create a reusable context type
+ * export type MyContext = BaseInteractionContext<MyEnv, MyVariables>;
  *
  * // index.ts
  * import { Honocord, SlashCommandHandler } from "honocord";

@@ -4,6 +4,18 @@ import { REST } from "@discordjs/rest";
 import { FlatOrNestedArray } from "../types";
 import type { RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIApplicationGuildCommandsJSONBody } from "discord-api-types/v10";
 
+/**
+ * Registers application commands (Slash and Context Menus) with Discord's API.
+ *
+ * This function flattens the provided handlers, separates global from guild-specific
+ * commands, and performs a bulk overwrite for both.
+ *
+ * @param token - The Discord Bot token.
+ * @param applicationId - The Discord Application ID.
+ * @param handlers - A rest parameter of handlers or arrays of handlers to register.
+ *
+ * @throws {Error} If the API request to Discord fails.
+ */
 export async function registerCommands(
   token: string | undefined,
   applicationId: string | undefined,

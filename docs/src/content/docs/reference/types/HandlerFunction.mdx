@@ -1,0 +1,24 @@
+---
+title: HandlerFunction
+---
+
+The `HandlerFunction` type represents the core logic for any interaction handler. It is the function that gets executed when a specific interaction matches a registered handler.
+
+## Definition
+
+```ts
+export type HandlerFunction<
+  Context extends BaseInteractionContext = BaseInteractionContext,
+  InteractionArg extends AnyInteraction<Context> = AnyInteraction<Context>,
+> = (interaction: InteractionArg) => Promise<any> | any;
+```
+
+## Description
+
+A `HandlerFunction` receives an interaction object (which includes the context) and can perform any logic required. It typically returns a promise, but can also be synchronous.
+
+## Properties of InteractionArg
+
+The `InteractionArg` will be one of the interaction classes (e.g., `ChatInputCommandInteraction`, `ButtonInteraction`, etc.) depending on what the handler is registered for.
+
+All interaction arguments share a `c` (context) property which is the `BaseInteractionContext`.

@@ -1,0 +1,40 @@
+---
+title: BaseInteractionContext
+---
+
+The `BaseInteractionContext` is the core context object passed to all interaction handlers and middleware. It extends [Hono's Context](https://hono.dev/docs/api/context) and provides access to the environment, variables, and interaction-specific data.
+
+## Generic Parameters
+
+- `TBindings`: Custom environment bindings (e.g., Cloudflare Workers environment).
+- `TVariables`: Custom Hono variables.
+- `TPath`: The path type for the context (defaults to `/`).
+
+## Definition
+
+```ts
+type BaseInteractionContext<
+  TBindings extends Bindings = any,
+  TVariables extends Variables = any,
+  TPath extends string = "/",
+> = Context<BaseHonocordEnv<TBindings, TVariables>, TPath, BlankInput>;
+```
+
+## Usage
+
+Users typically define their own context type to get full type safety for their environment bindings and custom variables.
+
+```ts
+import type { BaseHonocordEnv, BaseInteractionContext } from "honocord";
+
+export interface MyEnv {
+  DISCORD_TOKEN: string;
+  DATABASE: D1Database;
+}
+
+export interface MyVariables {
+  userId: string;
+}
+
+export type MyContext = BaseInteractionContext<MyEnv, MyVariables>;
+```

@@ -1,0 +1,20 @@
+---
+title: JSONEncodable
+---
+
+The `JSONEncodable` interface is used for objects that can be converted into a JSON representation compatible with the Discord API. This is predominantly used by the command and component builders.
+
+## Definition
+
+```ts
+export interface JSONEncodable<Value> {
+  /**
+   * Transforms this object to its JSON format
+   */
+  toJSON(): Value;
+}
+```
+
+## Description
+
+Any object implementing `JSONEncodable` can be passed to Honocord methods that expect Discord API objects, such as `reply` with embeds or components. The builder classes from `@discordjs/builders` typically implement this interface.

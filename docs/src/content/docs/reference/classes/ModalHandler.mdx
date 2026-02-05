@@ -1,0 +1,41 @@
+---
+title: ModalHandler
+---
+
+`ModalHandler` is used to handle modal submissions based on a custom ID prefix.
+
+## Constructor
+
+```ts
+new ModalHandler(
+  prefix: string,
+  handler?: (interaction: ModalInteraction<Context>) => Promise<any> | any
+)
+```
+
+- `prefix: string` — The unique prefix of the `custom_id` to match this handler.
+- `handler?` — An optional initial handler function for the modal submission.
+
+## Public Properties
+
+###### `handlerType: "modal"` (readonly)
+
+The type identifier for this handler.
+
+###### `prefix: string` (readonly)
+
+The custom ID prefix this handler listens for.
+
+## Public Methods
+
+###### `addHandler(handler: (interaction: ModalInteraction<Context>) => Promise<any> | any): this`
+
+Sets the function to handle the modal interaction.
+
+###### `execute(interaction: ModalInteraction<Context>): Promise<void>`
+
+Executes the registered handler.
+
+###### `matches(customId: string): boolean`
+
+Checks if a given `customId` matches this handler's prefix.

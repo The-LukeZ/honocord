@@ -1,0 +1,26 @@
+---
+title: AnyInteraction
+---
+
+`AnyInteraction` is a union type representing any valid interaction that can be handled by Honocord.
+
+## Definition
+
+```ts
+export type AnyInteraction<Context extends BaseInteractionContext = BaseInteractionContext> =
+  | ChatInputCommandInteraction<Context>
+  | UserContextInteraction<Context>
+  | MessageContextInteraction<Context>
+  | TMessageComponentInteraction<Context>
+  | ModalInteraction<Context>
+  | AutocompleteInteraction<Context>;
+```
+
+## Members
+
+- `ChatInputCommandInteraction`: Interaction for slash commands.
+- `UserContextInteraction`: Interaction for context menu commands on users.
+- `MessageContextInteraction`: Interaction for context menu commands on messages.
+- `TMessageComponentInteraction`: Union of all message component interactions (Buttons, Select Menus).
+- `ModalInteraction`: Interaction for modal submissions.
+- `AutocompleteInteraction`: Interaction for slash command autocomplete.

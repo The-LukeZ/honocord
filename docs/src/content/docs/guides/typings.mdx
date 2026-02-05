@@ -1,0 +1,90 @@
+---
+title: Typings
+description: Learn about type safety in Honocord.
+sidebar:
+  order: 3
+---
+
+Honocord is built with TypeScript and provides deep type-safety for your Discord interactions. Since it's built on top of [Hono](https://hono.dev), it leverages Hono's powerful context system while adding Discord-specific enhancements.
+
+## Base Interaction Context
+
+The core of Honocord's type safety is the `BaseInteractionContext`. This type extends Hono's context and provides access to your environment bindings (like Cloudflare Workers environment variables) and custom Hono variables.
+
+### Defining your Environment
+
+To get full type safety, you should first define your environment's bindings and variables.
+
+```ts
+// types.ts
+import type { BaseInteractionContext } from "honocord";
+
+// Define your custom environment bindings (can also be Cloudflare Workers - you don't have to redifine this here)
+export interface MyEnv {
+  DISCORD_APPLICATION_ID: string;
+  DISCORD_TOKEN: string;
+  DISCORD_PUBLIC_KEY: string;
+  DATABASE: D1Database; // Example Cloudflare D1
+}
+
+// Define your custom Hono variables (can be populated by middleware)
+export interface MyVariables {
+  db: DBHelper; // Example database helper instance
+  is_admin: boolean;
+}
+
+// Create a reusable context type
+export type MyContext = BaseInteractionContext<MyEnv, MyVariables>;
+```
+
+## Applying Types to Handlers
+
+To get full type safety within your handlers, pass your custom context type as a generic parameter when instantiating them. See the [Handlers guide](/guides/handlers) for more details on creates handlers.
+
+```ts
+import { SlashCommandHandler, ComponentHandler } from "honocord";
+import { ComponentType } from "discord-api-types/v10";
+import type { MyContext } from "./types";
+
+// Slash Commands
+const command = new SlashCommandHandler<MyContext>()
+  .setName("greet")
+  .addHandler(async (ctx) => {
+    // ctx.env and ctx.var are now fully typed!
+    const db = ctx.env.DATABASE;
+  });
+
+// Component Handlers
+const button = new ComponentHandler<MyContext>("my_id", ComponentType.Button)
+  .addHandler(async (ctx) => {
+    const userId = ctx.get("user_id");
+  });
+```
+
+## Middleware Type Safety
+
+When writing middleware for Honocord, use the `MiddlewareFunction` type to ensure the context is correctly typed.
+
+```ts
+import type { MiddlewareFunction, Honocord } from "honocord";
+import type { MyContext } from "./types";
+
+// Note, that c is the Hono context, NOT the interaction context - you can't access interaction properties here yet because it runs before the interaction is parsed.
+// It is still being worked on run the middleware after the interaction is created.
+const bot = new Honocord().use<MyContext>(async (c, next) => {
+  c.set("db", new DBHelper(c.env.DATABASE));
+  return next();
+});
+```
+
+## Built-in Interaction Types
+
+Honocord provides typed interactions for all supported Discord interaction types. These inherit your custom context:
+
+- `ChatInputCommandInteraction<Context>`: For slash commands.
+- `AutocompleteInteraction<Context>`: For autocomplete options.
+- `ButtonInteraction<Context>`: For button components.
+- `StringSelectInteraction<Context>`: For string select menus.
+- `UserSelectInteraction<Context>`, `RoleSelectInteraction<Context>`, etc.
+- `ModalInteraction<Context>`: For modal submissions.
+- `UserContextInteraction<Context>` & `MessageContextInteraction<Context>`: For context menu commands.

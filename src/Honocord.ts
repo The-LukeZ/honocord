@@ -121,7 +121,7 @@ export class Honocord {
             if (this.guildCommandHandlers.has(key)) {
               console.warn(`Guild command handler for "${handler.name}" in guild "${guildId}" already exists. Overwriting.`);
             }
-            this.guildCommandHandlers.set(key, handler);
+            this.guildCommandHandlers.set(key, handler as SlashCommandHandler | ContextCommandHandler);
           }
           continue;
         }
@@ -129,13 +129,13 @@ export class Honocord {
         if (this.globalCommandHandlers.has(handler.name)) {
           console.warn(`Command handler for "${handler.name}" already exists. Overwriting.`);
         }
-        this.globalCommandHandlers.set(handler.name, handler);
+        this.globalCommandHandlers.set(handler.name, handler as SlashCommandHandler | ContextCommandHandler);
       } else if (handler instanceof ComponentHandler) {
         const prefix = handler.prefix;
         if (this.componentHandlers.has(prefix)) {
           console.warn(`Component handler with prefix "${prefix}" already exists. Overwriting.`);
         }
-        this.componentHandlers.set(prefix, handler);
+        this.componentHandlers.set(prefix, handler as ComponentHandler<any>);
       } else if (handler instanceof ModalHandler) {
         const prefix = handler.prefix;
         if (this.modalHandlers.has(prefix)) {
@@ -462,6 +462,7 @@ export class Honocord {
    *   c.set('startTime', Date.now());
    *
    *   // Continue to next middleware/handler
+   *   // you can also return next() directly if no post-processing is needed
    *   await next();
    *
    *   // Code here runs after the handler completes

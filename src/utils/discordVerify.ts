@@ -11,7 +11,7 @@ export const subtleCrypto = crypto.subtle;
  * @param format - Format of value. Valid options: 'hex'. Defaults to utf-8.
  * @returns Value in Uint8Array form.
  */
-export function valueToUint8Array(value: Uint8Array | ArrayBuffer | Buffer | string, format?: string): Uint8Array {
+function valueToUint8Array(value: Uint8Array | ArrayBuffer | Buffer | string, format?: string): Uint8Array {
   if (value == null) {
     return new Uint8Array();
   }
@@ -50,7 +50,7 @@ export function valueToUint8Array(value: Uint8Array | ArrayBuffer | Buffer | str
  * @param arr2 - Second array
  * @returns Concatenated arrays
  */
-export function concatUint8Arrays(arr1: Uint8Array, arr2: Uint8Array): Uint8Array {
+function concatUint8Arrays(arr1: Uint8Array, arr2: Uint8Array): Uint8Array {
   const merged = new Uint8Array(arr1.length + arr2.length);
   merged.set(arr1);
   merged.set(arr2, arr1.length);

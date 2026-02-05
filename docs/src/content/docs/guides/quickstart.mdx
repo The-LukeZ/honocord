@@ -1,0 +1,111 @@
+---
+title: Quick Start
+description: A quick guide to getting started with Honocord.
+sidebar:
+  order: 2
+---
+
+import { Tabs, TabItem, Steps, LinkCard } from "@astrojs/starlight/components";
+
+This guide will help you create your first Discord bot with Honocord in a few minutes.
+
+## Step 1: Create Your Bot File
+
+```ts title="src/index.ts"
+import { Honocord, SlashCommandHandler } from "honocord";
+
+// Initialize Honocord
+const bot = new Honocord();
+
+// Create a simple command
+const pingCommand = new SlashCommandHandler()
+  .setName("ping")
+  .setDescription("Replies with Pong!")
+  .addHandler(async (interaction) => {
+    await interaction.reply("🏓 Pong!");
+  });
+
+// Load the command
+bot.loadHandlers(pingCommand);
+
+// Export the app
+export default bot.getApp();
+```
+
+## Step 2: Register Commands with Discord
+
+```ts title="src/register.ts"
+import { registerCommands } from "honocord";
+import { pingCommand } from "./index";
+
+await registerCommands(process.env.DISCORD_TOKEN!, process.env.DISCORD_APPLICATION_ID!, pingCommand);
+```
+
+Run the registration script:
+
+```bash
+node --env-file=.env src/register.ts
+bun --env-file=.env src/register.ts
+npx tsx --env-file=.env src/register.ts
+```
+
+## Step 3: Run Your Bot Locally
+
+For local development with Bun:
+
+```bash
+bun --hot src/index.ts
+```
+
+For Node.js:
+
+```bash
+npx tsx --hot src/index.ts
+```
+
+## Step 4: Configure Discord Interactions Endpoint
+
+{/* TODO: Add Cloudflare Tunnel Guide with Tabs */}
+
+<Steps>
+
+1. Use a tunneling service like [ngrok](https://ngrok.com/):
+
+   ```bash
+   ngrok http 3000
+   ```
+
+2. Copy the HTTPS URL (e.g., `https://abc123.ngrok.io`)
+3. Go to your [Discord Application](https://discord.com/developers/applications)
+4. Navigate to "General Information"
+5. Set "Interactions Endpoint URL" to: `https://abc123.ngrok.io/`
+6. Discord will verify the endpoint - it should show a green checkmark
+
+</Steps>
+
+## Step 5: Test Your Bot
+
+<Steps>
+
+1. Invite your bot to a server using this URL format:
+
+   ```
+   https://discord.com/api/oauth2/authorize?client_id=<YOUR_APP_ID>&scope=applications.commands
+   ```
+
+2. In Discord, type `/ping`
+3. Your bot should respond with "🏓 Pong!"
+
+</Steps>
+
+## Adding More Features
+
+<LinkCard title="Typings" description="Learn about typings" href="/guides/typings" />
+
+<LinkCard title="Handlers" description="Learn how to use handlers" href="/guides/handlers" />
+
+<LinkCard
+  title="Cloudflare Workers"
+  description="How to build and deploy on Cloudflare Workers"
+  href="/guides/cloudflare-workers"
+/>

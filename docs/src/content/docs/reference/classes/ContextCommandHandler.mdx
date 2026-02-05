@@ -1,0 +1,53 @@
+---
+title: ContextCommandHandler
+---
+
+`ContextCommandHandler` is used to define and manage Discord context menu commands (User or Message). It extends `@discordjs/builders`'s `ContextMenuCommandBuilder`.
+
+## Constructor
+
+```ts
+new ContextCommandHandler(commandType: ContextCommandType)
+```
+
+- `commandType: ContextCommandType` — Either `ContextCommandType.User` or `ContextCommandType.Message`.
+
+## Public Properties
+
+###### `commandType: ContextCommandType` (readonly)
+
+The type of context command (User or Message).
+
+###### `guildIds: Set<string>` (readonly)
+
+A set of guild IDs where this command is registered. If empty, it's a global command.
+
+###### `handlerType: "context"` (readonly)
+
+The type identifier for this handler.
+
+## Public Methods
+
+###### `addGuildIds(...guildIds: string[]): this`
+
+Adds guild IDs to the existing set.
+
+###### `addHandler(handler: (interaction: InteractionData) => Promise<any> | any): this`
+
+Sets the function to handle the context menu interaction.
+
+###### `execute(interaction: InteractionData): Promise<void>`
+
+Executes the registered handler.
+
+###### `isGuildCommand(): boolean`
+
+Returns whether the command is restricted to specific guilds.
+
+###### `removeGuildIds(...guildIds: string[]): this`
+
+Removes specific guild IDs.
+
+###### `setGuildIds(guildIds: string[]): this`
+
+Clears and sets the guild IDs.
