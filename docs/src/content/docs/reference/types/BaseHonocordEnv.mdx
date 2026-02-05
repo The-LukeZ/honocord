@@ -1,0 +1,28 @@
+---
+title: BaseHonocordEnv
+---
+
+The `BaseHonocordEnv` interface defines the structure of the environment used by Honocord. It bridges Hono's environment structure with Honocord's internal variable needs.
+
+## Definition
+
+```ts
+export interface BaseHonocordEnv<
+  TBindings extends Bindings = any, 
+  TVariables extends Variables = any
+> {
+  /**
+   * Bindings available in the environment (from the worker)
+   */
+  Bindings: TBindings;
+  /**
+   * Variables available in the context (from Hono + Honocord)
+   */
+  Variables: BaseVariables & TVariables;
+}
+```
+
+## Properties
+
+- `Bindings`: An object containing the environment bindings (like secrets, KV namespaces, etc.) provided by the deployment platform.
+- `Variables`: An object containing the variables stored in the context, including Honocord's internal variables (`autocomplete`, `command`, `modal`, `component`) and your custom variables.

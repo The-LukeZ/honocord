@@ -1,0 +1,26 @@
+---
+title: APIInteractionDataResolvedCollections
+---
+
+This interface represents the collections of resolved data provided by the Discord API for certain interaction types (e.g., slash commands with user or role options).
+
+## Definition
+
+```ts
+export interface APIInteractionDataResolvedCollections {
+  /** Map of user IDs to user objects */
+  users?: Collection<Snowflake, APIUser>;
+  /** Map of role IDs to role objects */
+  roles?: Collection<Snowflake, APIRole>;
+  /** Map of user IDs to guild member objects */
+  members?: Collection<Snowflake, APIInteractionDataResolvedGuildMember>;
+  /** Map of channel IDs to channel objects */
+  channels?: Collection<Snowflake, APIInteractionDataResolvedChannel>;
+  /** Map of attachment IDs to attachment objects */
+  attachments?: Collection<Snowflake, APIAttachment>;
+}
+```
+
+## Description
+
+When an interaction includes options like users, roles, channels, or attachments, Discord provides the full data objects for these entities in the `resolved` field. Honocord wraps these in [Discord.js Collections](https://discord.js.org/docs/packages/collection/main) for easier access and manipulation.

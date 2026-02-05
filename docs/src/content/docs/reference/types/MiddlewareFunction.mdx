@@ -1,0 +1,31 @@
+---
+title: MiddlewareFunction
+---
+
+Middleware functions allow you to run code before your interaction handlers. They are useful for logging, authentication, database setup, and more.
+
+## Definition
+
+```ts
+type MiddlewareFunction<Context extends BaseInteractionContext = BaseInteractionContext> = (
+  context: Context,
+  next: () => Promise<void>
+) => Promise<Response | void> | Response | void;
+```
+
+## Example
+
+```ts
+const myMiddleware: MiddlewareFunction<MyContext> = async (c, next) => {
+  console.log(`Received interaction: ${c.req.method} ${c.req.path}`);
+  await next();
+};
+
+bot.use(myMiddleware);
+```
+
+## Notes
+
+- Middleware functions must call `await next()` to continue execution to the next middleware or handler.
+- If a middleware returns a `Response` (e.g., for error handling), the execution chain stops there.
+- Honocord's `use` method accepts multiple middleware functions.
