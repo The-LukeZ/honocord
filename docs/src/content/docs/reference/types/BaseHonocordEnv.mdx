@@ -7,10 +7,7 @@ The `BaseHonocordEnv` interface defines the structure of the environment used by
 ## Definition
 
 ```ts
-export interface BaseHonocordEnv<
-  TBindings extends Bindings = any, 
-  TVariables extends Variables = any
-> {
+export interface BaseHonocordEnv<TBindings extends Bindings = any, TVariables extends Variables = any> {
   /**
    * Bindings available in the environment (from the worker)
    */

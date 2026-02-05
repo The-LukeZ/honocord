@@ -47,18 +47,15 @@ import { ComponentType } from "discord-api-types/v10";
 import type { MyContext } from "./types";
 
 // Slash Commands
-const command = new SlashCommandHandler<MyContext>()
-  .setName("greet")
-  .addHandler(async (ctx) => {
-    // ctx.env and ctx.var are now fully typed!
-    const db = ctx.env.DATABASE;
-  });
+const command = new SlashCommandHandler<MyContext>().setName("greet").addHandler(async (ctx) => {
+  // ctx.env and ctx.var are now fully typed!
+  const db = ctx.env.DATABASE;
+});
 
 // Component Handlers
-const button = new ComponentHandler<MyContext>("my_id", ComponentType.Button)
-  .addHandler(async (ctx) => {
-    const userId = ctx.get("user_id");
-  });
+const button = new ComponentHandler<MyContext>("my_id", ComponentType.Button).addHandler(async (ctx) => {
+  const userId = ctx.get("user_id");
+});
 ```
 
 ## Middleware Type Safety
