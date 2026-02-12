@@ -4,6 +4,12 @@ export { BaseInteraction } from "@ctx/BaseInteraction";
 export { ChatInputCommandInteraction } from "@ctx/ChatInputInteraction";
 export { ModalInteraction } from "@ctx/ModalInteraction";
 export { MessageComponentInteraction } from "@ctx/MessageComponentInteraction";
+export type { ButtonInteraction } from "@ctx/ButtonInteraction";
+export type { StringSelectInteraction } from "@ctx/StringSelectInteraction";
+export type { RoleSelectInteraction } from "@ctx/RoleSelectInteraction";
+export type { UserSelectInteraction } from "@ctx/UserSelectInteraction";
+export type { MentionableSelectInteraction } from "@ctx/MentionableSelectInteraction";
+export type { ChannelSelectInteraction } from "@ctx/ChannelSelectInteraction";
 
 export { CommandInteractionOptionResolver } from "@resolvers/CommandOptionResolver";
 export { ModalComponentResolver } from "@resolvers/ModalComponentResolver";

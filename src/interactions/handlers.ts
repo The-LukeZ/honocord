@@ -15,7 +15,6 @@ import type {
   SlashCommandNumberOption,
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandGroupBuilder,
-  ContextMenuCommandType,
 } from "@discordjs/builders";
 import { MessageContextInteraction } from "./MessageContextCommandInteraction";
 import { UserContextInteraction } from "./UserContextCommandInteraction";
