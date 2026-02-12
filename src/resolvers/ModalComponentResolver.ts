@@ -200,16 +200,16 @@ export class ModalComponentResolver {
    * @param required Whether to throw an error if the component is not found or not a role select.
    * @returns The selected roles, or null if not set and not required.
    */
-  getSelectedRoles(custom_id: string, required?: boolean): APIRole[] | null;
-  getSelectedRoles(custom_id: string, required: true): APIRole[];
-  getSelectedRoles(custom_id: string, required: boolean = false): APIRole[] | null {
+  getSelectedRoles(custom_id: string, required?: boolean): Collection<string, APIRole> | null;
+  getSelectedRoles(custom_id: string, required: true): Collection<string, APIRole>;
+  getSelectedRoles(custom_id: string, required: boolean = false): Collection<string, APIRole> | null {
     const component = this.getComponent(custom_id);
     if (component.type !== ComponentType.RoleSelect) {
       throw new TypeError("Component is not a role select", { cause: { custom_id, type: component.type } });
     }
     const values = component.values;
     const roles = values.map((id) => this._resolved.roles?.get(id)).filter(Boolean) as APIRole[];
-    return roles.length > 0 ? roles : required ? [] : null;
+    return roles.length > 0 ? new Collection(roles.map((role) => [role.id, role])) : required ? new Collection() : null;
   }
 
   /**
