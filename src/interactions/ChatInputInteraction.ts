@@ -9,7 +9,6 @@ class ChatInputCommandInteraction<Context extends BaseInteractionContext = BaseI
   Context
 > {
   public readonly options: CommandInteractionOptionResolver;
-
   constructor(api: API, interaction: APIChatInputApplicationCommandInteraction, c: Context) {
     super(api, interaction, c);
     this.options = new CommandInteractionOptionResolver(interaction.data.options, interaction.data.resolved);

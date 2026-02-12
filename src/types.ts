@@ -137,6 +137,13 @@ export type BaseInteractionContext<
 > = Context<BaseHonocordEnv<TBindings, TVariables>, TPath, BlankInput>;
 
 /**
+ * Represents a guild member resolved from an interaction, including the associated user data.
+ *
+ * To be used by user selects.
+ */
+export type ResolvedSelectedGuildMember = APIInteractionDataResolvedGuildMember & { user: APIUser };
+
+/**
  * Collections of resolved data from Discord API interactions.
  *
  * When users or roles are mentioned in command options, Discord resolves them and provides
@@ -148,7 +155,7 @@ export interface APIInteractionDataResolvedCollections {
   /** Map of role IDs to role objects */
   roles?: Collection<Snowflake, APIRole>;
   /** Map of user IDs to guild member objects */
-  members?: Collection<Snowflake, APIInteractionDataResolvedGuildMember>;
+  members?: Collection<Snowflake, ResolvedSelectedGuildMember>;
   /** Map of channel IDs to channel objects */
   channels?: Collection<Snowflake, APIInteractionDataResolvedChannel>;
   /** Map of attachment IDs to attachment objects */

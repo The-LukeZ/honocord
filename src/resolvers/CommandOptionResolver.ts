@@ -11,7 +11,7 @@ import {
   ChannelType,
   InteractionType,
 } from "discord-api-types/v10";
-import { APIInteractionDataResolvedCollections } from "../types";
+import { APIInteractionDataResolvedCollections, ResolvedSelectedGuildMember } from "../types";
 
 type AutocompleteFocusedOption = {
   /**
@@ -65,10 +65,18 @@ class CommandInteractionOptionResolver {
     this._hoistedOptions = options ?? [];
     this._resolved = Object.keys(resolved ?? {}).reduce((acc, key) => {
       const resolvedData = resolved?.[key as keyof APIInteractionDataResolved];
+      if (key === "members") {
+        // get users and combine them with members for easy access; a user is expected to ALWAYS be present if a member is
+        const users = resolved?.users ? new Collection(Object.entries(resolved.users)) : new Collection();
+        const members = resolvedData ? new Collection(Object.entries(resolvedData)) : new Collection();
+        const combined = new Collection([...members.entries()].map(([id, member]) => [id, { ...member, user: users.get(id)! }]));
+        acc[key] = combined;
+        return acc;
+      }
       const collection = new Collection(resolvedData ? Object.entries(resolvedData) : []);
       acc[key as keyof APIInteractionDataResolvedCollections] = collection;
       return acc;
-    }, {} as Partial<APIInteractionDataResolvedCollections>);
+    }, {} as any);
 
     // Hoist subcommand group if present
     if (this._hoistedOptions[0]?.type === ApplicationCommandOptionType.SubcommandGroup) {
@@ -250,9 +258,9 @@ class CommandInteractionOptionResolver {
    * @param name The name of the option.
    * @returns The value of the option, or null if the user is not present in the guild or the option is not set.
    */
-  getMember(name: string, required?: boolean): APIInteractionDataResolvedGuildMember | null;
-  getMember(name: string, required: true): APIInteractionDataResolvedGuildMember;
-  getMember(name: string, required: boolean = false): APIInteractionDataResolvedGuildMember | null {
+  getMember(name: string, required?: boolean): ResolvedSelectedGuildMember | null;
+  getMember(name: string, required: true): ResolvedSelectedGuildMember;
+  getMember(name: string, required: boolean = false): ResolvedSelectedGuildMember | null {
     const option = this.get(name, ApplicationCommandOptionType.User, required);
     const member = option ? this._resolved.members?.get(option.value) || null : null;
     return member;
@@ -295,9 +303,9 @@ class CommandInteractionOptionResolver {
    * @param required Whether to throw an error if the option is not found.
    * @returns The value of the option, or null if not set and not required.
    */
-  getMentionable(name: string, required?: boolean): APIInteractionDataResolvedGuildMember | APIUser | APIRole | null;
-  getMentionable(name: string, required: true): APIInteractionDataResolvedGuildMember | APIUser | APIRole;
-  getMentionable(name: string, required: boolean = false): (APIInteractionDataResolvedGuildMember | APIUser | APIRole) | null {
+  getMentionable(name: string, required?: boolean): ResolvedSelectedGuildMember | APIUser | APIRole | null;
+  getMentionable(name: string, required: true): ResolvedSelectedGuildMember | APIUser | APIRole;
+  getMentionable(name: string, required: boolean = false): (ResolvedSelectedGuildMember | APIUser | APIRole) | null {
     const option = this.get(name, ApplicationCommandOptionType.Mentionable, required);
     const user = option ? this._resolved.users?.get(option.value) || null : null;
     const member = option ? this._resolved.members?.get(option.value) || null : null;
