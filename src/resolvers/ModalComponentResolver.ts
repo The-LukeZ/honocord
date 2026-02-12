@@ -245,4 +245,13 @@ export class ModalComponentResolver {
     }
     return mentionables.length > 0 ? mentionables : required ? [] : null;
   }
+
+  /**
+   * Checks if a component with the given custom ID exists in the modal.
+   * @param custom_id The custom ID of the component to check for.
+   * @returns True if a component with the given custom ID exists, false otherwise.
+   */
+  fieldExists(custom_id: string): boolean {
+    return this.hoistedComponents.has(custom_id);
+  }
 }
