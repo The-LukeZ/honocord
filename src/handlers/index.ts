@@ -14,6 +14,7 @@ import { ComponentType } from "discord-api-types/v10";
 import type { MessageContextInteraction } from "@ctx/MessageContextCommandInteraction";
 import type { UserContextInteraction } from "@ctx/UserContextCommandInteraction";
 import type { BaseInteractionContext, ContextCommandType } from "../types";
+import { WebhookEventHandler } from "./WebhookEventHandler";
 
 /**
  * Union type of all possible handlers
@@ -28,7 +29,8 @@ export type Handler<Context extends BaseInteractionContext = BaseInteractionCont
   | ComponentHandler<Context, ComponentType.RoleSelect>
   | ComponentHandler<Context, ComponentType.MentionableSelect>
   | ComponentHandler<Context, ComponentType.ChannelSelect>
-  | ModalHandler<Context>;
+  | ModalHandler<Context>
+  | WebhookEventHandler<Context["env"], Context["var"]>;
 
 export type CommandHandler<Context extends BaseInteractionContext = BaseInteractionContext> =
   | SlashCommandHandler<Context>

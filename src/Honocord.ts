@@ -2,7 +2,9 @@ import {
   APIApplicationCommandAutocompleteInteraction,
   APIApplicationCommandInteraction,
   APIInteraction,
+  APIWebhookEvent,
   ApplicationCommandType,
+  ApplicationWebhookType,
   ComponentType,
   InteractionResponseType,
   InteractionType,
@@ -145,6 +147,11 @@ export class Honocord {
           console.warn(`Modal handler with prefix "${prefix}" already exists. Overwriting.`);
         }
         this.modalHandlers.set(prefix, handler);
+      } else if (handler instanceof WebhookEventHandler) {
+        if (this.webhookHandlers.has(handler.eventType)) {
+          console.warn(`Webhook handler for event type "${handler.eventType}" already exists. Overwriting.`);
+        }
+        this.webhookHandlers.set(handler.eventType, handler);
       }
     }
   }
@@ -380,12 +387,12 @@ export class Honocord {
    * const bot = new Honocord();
    *
    * app.get("/", (c) => c.text("🔥 Honocord is running!"));
-   * app.post("/interactions", bot.handle);
+   * app.post("/interactions", bot.interactionsHandler);
    *
    * export default app;
    * ```
    */
-  handle = async (c: BaseInteractionContext) => {
+  interactionsHandler = async (c: BaseInteractionContext) => {
     // Check if running on CF Workers
     const isCFWorker = this.isCFWorker || c.env.IS_CF_WORKER === "true";
 
@@ -443,8 +450,8 @@ export class Honocord {
   getApp() {
     const app = new Hono<{ Variables: BaseVariables }>();
     app.get("*", (c) => c.text("🔥 Honocord is running!"));
-    app.post("/", this.handle);
-    app.post("/interactions", this.handle);
+    app.post("/", this.interactionsHandler);
+    app.post("/interactions", this.interactionsHandler);
     app.post("/webhook", this.webhook);
     return app;
   }
@@ -484,7 +491,29 @@ export class Honocord {
   }
 
   get webhook() {
-    return async (c: Context<{ Variables: BaseVariables }>) => {};
+    return async (c: Context) => {
+      if (typeof c.env.DISCORD_PUBLIC_KEY !== "string") {
+        console.error("No Discord public key provided in environment variables.");
+        return c.body(null, 500);
+      }
+      const { isValid, data } = await verifyDiscordRequest<APIWebhookEvent>(c.req, c.env.DISCORD_PUBLIC_KEY);
+
+      if (!isValid || !data) {
+        return c.text("Bad request signature.", 401);
+      }
+
+      if (data.type === ApplicationWebhookType.Ping) {
+        return c.json({ type: ApplicationWebhookType.Ping }, 200);
+      }
+
+      const handler = this.webhookHandlers.get(data.event.type);
+      if (handler) {
+        return handler.fetch(c.req.raw, c.env, c.executionCtx);
+      }
+
+      console.warn(`No handler found for webhook event: ${data.event.type}`);
+      return c.text("No handler found for this event type.", 404);
+    };
   }
 
   /**
