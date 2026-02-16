@@ -10,7 +10,7 @@ import {
 import { ChatInputCommandInteraction } from "@ctx/ChatInputInteraction";
 import { API } from "@discordjs/core/http-only";
 import { REST } from "@discordjs/rest";
-import { Hono } from "hono";
+import { Context, Hono } from "hono";
 import { verifyDiscordRequest } from "@utils/discordVerify";
 import { parseCustomId } from "@utils/index";
 import type {
@@ -444,6 +444,8 @@ export class Honocord {
     const app = new Hono<{ Variables: BaseVariables }>();
     app.get("*", (c) => c.text("🔥 Honocord is running!"));
     app.post("/", this.handle);
+    app.post("/interactions", this.handle);
+    app.post("/webhook", this.webhook);
     return app;
   }
 
@@ -479,6 +481,10 @@ export class Honocord {
   use<Context extends BaseInteractionContext = BaseInteractionContext>(...middleware: MiddlewareFunction<Context>[]): this {
     this.middleware.push(...middleware);
     return this;
+  }
+
+  get webhook() {
+    return async (c: Context<{ Variables: BaseVariables }>) => {};
   }
 
   /**
