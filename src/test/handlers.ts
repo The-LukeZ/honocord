@@ -1,8 +1,9 @@
 // Test file for handlers if the types do work
 
-import { AnyHandler, ComponentHandler, ContextCommandHandler, SlashCommandHandler } from "@ctx/handlers";
+import { ComponentHandler, ContextCommandHandler, SlashCommandHandler } from "@ctx/handlers";
 import { ComponentType } from "discord-api-types/v10";
 import { BaseInteractionContext, ContextCommandType } from "../types";
+import { ButtonBuilder, ContainerBuilder } from "@discordjs/builders";
 
 interface MyEnv {
   DISCORD_PUBLIC_KEY: string;
@@ -50,6 +51,14 @@ const messageContextCommandHandler = new ContextCommandHandler<MyContext, Contex
 const buttonComponentHandler = new ComponentHandler<MyContext, ComponentType.Button>("some_id", ComponentType.Button).addHandler(
   async (ctx) => {
     console.log("Button clicked");
+    const ar = new ContainerBuilder().addActionRowComponents<ButtonBuilder>((ar) =>
+      ar.addComponents(
+        new ButtonBuilder({
+          custom_id: "testButton",
+          label: "Test Button",
+        })
+      )
+    );
   }
 );
 

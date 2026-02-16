@@ -23,7 +23,6 @@ import type {
 } from "./types";
 import { UserContextInteraction } from "@ctx/UserContextCommandInteraction";
 import { MessageContextInteraction } from "@ctx/MessageContextCommandInteraction";
-import { MessageComponentInteraction } from "@ctx/MessageComponentInteraction";
 import { ModalInteraction } from "@ctx/ModalInteraction";
 import { AutocompleteInteraction } from "@ctx/AutocompleteInteraction";
 import {

@@ -37,7 +37,7 @@ export type {
   // TODO: include more as needed
 } from "discord-api-types/v10";
 
-export { ComponentType, InteractionType, ApplicationCommandType, ChannelType } from "discord-api-types/v10";
+export { MessageFlags, ComponentType, InteractionType, ApplicationCommandType, ChannelType } from "discord-api-types/v10";
 
 export {
   LabelBuilder,

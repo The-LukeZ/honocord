@@ -49,7 +49,11 @@ new SlashCommandHandler<MyContext>().addHandler(testHandle).addAutocompleteHandl
   return ctx.respond(autocomplete.response(["name", "value"])); // Filter by name and value (name_localizations is also supported)
 });
 
-const bot = new Honocord().use<MyContext>();
+const bot = new Honocord().use<MyContext>(async (c, next) => {
+  console.log("Middleware before", c.get("variable"));
+  await next();
+  console.log("Middleware after");
+});
 bot.loadHandlers(...handlers);
 
 const app = new Hono<{ Bindings: MyEnv; Variables: MyVar }>();
