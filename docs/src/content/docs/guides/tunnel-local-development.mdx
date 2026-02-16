@@ -1,0 +1,61 @@
+---
+title: Cloudflare Tunnel for Local Development
+description: Expose your local development server to the web using Cloudflare Tunnel
+---
+
+import { Steps, Aside } from "@astrojs/starlight/components";
+
+## Quick Setup
+
+<Steps>
+
+1. **Install cloudflared**  
+   [Download](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/) and
+   install the Cloudflare Tunnel client (cloudflared) for your operating system
+
+2. **Run a quick tunnel** (no setup required)  
+   Execute `cloudflared tunnel --url http://localhost:8787` to instantly expose your local Worker (typically running on port 8787)
+
+3. **Access via free domain**  
+   Cloudflare automatically generates a random subdomain like `https://wise-juvenile-pink-recovered.trycloudflare.com`
+
+</Steps>
+
+## Using Your Own Domain (Optional)
+
+If you want a custom domain instead of the random subdomain:
+
+<Steps>
+
+1. **Authenticate** - Run `cloudflared tunnel login` to authorize with your Cloudflare account
+
+2. **Create named tunnel** - Execute `cloudflared tunnel create mytunnel` to generate a persistent tunnel with **UUID**
+
+3. **Configure routing** - Create `~/.cloudflared/config.yml` specifying your tunnel ID, credentials file, and hostname mapping to localhost:port
+
+   ```yaml title="~/.cloudflared/config.yml"
+   tunnel: <TUNNEL_UUID>
+   credentials-file: /path/to/credentials-file.json
+   ingress:
+   - hostname: dev.yourdomain.com
+       service: http://localhost:8787
+   - service: http_status:404
+   ```
+
+   <Aside type="note">
+
+   On Windows, this file is located at `C:\Users\<USERNAME>\.cloudflared\config.yml`.
+
+   </Aside>
+
+4. **Set DNS record** - Run `cloudflared tunnel route dns mytunnel dev.yourdomain.com` to create the DNS entry
+
+5. **Run tunnel** - Execute `cloudflared tunnel run mytunnel` to start the tunnel
+
+</Steps>
+
+## Does Cloudflare Provide a Domain?
+
+**Yes** - When you run the quick tunnel command without authentication, Cloudflare automatically generates a free `trycloudflare.com` subdomain for you. However, this is a random subdomain that changes each time.
+
+If you want a permanent custom domain (like `dev.yourdomain.com`), you need to own a domain and use Cloudflare's nameservers.
