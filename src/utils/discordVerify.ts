@@ -103,7 +103,7 @@ export async function verifyKey(
   }
 }
 
-export async function verifyDiscordRequest<T extends APIInteraction | APIWebhookEvent = APIInteraction>(
+export async function verifyDiscordRequest<T extends APIInteraction | APIWebhookEvent>(
   req: HonoRequest,
   discordPublicKey: string | CryptoKey
 ) {
@@ -115,5 +115,5 @@ export async function verifyDiscordRequest<T extends APIInteraction | APIWebhook
     return { isValid: false } as const;
   }
 
-  return { interaction: JSON.parse(body) as T, isValid: true } as const;
+  return { data: JSON.parse(body) as T, isValid: true } as const;
 }

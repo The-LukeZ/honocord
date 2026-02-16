@@ -21,8 +21,8 @@
       "@utils/*": ["./src/utils/*"],
       "@ctx/*": ["./src/interactions/*"],
       "@resolvers/*": ["./src/resolvers/*"],
-      "@types/*": ["./src/types/*"],
-      "@handlers/*": ["./src/handlers/*"]
+      "@handlers/*": ["./src/handlers/*"],
+      "$types/*": ["./src/types/*"], // @types is already used by DefinitelyTyped, so we use $types instead
     },
     "types": ["@cloudflare/workers-types", "@types/node"]
   },

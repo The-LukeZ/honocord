@@ -1,6 +1,7 @@
 import {
   APIApplicationCommandAutocompleteInteraction,
   APIApplicationCommandInteraction,
+  APIInteraction,
   ApplicationCommandType,
   ComponentType,
   InteractionResponseType,
@@ -20,6 +21,7 @@ import type {
   MessageComponentType,
   FlatOrNestedArray,
   MiddlewareFunction,
+  WebhookEventTypeResolvable,
 } from "./types";
 import { UserContextInteraction } from "@ctx/UserContextCommandInteraction";
 import { MessageContextInteraction } from "@ctx/MessageContextCommandInteraction";
@@ -32,7 +34,8 @@ import {
   ModalHandler,
   type Handler,
   AnyHandler,
-} from "@ctx/handlers";
+  WebhookEventHandler,
+} from "@handlers/index";
 import { ButtonInteraction } from "@ctx/ButtonInteraction";
 import { StringSelectInteraction } from "@ctx/StringSelectInteraction";
 import { UserSelectInteraction } from "@ctx/UserSelectInteraction";
@@ -69,6 +72,7 @@ export class Honocord {
   private componentHandlers = new Map<string, ComponentHandler>();
   private modalHandlers = new Map<string, ModalHandler>();
   private middleware = new Array<MiddlewareFunction<any>>();
+  private webhookHandlers = new Map<WebhookEventTypeResolvable, WebhookEventHandler<any>>();
   private isCFWorker: boolean;
   private debugRest: boolean;
 
@@ -386,7 +390,7 @@ export class Honocord {
     const isCFWorker = this.isCFWorker || c.env.IS_CF_WORKER === "true";
 
     // Verify the request
-    const { isValid, interaction } = await verifyDiscordRequest(c.req, c.env.DISCORD_PUBLIC_KEY as string);
+    const { isValid, data: interaction } = await verifyDiscordRequest<APIInteraction>(c.req, c.env.DISCORD_PUBLIC_KEY as string);
     if (!isValid) {
       return c.text("Bad request signature.", 401);
     } else if (!interaction) {

@@ -6,7 +6,7 @@ export default defineConfig({
     "@utils": "src/utils",
     "@ctx": "src/interactions",
     "@resolvers": "src/resolvers",
-    "@types": "src/types",
+    "$types": "src/types",
     "@handlers": "src/handlers",
   },
 });
