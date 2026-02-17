@@ -12,7 +12,7 @@ class AttachmentBuilder {
   private name?: string;
   private description?: string;
   private contentType?: string;
-  private key?: string;
+  private key?: string; // Not really needed but allows users to set a custom key for their own reference if they want
 
   constructor(attachment: BufferResolvable | Stream, data: AttachmentData = {}) {
     this.attachment = attachment;
@@ -75,6 +75,19 @@ class AttachmentBuilder {
       filename: this.name ?? "file",
       ...(this.description && { description: this.description }),
     };
+  }
+
+  /**
+   * Resolves this builder into the parallel `files` and `attachments` arrays ready to spread into your API call options.
+   *
+   * @example
+   * const { files, attachments } = builder.resolve();
+   * await interaction.reply({ content: "Here!", files, attachments });
+   * // or even shorter:
+   * await interaction.reply({ content: "Here!", ...builder.resolve() });
+   */
+  resolve(): { files: RawFile[]; attachments: RESTAPIAttachment[] } {
+    return AttachmentBuilder.resolve(this);
   }
 
   /**

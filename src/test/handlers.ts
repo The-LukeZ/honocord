@@ -1,10 +1,12 @@
 // Test file for handlers if the types do work
 
 import { AnyHandler, ComponentHandler, ContextCommandHandler, SlashCommandHandler, WebhookEventHandler } from "@handlers/index";
-import { ApplicationWebhookEventType, ComponentType } from "discord-api-types/v10";
+import { ApplicationWebhookEventType, ComponentType, RESTPostAPIChannelMessageFormDataBody } from "discord-api-types/v10";
 import { BaseInteractionContext, ContextCommandType } from "../types";
 import { ButtonBuilder, ContainerBuilder } from "@discordjs/builders";
 import AttachmentBuilder from "../structures/AttachmentBuilder";
+import { REST } from "@discordjs/rest";
+import { API } from "@discordjs/core/http-only";
 
 interface MyEnv {
   DISCORD_PUBLIC_KEY: string;
@@ -123,6 +125,36 @@ const deauthHandler = new WebhookEventHandler<ApplicationWebhookEventType.Applic
   console.log("Received ApplicationDeauthorized event with data:", data);
   // No return needed in worker mode
 });
+
+function testAttachmentBuilder() {
+  const rest = new REST().setToken("fake_token");
+  const api = new API(rest);
+  const attachment = new AttachmentBuilder(Buffer.from("Hello world"), {
+    name: "hello.txt",
+    description: "A hello world text file",
+  })
+    .setContentType("text/plain")
+    .setKey("file1")
+    .setSpoiler();
+
+  console.log("Attachment metadata for REST API:", attachment.toRestAttachment(0));
+  console.log("Raw file data for multipart upload:", attachment.toRawFile());
+
+  api.channels.createMessage("channel_id", {
+    content: "Here is an attachment",
+    ...AttachmentBuilder.resolve(attachment),
+  });
+
+  // or directly with rest
+const { files, attachments } = AttachmentBuilder.resolve(attachment);
+rest.post("/channels/channel_id/messages", {
+  body: {
+    content: "Here is an attachment",
+    attachments: attachments,
+  } as RESTPostAPIChannelMessageFormDataBody,
+  files: files,
+});
+}
 
 const handlers: AnyHandler[] = [
   commandHandler,
