@@ -19,7 +19,7 @@ import type {
   JSONEncodable,
   MessageComponentType,
   ValidInteraction,
-} from "../types";
+} from "$types/index";
 import { MessageComponentInteraction } from "./MessageComponentInteraction";
 import { AutocompleteInteraction } from "./AutocompleteInteraction";
 import { CommandInteraction } from "./CommandInteraction";

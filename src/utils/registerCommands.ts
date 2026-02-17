@@ -1,4 +1,4 @@
-import { AnyHandler } from "@ctx/handlers";
+import { AnyHandler } from "@handlers/index";
 import { API } from "@discordjs/core/http-only";
 import { REST } from "@discordjs/rest";
 import { FlatOrNestedArray } from "../types";

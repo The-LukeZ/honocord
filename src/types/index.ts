@@ -16,7 +16,7 @@ export * from "./messageComponents";
 // Response types
 export * from "./responses";
 
-export { BufferSource, FlatOrNestedArray } from "./utils";
+export * from "./utils";
 
 export * from "./webhook";
 

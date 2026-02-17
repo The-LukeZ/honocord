@@ -14,14 +14,8 @@ export type { ChannelSelectInteraction } from "@ctx/ChannelSelectInteraction";
 export { CommandInteractionOptionResolver } from "@resolvers/CommandOptionResolver";
 export { ModalComponentResolver } from "@resolvers/ModalComponentResolver";
 
-export {
-  SlashCommandHandler,
-  ContextCommandHandler,
-  ComponentHandler,
-  ModalHandler,
-  type Handler,
-  type CommandHandler,
-} from "@ctx/handlers";
+export * from "@handlers/index";
+export type * from "@handlers/index";
 
 export * from "@utils/index";
 export type * from "./types";

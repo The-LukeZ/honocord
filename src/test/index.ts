@@ -1,4 +1,4 @@
-import { SlashCommandHandler } from "@ctx/handlers";
+import { SlashCommandHandler } from "@handlers/index";
 import { BaseInteractionContext, HandlerFunction } from "../types";
 import { MessageFlags } from "discord-api-types/v10";
 import { ContainerBuilder } from "@discordjs/builders";
@@ -57,7 +57,7 @@ const bot = new Honocord().use<MyContext>(async (c, next) => {
 bot.loadHandlers(...handlers);
 
 const app = new Hono<{ Bindings: MyEnv; Variables: MyVar }>();
-app.post("/interactions", bot.handle);
+app.post("/interactions", bot.interactionsHandler);
 
 // other file
 const register = () => registerCommands("asd", "123123123", ...handlers);
