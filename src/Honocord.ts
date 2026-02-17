@@ -62,6 +62,11 @@ interface HonocordOptions {
   debugRest?: boolean;
 }
 
+interface HonocordAppOptions {
+  interactionsPath?: `/${string}`;
+  webhookPath?: `/${string}`;
+}
+
 export class Honocord {
   /**
    * Map of commandName to CommandHandler instances for global commands.
@@ -449,14 +454,14 @@ export class Honocord {
    * // And `/webhook` for the webhook handler if any are loaded
    * ```
    */
-  getApp() {
+  getApp({ interactionsPath, webhookPath }: HonocordAppOptions) {
     const app = new Hono<{ Variables: BaseVariables }>();
     app.get("*", (c) => c.text("🔥 Honocord is running!"));
     if (this.globalCommandHandlers.size > 0 || this.guildCommandHandlers.size > 0) {
       app.post("/", this.interactionsHandler);
-      app.post("/interactions", this.interactionsHandler);
+      app.post(interactionsPath || "/interactions", this.interactionsHandler);
     }
-    if (this.webhookHandlers.size > 0) app.post("/webhook", this.webhookHandler);
+    if (this.webhookHandlers.size > 0) app.post(webhookPath || "/webhook", this.webhookHandler);
     return app;
   }
 
@@ -497,6 +502,9 @@ export class Honocord {
   /**
    * Returns a Hono handler for POST requests handling Discord webhook events.
    *
+   * For Cloudflare workers, the handler processes events asynchronously using the Workers'
+   * execution context ,allowing for longer processing times without blocking the response.
+   *
    * @example
    * ```typescript
    * import { Hono } from "hono";
@@ -510,32 +518,46 @@ export class Honocord {
    * export default app;
    * ```
    */
-  get webhookHandler() {
-    return async (c: Context) => {
-      if (typeof c.env.DISCORD_PUBLIC_KEY !== "string") {
-        console.error("No Discord public key provided in environment variables.");
-        return c.body(null, 500);
-      }
-      const { isValid, data } = await verifyDiscordRequest<APIWebhookEvent>(c.req, c.env.DISCORD_PUBLIC_KEY);
+  webhookHandler = async (c: Context) => {
+    const isCFWorker = this.isCFWorker || c.env.IS_CF_WORKER === "true";
 
-      if (!isValid || !data) {
-        return c.text("Bad request signature.", 401);
-      }
+    if (typeof c.env.DISCORD_PUBLIC_KEY !== "string") {
+      console.error("No Discord public key provided in environment variables.");
+      return c.body(null, 500);
+    }
+    const { isValid, data } = await verifyDiscordRequest<APIWebhookEvent>(c.req, c.env.DISCORD_PUBLIC_KEY);
 
-      if (data.type === ApplicationWebhookType.Ping) {
-        return c.json({ type: ApplicationWebhookType.Ping }, 200);
-      }
+    if (!isValid || !data) {
+      return c.text("Bad request signature.", 401);
+    }
 
-      const handler = this.webhookHandlers.get(data.event.type);
-      if (handler) {
-        // Pass the verified event data directly to the handler
-        return handler.execute(data.event as any, c as any);
-      }
+    if (data.type === ApplicationWebhookType.Ping) {
+      return c.json({ type: ApplicationWebhookType.Ping }, 200);
+    }
 
-      console.warn(`No handler found for webhook event: ${data.event.type}`);
+    const handler = this.webhookHandlers.get(data.event.type);
+    if (!handler) {
       return c.text("No handler found for this event type.", 404);
-    };
-  }
+    }
+
+    // CF Workers async processing
+    if (isCFWorker && c.executionCtx?.waitUntil) {
+      c.executionCtx.waitUntil(
+        new Promise(async (resolve) => {
+          try {
+            await handler.execute(data.event, c);
+          } catch (error) {
+            console.error(`Error handling webhook event ${data.event.type}:`, error);
+          }
+          resolve(undefined);
+        })
+      );
+      return c.body(null, 200);
+    }
+
+    // Standard execution for other platforms
+    return handler.execute(data.event, c);
+  };
 
   /**
    * Clears all registered middleware functions.
