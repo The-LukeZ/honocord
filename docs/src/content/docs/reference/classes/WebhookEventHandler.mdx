@@ -27,7 +27,7 @@ new WebhookEventHandler<T, Env, Variables, ForWorker, Data>(
 - `forWorker` (optional) - Set to `true` for Cloudflare Workers mode, `false` or omit for standard mode
 
 :::note[Type Parameter Order]
-The type parameter `T` is typically inferred from the `eventType` constructor argument. If you need to specify custom `Env` or `Variables` types, you must explicitly specify `T` first: `new WebhookEventHandler<typeof ApplicationWebhookEventType.YourEvent, YourEnv, YourVariables>(...)`.
+The type parameter `T` is typically inferred from the `eventType` constructor argument. If you need to specify custom `Env` or `Variables` types, you must explicitly specify `T` first: `new WebhookEventHandler<ApplicationWebhookEventType.YourEvent, YourEnv, YourVariables>(...)`.
 :::
 
 **Examples:**
@@ -46,16 +46,12 @@ interface MyEnv {
 const standardHandler = new WebhookEventHandler(ApplicationWebhookEventType.EntitlementCreate);
 
 // With custom environment types
-const typedHandler = new WebhookEventHandler<
-  typeof ApplicationWebhookEventType.EntitlementCreate,
-  MyEnv
->(ApplicationWebhookEventType.EntitlementCreate);
+const typedHandler = new WebhookEventHandler<ApplicationWebhookEventType.EntitlementCreate, MyEnv>(
+  ApplicationWebhookEventType.EntitlementCreate
+);
 
 // Worker mode - handler can return anything
-const workerHandler = new WebhookEventHandler(
-  ApplicationWebhookEventType.EntitlementCreate,
-  true
-);
+const workerHandler = new WebhookEventHandler(ApplicationWebhookEventType.EntitlementCreate, true);
 ```
 
 ## Methods

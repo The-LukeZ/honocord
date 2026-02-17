@@ -188,7 +188,7 @@ interface MyVariables {
 }
 
 // Specify types explicitly - T is inferred from constructor, then Env and Variables
-const authHandler = new WebhookEventHandler<typeof ApplicationWebhookEventType.ApplicationAuthorized, MyEnv, MyVariables>(
+const authHandler = new WebhookEventHandler<ApplicationWebhookEventType.ApplicationAuthorized, MyEnv, MyVariables>(
   ApplicationWebhookEventType.ApplicationAuthorized
 );
 

@@ -98,7 +98,7 @@ const channelSelectComponentHandler = new ComponentHandler<MyContext, ComponentT
   console.log("Channel select used with values:", ctx.channels);
 });
 
-const authorizedHandler = new WebhookEventHandler<typeof ApplicationWebhookEventType.ApplicationAuthorized, MyEnv, MyVar>(
+const authorizedHandler = new WebhookEventHandler<ApplicationWebhookEventType.ApplicationAuthorized, MyEnv, MyVar>(
   ApplicationWebhookEventType.ApplicationAuthorized
 ).addHandler(async (c) => {
   const { data } = c.get("data");
@@ -106,7 +106,7 @@ const authorizedHandler = new WebhookEventHandler<typeof ApplicationWebhookEvent
   return c.body(null, 200);
 });
 
-const deauthHandler = new WebhookEventHandler<typeof ApplicationWebhookEventType.ApplicationDeauthorized, MyEnv, MyVar, true>(
+const deauthHandler = new WebhookEventHandler<ApplicationWebhookEventType.ApplicationDeauthorized, MyEnv, MyVar, true>(
   ApplicationWebhookEventType.ApplicationDeauthorized,
   true
 ).addHandler(async (c) => {
