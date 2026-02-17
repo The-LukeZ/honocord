@@ -19,7 +19,7 @@ export class WebhookEventHandler<
   Env extends { DISCORD_PUBLIC_KEY?: string } = any,
   Variables extends BlankVariables = BlankVariables,
   T extends ApplicationWebhookEventType = ApplicationWebhookEventType,
-  Data extends Extract<APIWebhookEventPayload, { type: T }> = Extract<APIWebhookEventPayload, { type: T }>,
+  Data extends APIWebhookEventPayload<T> = APIWebhookEventPayload<T>,
 > {
   readonly handlerType = "webhook";
   public readonly eventType: T;
