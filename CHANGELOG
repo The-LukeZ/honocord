@@ -5,10 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-<!-- ## [Unreleased]
-
--  -->
-
 ## [2.0.0] - ???
 
 This new release brings a major update to Honocord's architecture, introducing a new handler system for both interactions and webhooks. This allows for more modular, flexible, and type-safe development.
@@ -17,7 +13,7 @@ This brings along some breaking changes, so please review the migration guide in
 
 ### Added
 
-- `WebhookEventHandler` class for handling Discord webhook events with type safety (It's a Hono app under the hood, so you can use it standalone or with the bot)
+- `WebhookEventHandler` class for handling Discord webhook events with type safety (It's a Hono app under the hood, so you can use it standalone or with the bot) - [Read the docs](https://honocord.thelukez.com/guides/webhook-events)
 
 ### Changed
 
