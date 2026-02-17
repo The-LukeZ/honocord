@@ -4,6 +4,9 @@ import { basename } from "./utils";
 import { AttachmentData, RawFile } from "$types/responses";
 import { RESTAPIAttachment } from "discord-api-types/v10";
 
+/**
+ * Builder for message attachments, which can be used in several response methods across the library.
+ */
 class AttachmentBuilder {
   private attachment: BufferResolvable | Stream;
   private name?: string;
@@ -65,7 +68,7 @@ class AttachmentBuilder {
     };
   }
 
-  /** Produces the attachments[] metadata entry for the JSON payload */
+  /** Produces the attachments[] entry for the JSON payload */
   toRestAttachment(index: number): RESTAPIAttachment {
     return {
       id: index,

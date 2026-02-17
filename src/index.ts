@@ -63,3 +63,4 @@ export {
 export { REST } from "@discordjs/rest";
 export { API } from "@discordjs/core/http-only";
 export { Collection, type ReadonlyCollection } from "@discordjs/collection";
+export * from "./structures";
