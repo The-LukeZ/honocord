@@ -46,6 +46,7 @@ export default defineConfig({
       ],
       title: "Honocord Docs",
       description: "Documentation for Honocord — Imagine a Discord HTTP interactions bot for Hono",
+      favicon: "/favicon.ico",
       logo: {
         src: "./public/logo.png",
         alt: "Honocord Logo",
