@@ -60,6 +60,6 @@ export {
   SlashCommandSubcommandGroupBuilder,
   // Want more? Install the package yourself then.
 } from "@discordjs/builders";
-export type { REST } from "@discordjs/rest";
-export type { API } from "@discordjs/core/http-only";
+export { REST } from "@discordjs/rest";
+export { API } from "@discordjs/core/http-only";
 export { Collection, type ReadonlyCollection } from "@discordjs/collection";
