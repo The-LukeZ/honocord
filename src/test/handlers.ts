@@ -4,6 +4,7 @@ import { AnyHandler, ComponentHandler, ContextCommandHandler, SlashCommandHandle
 import { ApplicationWebhookEventType, ComponentType } from "discord-api-types/v10";
 import { BaseInteractionContext, ContextCommandType } from "../types";
 import { ButtonBuilder, ContainerBuilder } from "@discordjs/builders";
+import AttachmentBuilder from "../structures/AttachmentBuilder";
 
 interface MyEnv {
   DISCORD_PUBLIC_KEY: string;
@@ -96,6 +97,14 @@ const channelSelectComponentHandler = new ComponentHandler<MyContext, ComponentT
   ComponentType.ChannelSelect
 ).addHandler(async (ctx) => {
   console.log("Channel select used with values:", ctx.channels);
+  ctx.reply({
+    attachments: [
+      new AttachmentBuilder(Buffer.from("Hello world"), {
+        name: "hello.txt",
+        description: "A hello world text file",
+      }),
+    ],
+  });
 });
 
 const authorizedHandler = new WebhookEventHandler<ApplicationWebhookEventType.ApplicationAuthorized, MyEnv, MyVar>(

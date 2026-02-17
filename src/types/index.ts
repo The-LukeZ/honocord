@@ -16,9 +16,9 @@ export * from "./messageComponents";
 // Response types
 export * from "./responses";
 
-export * from "./utils";
-
 export * from "./webhook";
+
+export * from "./utils";
 
 // Since these are only types, circular dependencies are not an issue, so we can
 // import and export stuff from other files in the types folder without worrying about it.

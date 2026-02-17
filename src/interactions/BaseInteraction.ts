@@ -18,6 +18,7 @@ import type {
   InteractionResponseCallbackData,
   JSONEncodable,
   MessageComponentType,
+  RawFile,
   ValidInteraction,
 } from "$types/index";
 import { MessageComponentInteraction } from "./MessageComponentInteraction";
@@ -32,6 +33,7 @@ import { UserSelectInteraction } from "./UserSelectInteraction";
 import { RoleSelectInteraction } from "./RoleSelectInteraction";
 import { MentionableSelectInteraction } from "./MentionableSelectInteraction";
 import { ChannelSelectInteraction } from "./ChannelSelectInteraction";
+import AttachmentBuilder from "../structures/AttachmentBuilder";
 
 function snakeCase(str: string): string {
   return str
@@ -153,8 +155,8 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
     return isJSONEncodable(obj);
   }
 
-  protected toSnakeCase(obj: unknown): unknown {
-    return toSnakeCase(obj);
+  protected toSnakeCase<T = unknown>(obj: unknown): T {
+    return toSnakeCase(obj) as T;
   }
 
   inGuild(): this is BaseInteraction<Type> & { guild_id: Snowflake; guild: APIPartialInteractionGuild; guild_locale: Locale } {
@@ -187,12 +189,22 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
     );
   }
 
-  private prepareResponsePayload(options: InteractionResponseCallbackData): APIInteractionResponseCallbackData {
-    return this.toSnakeCase({
-      ...options,
-      components: options.components?.map((component) => (this.isJSONEncodable(component) ? component.toJSON() : component)),
-      embeds: options.embeds?.map((embed) => (this.isJSONEncodable(embed) ? embed.toJSON() : embed)),
-    }) as APIInteractionResponseCallbackData;
+  private prepareResponsePayload(options: InteractionResponseCallbackData) {
+    const builders = (options.files ?? []).filter((f): f is AttachmentBuilder => f instanceof AttachmentBuilder);
+    const rawFiles = (options.files ?? []).filter((f): f is RawFile => !(f instanceof AttachmentBuilder));
+
+    const { files: resolvedFiles, attachments: resolvedMeta } = AttachmentBuilder.resolve(...builders);
+
+    return {
+      body: this.toSnakeCase<APIInteractionResponseCallbackData>({
+        ...options,
+        files: undefined,
+        components: options.components?.map((c) => (this.isJSONEncodable(c) ? c.toJSON() : c)),
+        embeds: options.embeds?.map((e) => (this.isJSONEncodable(e) ? e.toJSON() : e)),
+        attachments: [...resolvedMeta, ...(options.attachments ?? [])],
+      }),
+      files: [...resolvedFiles, ...rawFiles],
+    };
   }
 
   async reply(options: InteractionResponseCallbackData | string, forceEphemeral = true) {
