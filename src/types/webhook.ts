@@ -1,10 +1,10 @@
-import type { APIWebhookEventBody } from "discord-api-types/v10";
+import type { APIWebhookEventBody, ApplicationWebhookEventType } from "discord-api-types/v10";
 import type { BlankEnv } from "hono/types";
 import type { Context } from "hono";
 
 export type { ApplicationWebhookEventType } from "discord-api-types/v10";
 
-export type APIWebhookEventPayload = APIWebhookEventBody;
+export type APIWebhookEventPayload = Extract<APIWebhookEventBody, { type: ApplicationWebhookEventType }>;
 
 /**
  * A function type for handling webhook events, where the context includes typed variables for the event data.
