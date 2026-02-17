@@ -188,11 +188,9 @@ interface MyVariables {
 }
 
 // Specify types explicitly - T is inferred from constructor, then Env and Variables
-const authHandler = new WebhookEventHandler<
-  typeof ApplicationWebhookEventType.ApplicationAuthorized,
-  MyEnv,
-  MyVariables
->(ApplicationWebhookEventType.ApplicationAuthorized);
+const authHandler = new WebhookEventHandler<typeof ApplicationWebhookEventType.ApplicationAuthorized, MyEnv, MyVariables>(
+  ApplicationWebhookEventType.ApplicationAuthorized
+);
 
 authHandler.addHandler(async (c) => {
   // c.env is now typed as MyEnv
@@ -307,6 +305,22 @@ export default app;
 ```
 
 <Aside>Worker mode handlers cannot use `fetch()` or `getApp()` - they must be used with Honocord's `webhookHandler`.</Aside>
+
+## Typings
+
+The types for `WebhookEventHandler` are designed to provide strong type safety,
+however it gets a littlemore complex when you start adding custom bindings and variables.
+
+If you want to use custom `Bindings` and `Variables`, you **need** to specify the first 4 type parameters, even if you want to use the defaults for some of them. For example:
+
+```ts
+const handler = new WebhookEventHandler<ApplicationWebhookEventType.ApplicationAuthorized, MyEnv, MyVariables, false>(
+  ApplicationWebhookEventType.ApplicationAuthorized
+);
+```
+
+I'm working on improving the ergonomics of this, but this is a limitation of how TypeScript infers types from constructor arguments.
+If you have any suggestions on improving this, please let me know!
 
 ## Troubleshooting
 
