@@ -7,7 +7,7 @@ import { RESTAPIAttachment } from "discord-api-types/v10";
 /**
  * Builder for message attachments, which can be used in several response methods across the library.
  */
-class AttachmentBuilder {
+export class AttachmentBuilder {
   private attachment: BufferResolvable | Stream;
   private name?: string;
   private description?: string;
@@ -123,5 +123,3 @@ class AttachmentBuilder {
     });
   }
 }
-
-export default AttachmentBuilder;
