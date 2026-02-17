@@ -24,6 +24,10 @@ export default defineConfig({
       destination: "https://www.npmjs.com/package/honocord",
       status: 302,
     },
+    "/examples": {
+      destination: "https://github.com/The-LukeZ/honocord-examples",
+      status: 302,
+    },
   },
   integrations: [
     mermaid({ autoTheme: true, theme: "dark" }),
@@ -80,6 +84,10 @@ export default defineConfig({
             { label: "Constants", autogenerate: { directory: "reference/constants" } },
             { label: "Types", autogenerate: { directory: "reference/types" } },
           ],
+        },
+        {
+          label: "Examples",
+          link: "/examples",
         },
       ],
       customCss: [
