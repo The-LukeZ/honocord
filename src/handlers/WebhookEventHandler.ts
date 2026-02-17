@@ -15,9 +15,9 @@ type BlankVariables = Record<string, any>;
  * @template Data - Typed webhook event data
  */
 export class WebhookEventHandler<
-  ForWorker extends boolean = false,
-  Env extends { DISCORD_PUBLIC_KEY?: string } = any,
+  Env extends { DISCORD_PUBLIC_KEY?: string } = {},
   Variables extends BlankVariables = BlankVariables,
+  ForWorker extends boolean = false,
   T extends ApplicationWebhookEventType = ApplicationWebhookEventType,
   Data extends APIWebhookEventPayload<T> = APIWebhookEventPayload<T>,
 > {
