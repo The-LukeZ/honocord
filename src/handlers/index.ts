@@ -30,7 +30,7 @@ export type Handler<Context extends BaseInteractionContext = BaseInteractionCont
   | ComponentHandler<Context, ComponentType.MentionableSelect>
   | ComponentHandler<Context, ComponentType.ChannelSelect>
   | ModalHandler<Context>
-  | WebhookEventHandler<Context["env"], Context["var"], boolean, ApplicationWebhookEventType, any>;
+  | WebhookEventHandler<ApplicationWebhookEventType, Context["env"], Context["var"], boolean, any>;
 
 /**
  * Helper type to allow handlers with any context extending BaseInteractionContext

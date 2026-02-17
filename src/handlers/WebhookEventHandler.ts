@@ -8,17 +8,17 @@ type BlankVariables = Record<string, any>;
 /**
  * Represents a webhook event handler to be used by an Honocord instance or standalone fetch handler or Hono app.
  *
- * @template ForWorker - Set to `true` for Cloudflare Workers mode (no return type required), `false` for standard mode (must return Response)
+ * @template T - Discord webhook event type
  * @template Env - Environment bindings type
  * @template Variables - Additional context variables
- * @template T - Discord webhook event type
+ * @template ForWorker - Set to `true` for Cloudflare Workers mode (no return type required), `false` for standard mode (must return Response)
  * @template Data - Typed webhook event data
  */
 export class WebhookEventHandler<
+  T extends ApplicationWebhookEventType,
   Env extends { DISCORD_PUBLIC_KEY?: string } = {},
   Variables extends BlankVariables = BlankVariables,
   ForWorker extends boolean = false,
-  T extends ApplicationWebhookEventType = ApplicationWebhookEventType,
   Data extends APIWebhookEventPayload<T> = APIWebhookEventPayload<T>,
 > {
   readonly handlerType = "webhook";

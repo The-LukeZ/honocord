@@ -18,12 +18,13 @@ export type Handler<Context extends BaseInteractionContext = BaseInteractionCont
   | ComponentHandler<Context, ComponentType.MentionableSelect>
   | ComponentHandler<Context, ComponentType.ChannelSelect>
   | ModalHandler<Context>
-  | WebhookEventHandler<boolean, Context["env"], Context["var"], ApplicationWebhookEventType, any>;
+  | WebhookEventHandler<ApplicationWebhookEventType, boolean, Context["env"], Context["var"], any>;
 ```
 
 ## Description
 
 This union ensures that only valid handler instances are passed to the bot. Each member of the union corresponds to a specific type of Discord interaction or webhook event:
+
 - Slash Commands
 - User context menus
 - Message context menus

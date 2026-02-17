@@ -175,6 +175,34 @@ authHandler.addHandler(async (c) => {
 const deauthHandler = new WebhookEventHandler(ApplicationWebhookEventType.ApplicationDeauthorized);
 ```
 
+**With custom types:**
+
+```ts
+interface MyEnv {
+  DISCORD_PUBLIC_KEY: string;
+  DATABASE: D1Database;
+}
+
+interface MyVariables {
+  userId: string;
+}
+
+// Specify types explicitly - T is inferred from constructor, then Env and Variables
+const authHandler = new WebhookEventHandler<
+  typeof ApplicationWebhookEventType.ApplicationAuthorized,
+  MyEnv,
+  MyVariables
+>(ApplicationWebhookEventType.ApplicationAuthorized);
+
+authHandler.addHandler(async (c) => {
+  // c.env is now typed as MyEnv
+  const db = c.env.DATABASE;
+  // c.var includes both MyVariables and data
+  const auth = c.var.data;
+  return c.json({ ok: true });
+});
+```
+
 <Aside type="caution" title="Important">
   The `ApplicationDeauthorized` event is **only sent** if the bot is removed as a user-installable app! If your bot is only
   guild-installed, this event wil**l not be sent!** (Blame Discord)

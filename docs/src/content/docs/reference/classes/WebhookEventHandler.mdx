@@ -6,16 +6,16 @@ Handles Discord webhook events with type-safe modes for standard and Cloudflare 
 
 ## Type Parameters
 
-- `ForWorker` (default: `false`) - Set to `true` for Cloudflare Workers mode (no return type required), `false` for standard mode (must return Response)
-- `Env` (default: `any`) - Environment bindings type, must include `DISCORD_PUBLIC_KEY?: string`
+- `T` - Discord webhook event type from `ApplicationWebhookEventType` (inferred from constructor)
+- `Env` (default: `{}`) - Environment bindings type, must include `DISCORD_PUBLIC_KEY?: string`
 - `Variables` (default: `{}`) - Additional context variables
-- `T` - Discord webhook event type from `ApplicationWebhookEventType`
-- `Data` - Typed webhook event data payload
+- `ForWorker` (default: `false`) - Set to `true` for Cloudflare Workers mode (no return type required), `false` for standard mode (must return Response)
+- `Data` (default: derived from `T`) - Typed webhook event data payload
 
 ## Constructor
 
 ```ts
-new WebhookEventHandler<ForWorker, Env, Variables, T, Data>(
+new WebhookEventHandler<T, Env, Variables, ForWorker, Data>(
   eventType: T,
   forWorker?: ForWorker
 )
@@ -26,17 +26,36 @@ new WebhookEventHandler<ForWorker, Env, Variables, T, Data>(
 - `eventType` - The Discord webhook event type to handle (from `ApplicationWebhookEventType`)
 - `forWorker` (optional) - Set to `true` for Cloudflare Workers mode, `false` or omit for standard mode
 
+:::note[Type Parameter Order]
+The type parameter `T` is typically inferred from the `eventType` constructor argument. If you need to specify custom `Env` or `Variables` types, you must explicitly specify `T` first: `new WebhookEventHandler<typeof ApplicationWebhookEventType.YourEvent, YourEnv, YourVariables>(...)`.
+:::
+
 **Examples:**
 
 ```ts
 import { WebhookEventHandler } from "honocord";
 import { ApplicationWebhookEventType } from "discord-api-types/v10";
 
+interface MyEnv {
+  DISCORD_PUBLIC_KEY: string;
+  DATABASE: D1Database;
+}
+
 // Standard mode - handler must return Response
+// T is inferred from constructor argument
 const standardHandler = new WebhookEventHandler(ApplicationWebhookEventType.EntitlementCreate);
 
+// With custom environment types
+const typedHandler = new WebhookEventHandler<
+  typeof ApplicationWebhookEventType.EntitlementCreate,
+  MyEnv
+>(ApplicationWebhookEventType.EntitlementCreate);
+
 // Worker mode - handler can return anything
-const workerHandler = new WebhookEventHandler(ApplicationWebhookEventType.EntitlementCreate, true);
+const workerHandler = new WebhookEventHandler(
+  ApplicationWebhookEventType.EntitlementCreate,
+  true
+);
 ```
 
 ## Methods
