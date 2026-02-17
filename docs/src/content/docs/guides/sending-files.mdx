@@ -12,7 +12,7 @@ Sending files in Discord requires two things to be present in your request: the 
 Use `AttachmentBuilder` to describe a file you want to send. It accepts any `Buffer`, `Uint8Array`, `string`, or `Stream` as the file data.
 
 ```ts
-import { AttachmentBuilder } from "./builders/AttachmentBuilder";
+import { AttachmentBuilder } from "honocord";
 
 const attachment = new AttachmentBuilder(Buffer.from("Hello, world!"), {
   name: "hello.txt",
@@ -76,29 +76,6 @@ await ctx.reply({
 <Aside type="caution">
   The filename in `attachment://` must exactly match the `name` set on the `AttachmentBuilder`, including the file extension.
 </Aside>
-
-## Sending Large Data
-
-A common pattern is to show a truncated preview in an embed while attaching the full data as a downloadable file.
-
-````ts
-const json = JSON.stringify(userData, null, 2);
-
-await ctx.editReply({
-  embeds: [
-    {
-      title: "User Info",
-      description: "```json\n" + json.slice(0, 4000) + "\n```",
-    },
-  ],
-  files: [
-    new AttachmentBuilder(Buffer.from(json), {
-      name: `${userData.username.replace(" ", "-").toLowerCase()}.json`,
-      description: "Full user data as JSON",
-    }),
-  ],
-});
-````
 
 ## Marking Files as Spoilers
 
