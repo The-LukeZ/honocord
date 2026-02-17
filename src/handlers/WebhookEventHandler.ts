@@ -23,6 +23,13 @@ export class WebhookEventHandler<
     this.eventType = eventType;
   }
 
+  /**
+   * Internal wrapper that handles Discord request verification and delegates to the user-defined handler.
+   * This is used by the standalone `fetch` and `getApp()` methods.
+   *
+   * @private
+   * @internal
+   */
   private handlerWrapper = async (c: Context<{ Bindings: Env; Variables: BlankVariables & { data: Data } }>) => {
     if (!this.handlerFn) {
       console.error("No handler function defined for webhook event handler.");
@@ -58,6 +65,22 @@ export class WebhookEventHandler<
     }
   };
 
+  /**
+   * Registers the handler function for this webhook event.
+   *
+   * @param handlerFn - The function to execute when this webhook event is received
+   *
+   * @example
+   * ```typescript
+   * const handler = new WebhookEventHandler(ApplicationWebhookEventType.MessageCreate);
+   *
+   * handler.addHandler(async (c) => {
+   *   const message = c.var.data;
+   *   console.log("Received message:", message.content);
+   *   return c.json({ success: true });
+   * });
+   * ```
+   */
   addHandler(handlerFn: WebhookEventHandlerFn<Data, Env, BlankVariables & { data: Data }>) {
     this.handlerFn = handlerFn;
     this.app.post("/", this.handlerWrapper);
@@ -65,8 +88,26 @@ export class WebhookEventHandler<
 
   /**
    * Execute the handler with pre-verified event data.
-   * This method is used when the handler is integrated with Honocord,
-   * which has already verified the request and handled ping events.
+   *
+   * **When to use:** This method is automatically called when the handler is registered with Honocord via `loadHandlers()`.
+   * The Honocord instance handles request verification and ping events once, then delegates to this method.
+   *
+   * **You typically don't call this directly** - it's used internally by Honocord's `webhookHandler`.
+   *
+   * @param eventData - The pre-verified webhook event data
+   * @param c - The Hono context
+   * @returns The response from the handler function
+   *
+   * @example
+   * ```typescript
+   * // This is handled automatically when using Honocord:
+   * const bot = new Honocord();
+   * const handler = new WebhookEventHandler(ApplicationWebhookEventType.MessageCreate);
+   * handler.addHandler(async (c) => c.json({ ok: true }));
+   *
+   * bot.loadHandlers(handler); // execute() is called internally
+   * export default bot.getApp(); // POST /webhook
+   * ```
    */
   async execute(eventData: Data, c: Context<{ Bindings: Env; Variables: BlankVariables & { data: Data } }>) {
     if (!this.handlerFn) {
@@ -84,10 +125,79 @@ export class WebhookEventHandler<
     }
   }
 
+  /**
+   * Returns the fetch handler for standalone usage.
+   *
+   * **When to use:** Use this when you want a self-contained webhook endpoint that handles its own
+   * Discord request verification and ping events, independent of a Honocord instance.
+   *
+   * This is ideal for:
+   * - Microservices architecture where webhooks are separate from interaction handlers
+   * - Multiple bots with different webhook endpoints
+   * - Testing individual webhook handlers in isolation
+   * - Deploying webhooks on different paths or domains
+   *
+   * @returns A fetch-compatible handler function
+   *
+   * @example
+   * ```typescript
+   * import { Hono } from "hono";
+   * import { WebhookEventHandler } from "honocord/handlers";
+   * import { ApplicationWebhookEventType } from "discord-api-types/v10";
+   *
+   * const app = new Hono();
+   *
+   * // Standalone webhook handler with built-in verification
+   * const messageHandler = new WebhookEventHandler(
+   *   ApplicationWebhookEventType.MessageCreate
+   * );
+   *
+   * messageHandler.addHandler(async (c) => {
+   *   const message = c.var.data;
+   *   return c.json({ received: true });
+   * });
+   *
+   * // Use as a standalone endpoint
+   * app.post("/discord-webhook", messageHandler.fetch);
+   *
+   * export default app;
+   * ```
+   */
   get fetch() {
     return this.app.fetch;
   }
 
+  /**
+   * Returns the internal Hono app for standalone usage.
+   *
+   * **When to use:** Similar to `fetch`, but allows you to mount the handler on a route prefix.
+   * This provides the same self-contained verification as `fetch`.
+   *
+   * @returns A Hono app instance
+   *
+   * @example
+   * ```typescript
+   * import { Hono } from "hono";
+   * import { WebhookEventHandler } from "honocord/handlers";
+   * import { ApplicationWebhookEventType } from "discord-api-types/v10";
+   *
+   * const app = new Hono();
+   *
+   * const messageHandler = new WebhookEventHandler(
+   *   ApplicationWebhookEventType.MessageCreate
+   * );
+   *
+   * messageHandler.addHandler(async (c) => {
+   *   return c.json({ ok: true });
+   * });
+   *
+   * // Mount on a prefix
+   * app.route("/discord", messageHandler.getApp());
+   * // Available at POST /discord
+   *
+   * export default app;
+   * ```
+   */
   getApp() {
     return this.app;
   }
