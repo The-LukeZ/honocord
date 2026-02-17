@@ -445,14 +445,18 @@ export class Honocord {
    * const honoCord = new Honocord();
    *
    * export default honoCord.getApp();
+   * // Supports both "/" and "/interactions" for the interactions handler, if any are loaded
+   * // And `/webhook` for the webhook handler if any are loaded
    * ```
    */
   getApp() {
     const app = new Hono<{ Variables: BaseVariables }>();
     app.get("*", (c) => c.text("🔥 Honocord is running!"));
-    app.post("/", this.interactionsHandler);
-    app.post("/interactions", this.interactionsHandler);
-    app.post("/webhook", this.webhook);
+    if (this.globalCommandHandlers.size > 0 || this.guildCommandHandlers.size > 0) {
+      app.post("/", this.interactionsHandler);
+      app.post("/interactions", this.interactionsHandler);
+    }
+    if (this.webhookHandlers.size > 0) app.post("/webhook", this.webhookHandler);
     return app;
   }
 
@@ -490,7 +494,23 @@ export class Honocord {
     return this;
   }
 
-  get webhook() {
+  /**
+   * Returns a Hono handler for POST requests handling Discord webhook events.
+   *
+   * @example
+   * ```typescript
+   * import { Hono } from "hono";
+   * import { Honocord } from "honocord";
+   *
+   * const app = new Hono();
+   * const bot = new Honocord();
+   *
+   * app.post("/webhook", bot.webhookHandler);
+   *
+   * export default app;
+   * ```
+   */
+  get webhookHandler() {
     return async (c: Context) => {
       if (typeof c.env.DISCORD_PUBLIC_KEY !== "string") {
         console.error("No Discord public key provided in environment variables.");
