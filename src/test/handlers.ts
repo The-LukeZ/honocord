@@ -4,7 +4,7 @@ import { AnyHandler, ComponentHandler, ContextCommandHandler, SlashCommandHandle
 import { ApplicationWebhookEventType, ComponentType, RESTPostAPIChannelMessageFormDataBody } from "discord-api-types/v10";
 import { BaseInteractionContext, ContextCommandType } from "../types";
 import { ButtonBuilder, ContainerBuilder } from "@discordjs/builders";
-import AttachmentBuilder from "../structures/AttachmentBuilder";
+import { AttachmentBuilder } from "../structures/AttachmentBuilder";
 import { REST } from "@discordjs/rest";
 import { API } from "@discordjs/core/http-only";
 
@@ -146,14 +146,14 @@ function testAttachmentBuilder() {
   });
 
   // or directly with rest
-const { files, attachments } = AttachmentBuilder.resolve(attachment);
-rest.post("/channels/channel_id/messages", {
-  body: {
-    content: "Here is an attachment",
-    attachments: attachments,
-  } as RESTPostAPIChannelMessageFormDataBody,
-  files: files,
-});
+  const { files, attachments } = AttachmentBuilder.resolve(attachment);
+  rest.post("/channels/channel_id/messages", {
+    body: {
+      content: "Here is an attachment",
+      attachments: attachments,
+    } as RESTPostAPIChannelMessageFormDataBody,
+    files: files,
+  });
 }
 
 const handlers: AnyHandler[] = [

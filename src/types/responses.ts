@@ -7,7 +7,7 @@ import type {
   APIModalInteractionResponseCallbackData,
 } from "discord-api-types/v10";
 import type { JSONEncodable } from "./utils";
-import AttachmentBuilder from "../structures/AttachmentBuilder";
+import { AttachmentBuilder } from "../structures/AttachmentBuilder";
 
 export interface InteractionResponseCallbackData extends Omit<
   APIInteractionResponseCallbackData,
