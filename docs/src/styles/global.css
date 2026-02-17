@@ -13,3 +13,8 @@ code[dir="auto"] {
     background-color: color-mix(in oklab, var(--sl-color-bg-inline-code) 90%, var(--sl-color-text));
   }
 }
+
+.sl-link-button:hover {
+  filter: brightness(0.85);
+  transition: all 100ms ease-in-out;
+}
