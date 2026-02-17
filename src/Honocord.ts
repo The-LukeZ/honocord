@@ -79,7 +79,7 @@ export class Honocord {
   private componentHandlers = new Map<string, ComponentHandler>();
   private modalHandlers = new Map<string, ModalHandler>();
   private middleware = new Array<MiddlewareFunction<any>>();
-  private webhookHandlers = new Map<ApplicationWebhookEventType, WebhookEventHandler>();
+  private webhookHandlers = new Map<ApplicationWebhookEventType, WebhookEventHandler<any>>();
   private isCFWorker: boolean;
   private debugRest: boolean;
 
