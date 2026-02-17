@@ -454,14 +454,19 @@ export class Honocord {
    * // And `/webhook` for the webhook handler if any are loaded
    * ```
    */
-  getApp({ interactionsPath, webhookPath }: HonocordAppOptions) {
+  getApp(options: HonocordAppOptions = {}) {
+    options = {
+      interactionsPath: "/interactions",
+      webhookPath: "/webhook",
+      ...options,
+    };
     const app = new Hono<{ Variables: BaseVariables }>();
     app.get("*", (c) => c.text("🔥 Honocord is running!"));
     if (this.globalCommandHandlers.size > 0 || this.guildCommandHandlers.size > 0) {
       app.post("/", this.interactionsHandler);
-      app.post(interactionsPath || "/interactions", this.interactionsHandler);
+      app.post(options.interactionsPath || "/interactions", this.interactionsHandler);
     }
-    if (this.webhookHandlers.size > 0) app.post(webhookPath || "/webhook", this.webhookHandler);
+    if (this.webhookHandlers.size > 0) app.post(options.webhookPath || "/webhook", this.webhookHandler);
     return app;
   }
 
