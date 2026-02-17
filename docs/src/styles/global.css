@@ -1,3 +1,5 @@
+@layer starlight, honocord;
+
 :root {
   --sl-font: "Poppins", sans-serif;
   --sl-content-width: 1000px;
@@ -14,7 +16,57 @@ code[dir="auto"] {
   }
 }
 
-.sl-link-button:hover {
-  filter: brightness(0.85);
-  transition: all 100ms ease-in-out;
+@layer honocord {
+  .sl-link-button {
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: 999rem;
+    display: inline-flex;
+    font-size: var(--sl-text-md);
+    gap: 0.5em;
+    line-height: 1.1875;
+    outline-offset: 0.25rem;
+    padding: 0.65rem 1rem;
+    text-decoration: none;
+    transition: all 100ms ease-in-out;
+  }
+
+  .sl-link-button:hover {
+    filter: brightness(0.85);
+  }
+
+  .sl-link-button.primary {
+    background: var(--sl-color-text-accent);
+    border-color: var(--sl-color-text-accent);
+    color: var(--sl-color-black);
+  }
+  .sl-link-button.primary:hover {
+    color: var(--sl-color-black);
+  }
+  .sl-link-button.secondary {
+    border-color: inherit;
+    color: var(--sl-color-white);
+  }
+  .sl-link-button.minimal {
+    color: var(--sl-color-white);
+    padding-inline: 0;
+  }
+
+  .sl-link-button :global(svg) {
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 50rem) {
+    .sl-link-button {
+      font-size: var(--sl-text-base);
+      padding: 0.35rem 1.1rem;
+    }
+  }
+
+  :global(.sl-markdown-content) .sl-link-button {
+    margin-inline-end: 1rem;
+  }
+  :global(.sl-markdown-content) .sl-link-button:not(:where(p *)) {
+    margin-block: 1rem;
+  }
 }
