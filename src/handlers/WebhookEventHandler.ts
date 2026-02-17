@@ -63,6 +63,27 @@ export class WebhookEventHandler<
     this.app.post("/", this.handlerWrapper);
   }
 
+  /**
+   * Execute the handler with pre-verified event data.
+   * This method is used when the handler is integrated with Honocord,
+   * which has already verified the request and handled ping events.
+   */
+  async execute(eventData: Data, c: Context<{ Bindings: Env; Variables: BlankVariables & { data: Data } }>) {
+    if (!this.handlerFn) {
+      console.error("No handler function defined for webhook event handler.");
+      return c.body(null, 500);
+    }
+
+    c.set("data", eventData);
+
+    try {
+      return await this.handlerFn(c);
+    } catch (error) {
+      console.error("Error executing webhook event handler:", error);
+      return c.body(null, 500);
+    }
+  }
+
   get fetch() {
     return this.app.fetch;
   }
@@ -70,9 +91,4 @@ export class WebhookEventHandler<
   getApp() {
     return this.app;
   }
-
-  // TODO: Is this really needed?
-  // get execute() {
-  //   return this.fetch();
-  // }
 }

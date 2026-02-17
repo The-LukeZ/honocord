@@ -528,7 +528,8 @@ export class Honocord {
 
       const handler = this.webhookHandlers.get(data.event.type);
       if (handler) {
-        return handler.fetch(c.req.raw, c.env, c.executionCtx);
+        // Pass the verified event data directly to the handler
+        return handler.execute(data.event as any, c as any);
       }
 
       console.warn(`No handler found for webhook event: ${data.event.type}`);
