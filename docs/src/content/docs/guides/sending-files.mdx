@@ -3,7 +3,7 @@ title: Sending Files
 description: Learn how to send files and attachments with your bot.
 ---
 
-import { Aside, Code, Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+import { Aside, Code, Steps, Tabs, TabItem, LinkCard } from "@astrojs/starlight/components";
 
 Sending files in Discord requires two things to be present in your request: the **binary file data** (sent as multipart form fields) and the **attachment metadata** (sent as JSON). The `AttachmentBuilder` class handles both for you.
 
@@ -146,3 +146,9 @@ await api.channels.createMessage(channelId, {
   ...new AttachmentBuilder(Buffer.from(data), { name: "report.txt" }).resolve(),
 });
 ```
+
+<LinkCard
+  href="https://github.com/The-LukeZ/honocord-examples/tree/main/examples/webhook-events"
+  title="Demo"
+  description="View an example of using AttachmentBuilder in a real implementation, along with other Honocord features."
+/>
