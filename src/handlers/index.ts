@@ -13,7 +13,7 @@ import type { ModalHandler } from "./ModalHandler";
 import { ComponentType } from "discord-api-types/v10";
 import type { MessageContextInteraction } from "@ctx/MessageContextCommandInteraction";
 import type { UserContextInteraction } from "@ctx/UserContextCommandInteraction";
-import type { BaseInteractionContext, ContextCommandType } from "../types";
+import type { ApplicationWebhookEventType, BaseInteractionContext, ContextCommandType } from "../types";
 import { WebhookEventHandler } from "./WebhookEventHandler";
 
 /**
@@ -30,12 +30,7 @@ export type Handler<Context extends BaseInteractionContext = BaseInteractionCont
   | ComponentHandler<Context, ComponentType.MentionableSelect>
   | ComponentHandler<Context, ComponentType.ChannelSelect>
   | ModalHandler<Context>
-  | WebhookEventHandler<Context["env"], Context["var"]>;
-
-export type CommandHandler<Context extends BaseInteractionContext = BaseInteractionContext> =
-  | SlashCommandHandler<Context>
-  | ContextCommandHandler<Context, ContextCommandType.User, UserContextInteraction<Context>>
-  | ContextCommandHandler<Context, ContextCommandType.Message, MessageContextInteraction<Context>>;
+  | WebhookEventHandler<boolean, Context["env"], Context["var"], ApplicationWebhookEventType, any>;
 
 /**
  * Helper type to allow handlers with any context extending BaseInteractionContext

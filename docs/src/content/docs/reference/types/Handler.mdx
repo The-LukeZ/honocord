@@ -17,12 +17,22 @@ export type Handler<Context extends BaseInteractionContext = BaseInteractionCont
   | ComponentHandler<Context, ComponentType.RoleSelect>
   | ComponentHandler<Context, ComponentType.MentionableSelect>
   | ComponentHandler<Context, ComponentType.ChannelSelect>
-  | ModalHandler<Context>;
+  | ModalHandler<Context>
+  | WebhookEventHandler<boolean, Context["env"], Context["var"], ApplicationWebhookEventType, any>;
 ```
 
 ## Description
 
-This union ensures that only valid handler instances are passed to the bot. Each member of the union corresponds to a specific type of Discord interaction (Slash Commands, User context menus, Message context menus, Buttons, Select Menus, and Modals).
+This union ensures that only valid handler instances are passed to the bot. Each member of the union corresponds to a specific type of Discord interaction or webhook event:
+- Slash Commands
+- User context menus
+- Message context menus
+- Buttons
+- Select Menus (String, User, Role, Mentionable, Channel)
+- Modals
+- Webhook Events (both standard and worker modes)
+
+The `WebhookEventHandler` accepts a boolean parameter for worker mode (`true` for Cloudflare Workers, `false` for standard environments).
 
 ## AnyHandler
 

@@ -1,26 +1,37 @@
 import { Hono, type Context } from "hono";
 import { APIWebhookEvent, ApplicationWebhookEventType, ApplicationWebhookType } from "discord-api-types/v10";
-import type { APIWebhookEventPayload, WebhookEventHandlerFn } from "$types/webhook";
+import type { APIWebhookEventPayload, WebhookEventHandlerFnForWorkers, WebhookEventHandlerFnWithRequest } from "$types/webhook";
 import { verifyDiscordRequest } from "@utils/discordVerify";
 
 type BlankVariables = Record<string, any>;
 
 /**
  * Represents a webhook event handler to be used by an Honocord instance or standalone fetch handler or Hono app.
+ *
+ * @template ForWorker - Set to `true` for Cloudflare Workers mode (no return type required), `false` for standard mode (must return Response)
+ * @template Env - Environment bindings type
+ * @template Variables - Additional context variables
+ * @template T - Discord webhook event type
+ * @template Data - Typed webhook event data
  */
 export class WebhookEventHandler<
-  Env extends { DISCORD_PUBLIC_KEY?: string },
+  ForWorker extends boolean = false,
+  Env extends { DISCORD_PUBLIC_KEY?: string } = any,
   Variables extends BlankVariables = BlankVariables,
   T extends ApplicationWebhookEventType = ApplicationWebhookEventType,
   Data extends Extract<APIWebhookEventPayload, { type: T }> = Extract<APIWebhookEventPayload, { type: T }>,
 > {
   readonly handlerType = "webhook";
   public readonly eventType: T;
-  private handlerFn?: WebhookEventHandlerFn<Data, Env, BlankVariables & { data: Data }>;
+  private handlerFn?: ForWorker extends true
+    ? WebhookEventHandlerFnForWorkers<Data, Env, BlankVariables & { data: Data }>
+    : WebhookEventHandlerFnWithRequest<Data, Env, BlankVariables & { data: Data }>;
   private app = new Hono<{ Bindings: Env; Variables: Omit<Variables, "data"> & { data: Data } }>();
+  private isForWorker: boolean;
 
-  constructor(eventType: T) {
+  constructor(eventType: T, forWorker?: ForWorker) {
     this.eventType = eventType;
+    this.isForWorker = forWorker ?? false;
   }
 
   /**
@@ -71,19 +82,39 @@ export class WebhookEventHandler<
    * @param handlerFn - The function to execute when this webhook event is received
    *
    * @example
+   * Standard mode (must return Response):
    * ```typescript
    * const handler = new WebhookEventHandler(ApplicationWebhookEventType.MessageCreate);
    *
    * handler.addHandler(async (c) => {
    *   const message = c.var.data;
    *   console.log("Received message:", message.content);
-   *   return c.json({ success: true });
+   *   return c.json({ success: true }); // Must return Response
+   * });
+   * ```
+   *
+   * @example
+   * Worker mode (no return required):
+   * ```typescript
+   * const handler = new WebhookEventHandler(ApplicationWebhookEventType.MessageCreate, true);
+   *
+   * handler.addHandler(async (c) => {
+   *   const message = c.var.data;
+   *   console.log("Received message:", message.content);
+   *   // No return required in worker mode
    * });
    * ```
    */
-  addHandler(handlerFn: WebhookEventHandlerFn<Data, Env, BlankVariables & { data: Data }>) {
-    this.handlerFn = handlerFn;
-    this.app.post("/", this.handlerWrapper);
+  addHandler(
+    handlerFn: ForWorker extends true
+      ? WebhookEventHandlerFnForWorkers<Data, Env, BlankVariables & { data: Data }>
+      : WebhookEventHandlerFnWithRequest<Data, Env, BlankVariables & { data: Data }>
+  ) {
+    this.handlerFn = handlerFn as any;
+    if (!this.isForWorker) {
+      this.app.post("/", this.handlerWrapper);
+    }
+    return this;
   }
 
   /**
@@ -128,6 +159,9 @@ export class WebhookEventHandler<
   /**
    * Returns the fetch handler for standalone usage.
    *
+   * **Note:** This method is only available in standard mode (`ForWorker = false`).
+   * When using worker mode, this method returns `never` and will throw a runtime error.
+   *
    * **When to use:** Use this when you want a self-contained webhook endpoint that handles its own
    * Discord request verification and ping events, independent of a Honocord instance.
    *
@@ -163,12 +197,20 @@ export class WebhookEventHandler<
    * export default app;
    * ```
    */
-  get fetch() {
-    return this.app.fetch;
+  get fetch(): ForWorker extends true ? never : typeof this.app.fetch {
+    if (this.isForWorker) {
+      throw new Error(
+        "fetch() is not available when handler is configured for Cloudflare Workers mode. Use it with Honocord's webhookHandler instead."
+      );
+    }
+    return this.app.fetch as any;
   }
 
   /**
    * Returns the internal Hono app for standalone usage.
+   *
+   * **Note:** This method is only available in standard mode (`ForWorker = false`).
+   * When using worker mode, this method returns `never` and will throw a runtime error.
    *
    * **When to use:** Similar to `fetch`, but allows you to mount the handler on a route prefix.
    * This provides the same self-contained verification as `fetch`.
@@ -198,7 +240,12 @@ export class WebhookEventHandler<
    * export default app;
    * ```
    */
-  getApp() {
-    return this.app;
+  getApp(): ForWorker extends true ? never : typeof this.app {
+    if (this.isForWorker) {
+      throw new Error(
+        "getApp() is not available when handler is configured for Cloudflare Workers mode. Use it with Honocord's webhookHandler instead."
+      );
+    }
+    return this.app as any;
   }
 }

@@ -180,3 +180,136 @@ import * as handlers from "./handlers"; // assuming handlers/index.ts exports al
 
 bot.loadHandlers(...Object.values(handlers));
 ```
+
+## Webhook Events
+
+`WebhookEventHandler` manages Discord webhook events. Unlike interactions, webhooks are one-way notifications from Discord about events happening in your app.
+
+### Standard Mode (Default)
+
+In standard mode, handlers must return a `Response` object. This is ideal for non-Cloudflare Workers environments.
+
+```ts
+import { WebhookEventHandler } from "honocord";
+import { ApplicationWebhookEventType } from "discord-api-types/v10";
+
+const messageHandler = new WebhookEventHandler(ApplicationWebhookEventType.LobbyMessageCreate);
+
+messageHandler.addHandler(async (c) => {
+  const message = c.var.data;
+  console.log(`New message from ${message.author.username}: ${message.content}`);
+
+  // Must return a Response in standard mode
+  return c.json({ received: true });
+});
+```
+
+### Worker Mode (Cloudflare Workers)
+
+For Cloudflare Workers, set the second constructor parameter to `true`. In worker mode:
+- No return value is required from your handler
+- Honocord automatically responds with `200 OK` to Discord
+- Processing happens asynchronously via `waitUntil`, extending the worker's lifetime
+- `fetch()` and `getApp()` methods are disabled (type error + runtime error)
+
+```ts
+// Enable worker mode with second parameter
+const messageHandler = new WebhookEventHandler(
+  ApplicationWebhookEventType.LobbyMessageCreate,
+  true // Worker mode
+);
+
+messageHandler.addHandler(async (c) => {
+  const message = c.var.data;
+  console.log(`Processing message: ${message.content}`);
+  
+  // No return needed - Honocord handles the response
+  // Your code runs asynchronously via waitUntil
+});
+```
+
+### Webhook vs Interactions
+
+| Feature          | Interactions                           | Webhooks                                     |
+| ---------------- | -------------------------------------- | -------------------------------------------- |
+| **Trigger**      | User actions (slash commands, buttons) | Discord events (entitlements, lobby messages) |
+| **Response**     | Required within 3 seconds              | Must respond within 3 seconds (204 or 200)   |
+| **Reply Method** | `interaction.reply()`                  | Use REST API separately                      |
+| **Route**        | `/` or `/interactions`                 | `/webhook`                                   |
+| **Setup**        | Interactions Endpoint URL              | Webhook Events URL in Discord Developer Portal |
+| **CF Workers**   | Async via `waitUntil`                  | Async via `waitUntil` (worker mode)          |
+
+### Webhook Handler Setup
+
+When using `WebhookEventHandler` with Honocord:
+
+1. Load handlers using `bot.loadHandlers()`
+2. The webhook endpoint is automatically mounted at `/webhook`
+3. Configure your Discord webhook URL to point to `https://your-domain.com/webhook`
+
+```ts
+const bot = new Honocord({ isCFWorker: true }); // Enable CF Workers mode
+
+bot.loadHandlers(messageHandler);
+
+// Webhook available at /webhook
+// On CF Workers: responds immediately with 200, processes async
+// On other platforms: waits for handler to return Response
+export default bot.getApp();
+```
+
+<Aside type="tip">
+On Cloudflare Workers, webhook events are processed asynchronously using `waitUntil`. This means:
+- Discord receives an immediate `200 OK` response
+- Your handler code runs in the background
+- The worker's lifetime is extended to complete processing
+- Prevents timeouts for slow operations (API calls, database writes)
+</Aside>
+
+### Standalone Webhook Handlers
+
+Webhook handlers can run independently of Honocord. This is useful for microservices or separate webhook endpoints.
+
+**Standard Mode Only:** The `fetch()` and `getApp()` methods are only available in standard mode (when `forWorker` is `false` or omitted).
+
+```ts
+import { Hono } from "hono";
+
+const handler = new WebhookEventHandler(
+  ApplicationWebhookEventType.EntitlementCreate
+  // false or omit for standard mode
+);
+
+handler.addHandler(async (c) => {
+  const entitlement = c.var.data;
+  console.log(`New entitlement: ${entitlement.id}`);
+  
+  // Must return Response in standard mode
+  return c.json({ ok: true });
+});
+
+// Use as standalone fetch handler
+export default {
+  fetch: handler.fetch.bind(handler),
+};
+
+// Or mount in a Hono app
+const app = new Hono();
+app.route("/discord", handler.getApp());
+export default app;
+```
+
+<Aside type="caution">
+Worker mode handlers (`forWorker: true`) cannot use `fetch()` or `getApp()` because they don't return Response objects. Use them with Honocord's `webhookHandler` instead.
+</Aside>
+
+### Available Webhook Events
+
+Discord supports various webhook event types. Common ones include:
+
+- `APPLICATION_AUTHORIZED` - App authorized by user
+- `ENTITLEMENT_CREATE`, `ENTITLEMENT_UPDATE`, `ENTITLEMENT_DELETE` - Monetization events
+- `LOBBY_MESSAGE_CREATE`, `LOBBY_MESSAGE_UPDATE`, `LOBBY_MESSAGE_DELETE` - Lobby messages
+- `GAME_DIRECT_MESSAGE_CREATE`, `GAME_DIRECT_MESSAGE_UPDATE`, `GAME_DIRECT_MESSAGE_DELETE` - Game DMs
+
+Refer to the [Discord Webhook Events documentation](https://docs.discord.com/developers/events/webhook-events) for the complete list.

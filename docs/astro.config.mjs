@@ -2,6 +2,7 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightCatppuccin from "@catppuccin/starlight";
+import mermaid from "astro-mermaid";
 
 // https://astro.build/config
 export default defineConfig({
@@ -25,6 +26,7 @@ export default defineConfig({
     },
   },
   integrations: [
+    mermaid({ autoTheme: true, theme: "dark" }),
     starlight({
       plugins: [
         starlightCatppuccin({

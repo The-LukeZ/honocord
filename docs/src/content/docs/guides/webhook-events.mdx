@@ -1,0 +1,333 @@
+---
+title: Webhook Events
+description: Learn how to handle Discord webhook events with Honocord.
+sidebar:
+  order: 8
+---
+
+import { Aside, Steps, LinkCard } from "@astrojs/starlight/components";
+
+Webhook events allow your app to receive notifications from Discord about events happening in your application, such as entitlement purchases, lobby messages, or app authorizations. Unlike Gateway events, webhook events are sent over HTTP and don't require maintaining a persistent connection.
+
+## What are Webhook Events?
+
+Webhook events are one-way HTTP notifications sent from Discord to your app when specific events occur. They differ from interactions in several key ways:
+
+| Feature       | Interactions            | Webhook Events                              |
+| ------------- | ----------------------- | ------------------------------------------- |
+| Direction     | User → Your App         | Discord → Your App                          |
+| Purpose       | Handle user actions     | Receive event notifications                 |
+| Response Time | 3 seconds               | 3 seconds (acknowledgment)                  |
+| Examples      | Slash commands, buttons | Application authorized, Entitlement created |
+
+<Aside type="note">
+  Webhook events are **not** the same as [incoming webhooks](https://docs.discord.com/developers/resources/webhook). Incoming
+  webhooks allow external services to post messages to Discord. Webhook events (outgoing webhooks) notify your app about Discord
+  events.
+</Aside>
+
+## Setting Up Webhook Events
+
+<Steps>
+
+1. **Create a WebhookEventHandler**
+
+   Choose the event type you want to handle from `ApplicationWebhookEventType`:
+
+   ```ts
+   import { WebhookEventHandler } from "honocord";
+   import { ApplicationWebhookEventType } from "discord-api-types/v10";
+
+   const entitlementHandler = new WebhookEventHandler(ApplicationWebhookEventType.EntitlementCreate);
+
+   entitlementHandler.addHandler(async (c) => {
+     const entitlement = c.var.data;
+     console.log(`New entitlement: ${entitlement.id}`);
+
+     // Process the entitlement...
+
+     return c.body(null, 200); // empty response to acknowledge receipt
+   });
+   ```
+
+2. **Load the handler into Honocord**
+
+   ```ts
+   import { Honocord } from "honocord";
+
+   const bot = new Honocord();
+   bot.loadHandlers(entitlementHandler);
+
+   export default bot.getApp(); // Webhook available at /webhook
+   ```
+
+3. **Configure Discord Developer Portal**
+   - Navigate to your [app's settings](https://discord.com/developers/applications)
+   - Go to the **Webhooks** page
+   - Enter your public URL: `https://your-domain.com/webhook`
+   - Enable Events and select the events you want to receive
+   - Click **Save Changes**
+
+   Discord will verify your endpoint by sending a PING event.
+
+</Steps>
+
+## Standard vs Worker Mode
+
+Honocord supports two modes for webhook handlers, optimized for different deployment environments.
+
+### Standard Mode (Default)
+
+In standard mode, your handler **must return a Response object**. This gives you full control over the response sent to Discord.
+
+```ts
+const handler = new WebhookEventHandler(
+  ApplicationWebhookEventType.LobbyMessageCreate
+  // Standard mode (default)
+);
+
+handler.addHandler(async (c) => {
+  const message = c.var.data;
+
+  // Validate or process...
+  if (!message.content) {
+    return c.json({ error: "No content" }, 400);
+  }
+
+  // Must return Response
+  return c.json({ ok: true });
+});
+```
+
+**Use standard mode when:**
+
+- Running on traditional servers (Node.js, Bun)
+- You need custom response codes or bodies
+- You want full control over the response
+
+### Worker Mode (Cloudflare Workers)
+
+In worker mode, you **don't need to return anything**. Honocord automatically responds with `200 OK` to Discord and processes your handler asynchronously using `waitUntil`.
+
+```ts
+const handler = new WebhookEventHandler(
+  ApplicationWebhookEventType.EntitlementCreate,
+  true // Enable worker mode
+);
+
+handler.addHandler(async (c) => {
+  const entitlement = c.var.data;
+
+  // Process asynchronously - no return needed
+  await logToDatabase(entitlement);
+  await notifyUser(entitlement.user_id);
+
+  // No return statement required!
+});
+```
+
+**Use worker mode when:**
+
+- Deploying to Cloudflare Workers
+- Processing takes longer than 3 seconds
+- You want fire-and-forget processing
+- You don't need custom response codes
+
+<Aside type="caution">
+  Please take into account that a Cloudflare worker still has a
+  [limits](https://developers.cloudflare.com/workers/platform/limits) you need to respect!
+</Aside>
+
+## Available Event Types
+
+Discord supports various webhook event types. Here are the most common:
+
+### Monetization Events
+
+Monitor entitlement lifecycle for in-app purchases:
+
+```ts
+const entitlementCreate = new WebhookEventHandler(ApplicationWebhookEventType.EntitlementCreate);
+
+const entitlementUpdate = new WebhookEventHandler(ApplicationWebhookEventType.EntitlementUpdate);
+
+const entitlementDelete = new WebhookEventHandler(ApplicationWebhookEventType.EntitlementDelete);
+```
+
+### Authorization Events
+
+Track when users add or remove your app:
+
+```ts
+const authHandler = new WebhookEventHandler(ApplicationWebhookEventType.ApplicationAuthorized);
+
+authHandler.addHandler(async (c) => {
+  const auth = c.var.data;
+  console.log(`App authorized by ${auth.user.username}`);
+
+  if (auth.guild) {
+    console.log(`Added to guild: ${auth.guild.name}`);
+  }
+
+  return c.json({ ok: true });
+});
+
+const deauthHandler = new WebhookEventHandler(ApplicationWebhookEventType.ApplicationDeauthorized);
+```
+
+<Aside type="caution" title="Important">
+  The `ApplicationDeauthorized` event is **only sent** if the bot is removed as a user-installable app! If your bot is only
+  guild-installed, this event wil**l not be sent!** (Blame Discord)
+</Aside>
+
+### Lobby & Direct Message Events
+
+For apps using the Discord Social SDK:
+
+```ts
+// Lobby messages
+const lobbyCreate = new WebhookEventHandler(ApplicationWebhookEventType.LobbyMessageCreate);
+
+const lobbyUpdate = new WebhookEventHandler(ApplicationWebhookEventType.LobbyMessageUpdate);
+
+const lobbyDelete = new WebhookEventHandler(ApplicationWebhookEventType.LobbyMessageDelete);
+
+// Game direct messages
+const dmCreate = new WebhookEventHandler(ApplicationWebhookEventType.GameDirectMessageCreate);
+```
+
+### Complete List
+
+All available webhook event types:
+
+- `APPLICATION_AUTHORIZED`
+- `APPLICATION_DEAUTHORIZED`
+- `ENTITLEMENT_CREATE`
+- `ENTITLEMENT_UPDATE`
+- `ENTITLEMENT_DELETE`
+- `QUEST_USER_ENROLLMENT` (currently unavailable)
+- `LOBBY_MESSAGE_CREATE`
+- `LOBBY_MESSAGE_UPDATE`
+- `LOBBY_MESSAGE_DELETE`
+- `GAME_DIRECT_MESSAGE_CREATE`
+- `GAME_DIRECT_MESSAGE_UPDATE`
+- `GAME_DIRECT_MESSAGE_DELETE`
+
+## Accessing Event Data
+
+Event data is available via `c.var.data` / `c.get("data")` in your handler:
+
+```ts
+handler.addHandler(async (c) => {
+  const eventData = c.var.data; // c.get("data") also works
+
+  // Type is automatically inferred based on event type
+  // For EntitlementCreate, eventData is an Entitlement object
+  console.log(eventData.id);
+  console.log(eventData.sku_id);
+  console.log(eventData.user_id);
+
+  return c.json({ ok: true });
+});
+```
+
+The context object also provides:
+
+- `c.env` - Environment variables (including `DISCORD_PUBLIC_KEY`)
+- `c.req` - The original request object
+- `c.set()` / `c.get()` - Custom context variables
+
+## Security
+
+Honocord automatically handles request verification for you:
+
+1. **Signature Validation** - Verifies `X-Signature-Ed25519` header using your `DISCORD_PUBLIC_KEY`
+2. **Timestamp Validation** - Checks `X-Signature-Timestamp` to prevent replay attacks
+3. **PING Responses** - Automatically responds to Discord's PING verification
+
+All you need to do is provide `DISCORD_PUBLIC_KEY` in your environment variables.
+
+<Aside type="caution">
+  If signature validation fails, Honocord returns `401 Unauthorized`. Discord will retry failed requests multiple times, and may
+  disable your webhook endpoint if validation fails too often.
+</Aside>
+
+## Standalone Usage
+
+You can use `WebhookEventHandler` independently of Honocord (standard mode only):
+
+```ts
+import { Hono } from "hono";
+import { WebhookEventHandler } from "honocord";
+
+const handler = new WebhookEventHandler(ApplicationWebhookEventType.EntitlementCreate);
+
+handler.addHandler(async (c) => {
+  // Process event
+  return c.json({ ok: true });
+});
+
+// Option 1: As a fetch handler
+export default {
+  fetch: handler.fetch.bind(handler),
+};
+
+// Option 2: Mount in Hono app
+const app = new Hono();
+app.route("/webhooks", handler.getApp());
+export default app;
+```
+
+<Aside>Worker mode handlers cannot use `fetch()` or `getApp()` - they must be used with Honocord's `webhookHandler`.</Aside>
+
+## Troubleshooting
+
+### Endpoint Not Verifying
+
+Ensure:
+
+- Your URL is publicly accessible
+- `DISCORD_PUBLIC_KEY` is correctly set
+- Your app responds within 3 seconds
+- You're returning proper status codes (if using standard mode)
+
+### Events Not Being Received
+
+Check:
+
+- Events are enabled in Developer Portal
+- Specific event types are selected
+- Your endpoint hasn't been disabled due to too many failures
+- Request signatures are being validated correctly
+
+### Events being received multiple times in a short time
+
+This is likely due to your handler not responding in time. If using standard mode, make sure to return a response within 3 seconds.
+If processing takes longer and you are on Workers, switch to worker mode to avoid timeouts and retries:
+
+If using standard mode on CF Workers, switch to worker mode:
+
+```ts
+// Before (may timeout)
+const handler = new WebhookEventHandler(ApplicationWebhookEventType.EntitlementCreate);
+
+// After (won't timeout)
+const handler = new WebhookEventHandler(
+  ApplicationWebhookEventType.EntitlementCreate,
+  true // Worker mode
+);
+```
+
+## Learn More
+
+<LinkCard
+  title="Discord Webhook Events Documentation"
+  description="Official Discord documentation for webhook events"
+  href="https://docs.discord.com/developers/events/webhook-events"
+/>
+
+<LinkCard
+  title="WebhookEventHandler API Reference"
+  description="Detailed API documentation for WebhookEventHandler"
+  href="/reference/classes/WebhookEventHandler"
+/>

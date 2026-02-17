@@ -23,8 +23,8 @@ import type {
   MessageComponentType,
   FlatOrNestedArray,
   MiddlewareFunction,
-  WebhookEventTypeResolvable,
-} from "./types";
+  ApplicationWebhookEventType,
+} from "$types/index";
 import { UserContextInteraction } from "@ctx/UserContextCommandInteraction";
 import { MessageContextInteraction } from "@ctx/MessageContextCommandInteraction";
 import { ModalInteraction } from "@ctx/ModalInteraction";
@@ -35,7 +35,7 @@ import {
   ComponentHandler,
   ModalHandler,
   type Handler,
-  AnyHandler,
+  type AnyHandler,
   WebhookEventHandler,
 } from "@handlers/index";
 import { ButtonInteraction } from "@ctx/ButtonInteraction";
@@ -79,7 +79,7 @@ export class Honocord {
   private componentHandlers = new Map<string, ComponentHandler>();
   private modalHandlers = new Map<string, ModalHandler>();
   private middleware = new Array<MiddlewareFunction<any>>();
-  private webhookHandlers = new Map<WebhookEventTypeResolvable, WebhookEventHandler<any>>();
+  private webhookHandlers = new Map<ApplicationWebhookEventType, WebhookEventHandler>();
   private isCFWorker: boolean;
   private debugRest: boolean;
 
@@ -502,8 +502,8 @@ export class Honocord {
   /**
    * Returns a Hono handler for POST requests handling Discord webhook events.
    *
-   * For Cloudflare workers, the handler processes events asynchronously using the Workers'
-   * execution context ,allowing for longer processing times without blocking the response.
+   * On Cloudflare Workers, webhook events are processed asynchronously using `waitUntil`,
+   * allowing immediate response to Discord while extending the worker's lifetime to complete processing.
    *
    * @example
    * ```typescript
@@ -552,7 +552,7 @@ export class Honocord {
           resolve(undefined);
         })
       );
-      return c.body(null, 200);
+      return c.json({ ok: true }, 200);
     }
 
     // Standard execution for other platforms

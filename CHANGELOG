@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -  -->
 
+## [2.0.0] - ???
+
+This new release brings a major update to Honocord's architecture, introducing a new handler system for both interactions and webhooks. This allows for more modular, flexible, and type-safe development.
+
+This brings along some breaking changes, so please review the migration guide in the docs.
+
+### Added
+
+- `WebhookEventHandler` class for handling Discord webhook events with type safety (It's a Hono app under the hood, so you can use it standalone or with the bot)
+
+### Changed
+
+- Expanded `Honocord` class to support loading both interaction handlers and webhook handlers
+- Changed the returned hono app from `Honocord.getApp()` to now include both interaction and webhook routes: **The routing changed!**
+  - Interactions are now routed to `/interactions` and `/` (for legacy support)
+  - Webhooks are routed to `/webhook`
+
+- Customizable paths for both interactions and webhooks via `getApp({ interactionsPath, webhookPath })` (defaults to `/interactions` and `/webhook`)
+- Restructured internal handler management and types
+
 ## [1.4.0] - 2026-02-04
 
 ### Added

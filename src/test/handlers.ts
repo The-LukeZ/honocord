@@ -1,7 +1,7 @@
 // Test file for handlers if the types do work
 
-import { ComponentHandler, ContextCommandHandler, SlashCommandHandler } from "@handlers/index";
-import { ComponentType } from "discord-api-types/v10";
+import { AnyHandler, ComponentHandler, ContextCommandHandler, SlashCommandHandler, WebhookEventHandler } from "@handlers/index";
+import { ApplicationWebhookEventType, ComponentType } from "discord-api-types/v10";
 import { BaseInteractionContext, ContextCommandType } from "../types";
 import { ButtonBuilder, ContainerBuilder } from "@discordjs/builders";
 
@@ -98,7 +98,19 @@ const channelSelectComponentHandler = new ComponentHandler<MyContext, ComponentT
   console.log("Channel select used with values:", ctx.channels);
 });
 
-const handlers = [
+const authorizedHandler = new WebhookEventHandler(ApplicationWebhookEventType.ApplicationAuthorized).addHandler(async (c) => {
+  const { data } = c.get("data");
+  console.log("Received ApplicationAuthorized event with data:", data);
+  return c.body(null, 200);
+});
+
+const deauthHandler = new WebhookEventHandler(ApplicationWebhookEventType.ApplicationDeauthorized, true).addHandler(async (c) => {
+  const { data } = c.get("data");
+  console.log("Received ApplicationDeauthorized event with data:", data);
+  // No return needed in worker mode
+});
+
+const handlers: AnyHandler[] = [
   commandHandler,
   buttonHandler,
   userContextCommandHandler,
@@ -109,6 +121,8 @@ const handlers = [
   roleSelectComponentHandler,
   mentionableSelectComponentHandler,
   channelSelectComponentHandler,
+  authorizedHandler,
+  deauthHandler,
 ];
 
 export { handlers };
