@@ -33,7 +33,7 @@ import { UserSelectInteraction } from "./UserSelectInteraction";
 import { RoleSelectInteraction } from "./RoleSelectInteraction";
 import { MentionableSelectInteraction } from "./MentionableSelectInteraction";
 import { ChannelSelectInteraction } from "./ChannelSelectInteraction";
-import AttachmentBuilder from "../structures/AttachmentBuilder";
+import { AttachmentBuilder } from "../structures/AttachmentBuilder";
 
 function snakeCase(str: string): string {
   return str
