@@ -62,6 +62,12 @@ interface HonocordOptions {
    * @default false
    */
   debugRest?: boolean;
+  /**
+   * Default TTL (in MILLISECONDS) for cached entities when a cache adapter is registered via `withCache`.
+   *
+   * Set `0` to disable expiration.
+   */
+  cacheTtlMs?: number;
 }
 
 interface HonocordAppOptions {
@@ -592,10 +598,9 @@ export class Honocord {
    * @param factory - A function that receives the environment and returns a cache adapter.
    * @returns The Honocord instance for chaining.
    */
-  withCache<TheEnv = any>(factory: (env: TheEnv) => BaseCacheAdapter, defaultTtlMs?: number): this {
+  withCache<TheEnv = any>(factory: (env: TheEnv) => BaseCacheAdapter): this {
     this._cacheAdapterFactory = factory;
-    this._defaultCacheTtlMs = defaultTtlMs;
-    this._cacheManager = null;
+    this._cacheManager = null; // Reset cache manager to ensure new factory is used
     return this;
   }
 
