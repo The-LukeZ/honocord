@@ -17,6 +17,7 @@ Honocord bridges Discord's Interaction API with Hono's lightweight web framework
 - **🤖 Autocomplete Support** - Built-in autocomplete helper for slash commands
 - **🔐 Secure by Default** - Automatic signature verification for Discord interactions and webhooks
 - **🪝 Direct Webhook Support** - Handle Discord webhook events alongside interactions
+- **Caching Support** - Caching system with adapters for in-memory, Durable Objects, Mongo and custom implementations
 
 _Disclaimer: Yes, AI helped me build this - with the focus on **helped**._
 
