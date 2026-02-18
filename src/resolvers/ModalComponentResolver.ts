@@ -1,7 +1,12 @@
 import {
+  APIAttachment,
   APIInteractionDataResolved,
   APIInteractionDataResolvedChannel,
   APIInteractionDataResolvedGuildMember,
+  APIModalSubmitCheckboxComponent,
+  APIModalSubmitCheckboxGroupComponent,
+  APIModalSubmitFileUploadComponent,
+  APIModalSubmitRadioGroupComponent,
   APIRole,
   APIUser,
   ComponentType,
@@ -29,8 +34,8 @@ export interface SelectMenuModalData extends BaseModalData<
   | ComponentType.StringSelect
   | ComponentType.UserSelect
 > {
-  channels?: ReadonlyCollection<Snowflake, APIInteractionDataResolvedChannel>;
   custom_id: string;
+  channels?: ReadonlyCollection<Snowflake, APIInteractionDataResolvedChannel>;
   members?: ReadonlyCollection<Snowflake, APIInteractionDataResolvedGuildMember>;
   roles?: ReadonlyCollection<Snowflake, APIRole>;
   users?: ReadonlyCollection<Snowflake, APIUser>;
@@ -41,7 +46,13 @@ export interface SelectMenuModalData extends BaseModalData<
 }
 
 // Technically, we had to add file uploads too, but we ain't using them anyway
-type APIModalData = TextInputModalData | SelectMenuModalData;
+type APIModalData =
+  | TextInputModalData
+  | SelectMenuModalData
+  | APIModalSubmitCheckboxComponent
+  | APIModalSubmitCheckboxGroupComponent
+  | APIModalSubmitRadioGroupComponent
+  | APIModalSubmitFileUploadComponent;
 
 export class ModalComponentResolver {
   private _resolved: APIInteractionDataResolvedCollections;
@@ -69,7 +80,7 @@ export class ModalComponentResolver {
     this.hoistedComponents = this.components.reduce(
       (accumulator, next) => {
         // For label components
-        if (next.type === ComponentType.Label && next.component.type !== ComponentType.FileUpload) {
+        if (next.type === ComponentType.Label) {
           accumulator.set(next.component.custom_id, next.component);
         }
 
@@ -81,6 +92,15 @@ export class ModalComponentResolver {
 
   public get data() {
     return this.hoistedComponents.map((component) => component);
+  }
+
+  /**
+   * Checks if a component with the given custom ID exists in the modal.
+   * @param custom_id The custom ID of the component to check for.
+   * @returns True if a component with the given custom ID exists, false otherwise.
+   */
+  fieldExists(custom_id: string): boolean {
+    return this.hoistedComponents.has(custom_id);
   }
 
   getComponent(custom_id: string): APIModalData {
@@ -246,12 +266,7 @@ export class ModalComponentResolver {
     return mentionables.length > 0 ? mentionables : required ? [] : null;
   }
 
-  /**
-   * Checks if a component with the given custom ID exists in the modal.
-   * @param custom_id The custom ID of the component to check for.
-   * @returns True if a component with the given custom ID exists, false otherwise.
-   */
-  fieldExists(custom_id: string): boolean {
-    return this.hoistedComponents.has(custom_id);
+  getAllComponents(): APIModalData[] {
+    return this.hoistedComponents.map((component) => component);
   }
 }
