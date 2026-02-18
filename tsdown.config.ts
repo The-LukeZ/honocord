@@ -5,8 +5,8 @@ export default defineConfig({
   outDir: "dist",
   entry: {
     index: "src/index.ts",
-    "memory-cache": "src/memory-cache/index.ts",
-    "mongo-cache": "src/mongo-cache/index.ts",
+    // "memory-cache": "src/memory-cache/index.ts",
+    // "mongo-cache": "src/mongo-cache/index.ts",
   },
   alias: {
     "@utils": "src/utils",
