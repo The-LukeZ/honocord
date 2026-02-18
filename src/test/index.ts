@@ -9,6 +9,9 @@ import { Hono } from "hono/tiny";
 import { AutocompleteHelper } from "@utils/Autocomplete";
 import { registerCommands } from "@utils/registerCommands";
 
+// ! Caching can't be tested here as it needs a full workers environment to be properly tested, and that's out of scope for this test file.
+// Those "tests" are in the examples repository.
+
 interface MyEnv {
   DISCORD_PUBLIC_KEY: string;
   DISCORD_TOKEN: string;

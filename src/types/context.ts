@@ -1,8 +1,9 @@
 import type { ChatInputCommandInteraction } from "@ctx/ChatInputInteraction";
 import type { ModalInteraction } from "@ctx/ModalInteraction";
 import type { TMessageComponentInteraction } from "./messageComponents.ts";
-import { Bindings, BlankInput, Variables } from "hono/types";
-import { Context } from "hono";
+import type { Bindings, BlankInput, Variables } from "hono/types";
+import type { Context } from "hono";
+import type { CacheManager } from "@utils/CacheManager.js";
 
 /**
  * Base variables that the library uses
@@ -12,6 +13,13 @@ export interface BaseVariables {
   command?: ChatInputCommandInteraction;
   modal?: ModalInteraction;
   component?: TMessageComponentInteraction;
+  /**
+   * The cache manager for this context, if available. This will be populated by the library if a cache adapter is provided in the environment.
+   *
+   * It is always given, but if no cache adapter is provided, it will be using the `NullCacheAdapter`
+   * which does not actually cache anything and always returns `null` for `get` and `false` for `has`.
+   */
+  cache: CacheManager;
 }
 
 /**

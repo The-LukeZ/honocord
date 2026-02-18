@@ -44,6 +44,8 @@ import { UserSelectInteraction } from "@ctx/UserSelectInteraction";
 import { RoleSelectInteraction } from "@ctx/RoleSelectInteraction";
 import { MentionableSelectInteraction } from "@ctx/MentionableSelectInteraction";
 import { ChannelSelectInteraction } from "@ctx/ChannelSelectInteraction";
+import { BaseCacheAdapter, NullCacheAdapter } from "@honocord/cache-base";
+import { CacheManager } from "@utils/CacheManager";
 
 interface HonocordOptions {
   /**
@@ -82,6 +84,9 @@ export class Honocord {
   private webhookHandlers = new Map<ApplicationWebhookEventType, WebhookEventHandler<any>>();
   private isCFWorker: boolean;
   private debugRest: boolean;
+  private _cacheAdapterFactory: (env: any) => BaseCacheAdapter = () => new NullCacheAdapter();
+  private _cacheManager: CacheManager | null = null;
+  private _defaultCacheTtlMs: number | undefined = undefined; // ← add this
 
   /**
    * Executes all registered middleware in sequence.
@@ -352,6 +357,8 @@ export class Honocord {
   }
 
   private async createInteraction(ctx: BaseInteractionContext, interaction: ValidInteraction) {
+    ctx.set("cache", this._getCacheManager(ctx.env));
+
     const rest = new REST({ authPrefix: "Bot" }).setToken(ctx.env.DISCORD_TOKEN as string);
     if (this.debugRest) {
       rest
@@ -563,6 +570,47 @@ export class Honocord {
     // Standard execution for other platforms
     return handler.execute(data.event, c);
   };
+
+  /**
+   * Registers a cache adapter factory for use throughout the bot.
+   * The factory receives the request environment and returns a `BaseCacheAdapter` instance.
+   *
+   * On Cloudflare Workers, use `DurableObjectCacheAdapter`.
+   * On self-hosted environments, use `MemoryCacheAdapter`, `MongoCacheAdapter`, or `RedisAdapter`.
+   *
+   * @example
+   * ```typescript
+   * // Cloudflare Workers
+   * bot.withCache((env) => new DurableObjectCacheAdapter(env.MY_CACHE));
+   *
+   * // Self-hosted (pre-initialized)
+   * const cache = new MongoCacheAdapter(process.env.MONGO_URI!);
+   * await cache.connect();
+   * bot.withCache(() => cache);
+   * ```
+   *
+   * @param factory - A function that receives the environment and returns a cache adapter.
+   * @returns The Honocord instance for chaining.
+   */
+  withCache<TheEnv = any>(factory: (env: TheEnv) => BaseCacheAdapter, defaultTtlMs?: number): this {
+    this._cacheAdapterFactory = factory;
+    this._defaultCacheTtlMs = defaultTtlMs;
+    this._cacheManager = null;
+    return this;
+  }
+
+  /**
+   * Returns the cache manager for the given environment.
+   * If no cache manager exists for the environment, a new one is created.
+   * @param env - The environment to get the cache manager for.
+   * @returns The cache manager for the given environment.
+   */
+  private _getCacheManager(env: unknown): CacheManager {
+    if (!this._cacheManager) {
+      this._cacheManager = new CacheManager(this._cacheAdapterFactory(env), this._defaultCacheTtlMs);
+    }
+    return this._cacheManager;
+  }
 
   /**
    * Clears all registered middleware functions.

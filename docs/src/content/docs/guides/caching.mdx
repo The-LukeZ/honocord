@@ -1,0 +1,136 @@
+---
+title: Caching
+description: Learn about Honocord's caching system and how to use it effectively
+---
+
+import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
+
+HHonocord uses a modular caching system that allows you to easily integrate different caching backends, such as in-memory, Durable Objects, MongoDB, or your own custom implementation.
+This guide will walk you through the basics of Honocord's caching system, how to set it up, and best practices for using it in your implementation.
+
+## Cache Adapters
+
+Honocord provides several built-in cache adapters:
+
+- [`MemoryCacheAdapter`](https://github.com/The-LukeZ/honocord/tree/dev/packages/cache-memory) - A simple in-memory cache adapter for quick caching needs
+- [`DurableObjectCacheAdapter`](https://github.com/The-LukeZ/honocord/tree/dev/packages/cache-do) - A cache adapter that uses Cloudflare Durable Objects for caching on Workers
+- [`MongoCacheAdapter`](https://github.com/The-LukeZ/honocord/tree/dev/packages/cache-mongo) - A cache adapter that uses MongoDB for caching
+
+You can also create your own custom cache adapter by implementing the abstract [`BaseCacheAdapter`](https://github.com/The-LukeZ/honocord/tree/dev/packages/cache-base) class.
+
+It is important to note that you cannot use every adapter in every environment.
+
+| Adapter                   | Cloudflare Workers | Node.js / Bun |
+| ------------------------- | ------------------ | ------------- |
+| MemoryCacheAdapter        | ❌                 | ✅            |
+| DurableObjectCacheAdapter | ✅                 | ❌            |
+| MongoCacheAdapter \*      | ?                  | ✅            |
+
+\* I'm not really sure about this one, it could work on CF Workers, but I haven't tested it yet. If you try it out, let me know how it goes!
+
+## Setting Up Caching
+
+Every caching setup is basically the same, as you have to use the `withCache` method on the `Honocord` instance to provide a factory function that creates your cache adapter.  
+Only the setup before that may vary slightly based on the adapter.
+
+### Installation
+
+```bash
+pnpm add @honocord/cache-memory
+pnpm add @honocord/cache-do
+pnpm add @honocord/cache-mongo
+pnpm add @honocord/cache-base # for custom adapters
+```
+
+### Usage
+
+<Aside type="caution">
+  If you are on Cloudflare Workers, you **have** to use the `DurableObjectCacheAdapter`, as it is the only adapter that works in
+  that environment.
+</Aside>
+
+<Tabs>
+
+<TabItem value="memory" label="MemoryCacheAdapter">
+
+```ts
+import { Honocord } from "honocord";
+import { MemoryCacheAdapter } from "@honocord/cache-memory";
+
+const bot = new Honocord().withCache(() => new MemoryCacheAdapter());
+```
+
+</TabItem>
+
+<TabItem value="durable-object" label="DurableObjectCacheAdapter">
+
+This setup requires a bit more work, as you need to set up a Durable Object and bind it to your Worker.
+
+##### Honoord Setup
+
+```ts title="src/index.ts"
+import { Honocord } from "honocord";
+import { DurableObjectCacheAdapter } from "@honocord/cache-do";
+
+const bot = new Honocord().withCache<Cloudflare.Env>((env) => new DurableObjectCacheAdapter(env.MY_CACHE_DO));
+
+export default bot.getApp();
+
+export { HonocordCacheDO } from "@honocord/cache-do"; // You need to export the Durable Object class so you can use it
+```
+
+##### Worker Setup
+
+```ts title="wrangler.jsonc"
+{
+    // ... other config options
+    "durable_objects": {
+        "bindings": [
+            {
+                "name": "MY_CACHE_DO", // This is the binding name that is used by the `env` in the factory function
+                "class_name": "HonocordCacheDO" // This is the class you exported from your index.ts file
+            }
+        ]
+    },
+    "migrations": [
+        {
+            "tag": "v1",
+            "new_sqlite_classes": ["HonocordCacheDO"] // This is the class you exported from your index.ts file
+        }
+    ]
+}
+```
+
+- `migrations` are required to create the Durable Object namespace - you don't need to write any migration code, just having this here is enough for Wrangler to create the namespace for you
+
+<details>
+    <summary>Why do I need to export the Durable Object class?</summary>
+
+You might ask, why do I need to export the Durable Object class from my `index.ts` file?
+
+CF Workers is a edge runtime, which means that you don't have any in-memory state that persists across requests.
+A Durable Object is a special type of object that runs on the edge and can maintain state across requests, but it needs to be defined in **your** code because it is a part of your Worker, not Honocord itself.  
+Honocord already does the heavy lifting of implementing the Durable Object and providing an adapter for it, but you still need to define it in your code so that Wrangler can create the namespace for it.
+
+</details>
+
+</TabItem>
+
+<TabItem value="mongo" label="MongoCacheAdapter">
+
+```ts
+import { Honocord } from "honocord";
+import { MongoCacheAdapter } from "@honocord/cache-mongo";
+
+const cache = new MongoCacheAdapter(process.env.MONGO_URI!);
+await cache.connect(); // You need to connect to the database before using the cache adapter
+
+const bot = new Honocord().withCache(() => cache);
+```
+
+This is fairly straightforward, you just need to make sure to provide the correct MongoDB URI before using the cache adapter.
+You can either self-host a MongoDB instance or use a cloud provider like MongoDB Atlas.
+
+</TabItem>
+
+</Tabs>
