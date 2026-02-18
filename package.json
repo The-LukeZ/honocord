@@ -43,7 +43,7 @@
     "@discordjs/collection": "^2.1.1",
     "@discordjs/core": "^2.4.0",
     "@discordjs/rest": "^2.6.0",
-    "discord-api-types": "0.38.37",
+    "discord-api-types": "0.38.39",
     "hono": "^4.11.7"
   },
   "devDependencies": {

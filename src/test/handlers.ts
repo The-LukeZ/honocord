@@ -1,9 +1,14 @@
 // Test file for handlers if the types do work
 
 import { AnyHandler, ComponentHandler, ContextCommandHandler, SlashCommandHandler, WebhookEventHandler } from "@handlers/index";
-import { ApplicationWebhookEventType, ComponentType, RESTPostAPIChannelMessageFormDataBody } from "discord-api-types/v10";
-import { BaseInteractionContext, ContextCommandType } from "../types";
-import { ButtonBuilder, ContainerBuilder } from "@discordjs/builders";
+import {
+  APIMessageTopLevelComponent,
+  ApplicationWebhookEventType,
+  ComponentType,
+  RESTPostAPIChannelMessageFormDataBody,
+} from "discord-api-types/v10";
+import { BaseInteractionContext, ContextCommandType, JSONEncodable } from "../types";
+import { ActionRowBuilder, ButtonBuilder, ContainerBuilder } from "@discordjs/builders";
 import { AttachmentBuilder } from "../structures/AttachmentBuilder";
 import { REST } from "@discordjs/rest";
 import { API } from "@discordjs/core/http-only";
@@ -25,8 +30,15 @@ const commandHandler = new SlashCommandHandler<MyContext>().setName("test").setD
 
 commandHandler.addHandler(async (ctx) => {
   console.log("Test command executed");
+  const ar = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder({
+      custom_id: "testButton",
+      label: "Test Button",
+    })
+  );
   await ctx.reply({
     content: "Test command executed",
+    components: [ar],
   });
 });
 
@@ -54,14 +66,16 @@ const messageContextCommandHandler = new ContextCommandHandler<MyContext, Contex
 const buttonComponentHandler = new ComponentHandler<MyContext, ComponentType.Button>("some_id", ComponentType.Button).addHandler(
   async (ctx) => {
     console.log("Button clicked");
-    const ar = new ContainerBuilder().addActionRowComponents<ButtonBuilder>((ar) =>
-      ar.addComponents(
-        new ButtonBuilder({
-          custom_id: "testButton",
-          label: "Test Button",
-        })
-      )
+    const ar = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder({
+        custom_id: "testButton",
+        label: "Test Button",
+      })
     );
+    await ctx.reply({
+      content: "Button clicked",
+      components: [ar],
+    });
   }
 );
 
