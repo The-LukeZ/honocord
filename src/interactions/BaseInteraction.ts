@@ -202,9 +202,14 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
     const attachments = [...resolvedMeta, ...(options.attachments ?? [])];
     const finalFiles = [...resolvedFiles, ...rawFiles];
 
-    const body: any = {
-      ...options,
-    };
+    const body: any = {};
+    if (options.content) body.content = options.content;
+    if (options.tts) body.tts = options.tts;
+    if (options.allowed_mentions) body.allowed_mentions = options.allowed_mentions;
+    if (options.flags) body.flags = options.flags;
+    if (options.applied_tags) body.applied_tags = options.applied_tags;
+    if (options.poll) body.poll = options.poll;
+    if (options.thread_name) body.thread_name = options.thread_name;
     if (components?.length) body.components = components;
     if (embeds?.length) body.embeds = embeds;
     if (attachments?.length) body.attachments = attachments;
