@@ -1,4 +1,4 @@
-import { BaseCacheAdapter } from "@honocord/cache-base";
+import { BaseCacheAdapter } from "./base-cache-adapter";
 
 /**
  * A cache adapter that does nothing. Useful for testing or if you don't want to use caching.
