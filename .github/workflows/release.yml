@@ -72,13 +72,16 @@ jobs:
             - name: Enter pre-release mode if not already
               run: |
                   if [ ! -f .changeset/pre.json ]; then
-                      pnpm changeset pre enter beta
+                  pnpm changeset pre enter beta
+                  git add .changeset/pre.json
+                  git commit -m "chore: enter beta pre-release mode"
+                  git push
                   fi
 
             - name: Create Release PR or Publish (beta)
               uses: changesets/action@v1
               with:
-                  publish: pnpm changeset publish --tag beta
+                  publish: pnpm changeset publish
                   version: pnpm changeset version
                   commit: "chore: release beta packages"
                   title: "chore: release beta packages"
