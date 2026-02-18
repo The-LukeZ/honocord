@@ -17,13 +17,13 @@ jobs:
               with:
                   node-version: 20
 
-            - run: npm ci
+            - run: pnpm install --frozen-lockfile
 
             - name: Create Beta Release PR or Publish
               id: changesets
               uses: changesets/action@v1
               with:
-                  publish: npm run release:beta
+                  publish: pnpm run release:beta
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -37,11 +37,11 @@ jobs:
               with:
                   node-version: 20
 
-            - run: npm ci
+            - run: pnpm install --frozen-lockfile
 
             - name: Create Release PR or Publish
               uses: changesets/action@v1
               with:
-                  publish: npm run release
+                  publish: pnpm run release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
