@@ -4,6 +4,7 @@ on:
     push:
         branches:
             - main
+            - dev
 
 permissions:
     contents: write # Required for changesets to push version bumps
