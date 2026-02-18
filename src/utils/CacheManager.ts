@@ -1,6 +1,10 @@
 import {
+  APIInteractionDataResolved,
+  APIMessageApplicationCommandInteractionDataResolved,
+  APIUserInteractionDataResolved,
   ApplicationCommandType,
   ChannelType,
+  ComponentType,
   InteractionType,
   type APIGuild,
   type APIRole,
@@ -69,7 +73,7 @@ export class CacheManager {
         this.populateCommand(i);
         break;
       case InteractionType.MessageComponent: // Message Component
-        // this.populateResolved(i);
+        this.populateMessageComponent(i);
         break;
       case InteractionType.ApplicationCommandAutocomplete: // Autocomplete
         // this.populateResolved(i);
@@ -80,19 +84,82 @@ export class CacheManager {
     }
   }
 
-  private async populateCommand(i: Extract<ValidInteraction, { type: InteractionType.ApplicationCommand }>) {
-    if (i.data.type === ApplicationCommandType.PrimaryEntryPoint) return; // Doesnt have any data
-
-    if (i.data.resolved) {
+  private async populateResolved(
+    resolved: APIInteractionDataResolved | APIUserInteractionDataResolved | APIMessageApplicationCommandInteractionDataResolved,
+    guildId?: string
+  ) {
+    if (resolved) {
       // channels can't be used as the partial objects are only ID and type
-      if ("users" in i.data.resolved && i.data.resolved.users) {
-        for (const user of Object.values(i.data.resolved.users)) {
+      if ("users" in resolved && resolved.users) {
+        for (const user of Object.values(resolved.users)) {
           await this.users.set(user);
         }
       }
-      if ("roles" in i.data.resolved && i.data.resolved.roles) {
-        for (const role of Object.values(i.data.resolved.roles)) {
+      if ("roles" in resolved && resolved.roles) {
+        for (const role of Object.values(resolved.roles)) {
           await this.roles.set(role);
+        }
+      }
+      if ("members" in resolved && resolved.members && guildId) {
+        for (const [userId, member] of Object.entries(resolved.members)) {
+          // We need the guildId to cache members, but it's not included in the resolved data. We can only cache the member if we also have the user object, which includes the ID.
+          const user = resolved.users?.[userId]!;
+          if (user) {
+            await this.members.set(guildId, { ...member, user });
+          }
+        }
+      }
+    }
+  }
+
+  private async populateCommand(i: Extract<ValidInteraction, { type: InteractionType.ApplicationCommand }>) {
+    if (i.data.type === ApplicationCommandType.PrimaryEntryPoint) return; // Doesnt have any data
+
+    // i.guild is somehow only the APIPartialInteractioGuild which only carries id, features and preferred_locale/locale (buggy)
+
+    if (i.data.resolved) {
+      await this.populateResolved(i.data.resolved, i.guild_id);
+    }
+
+    if (i.user) {
+      await this.users.set(i.user);
+    }
+    if (i.member && i.guild_id) {
+      await this.users.set(i.member.user);
+      await this.members.set(i.guild_id, i.member);
+    }
+    if (i.channel && i.channel.type !== ChannelType.DM && i.channel.type !== ChannelType.GroupDM) {
+      await this.channels.set(i.channel as CachedChannel);
+    }
+  }
+
+  private async populateMessageComponent(i: Extract<ValidInteraction, { type: InteractionType.MessageComponent }>) {
+    if (i.channel && i.channel.type !== ChannelType.DM && i.channel.type !== ChannelType.GroupDM) {
+      await this.channels.set(i.channel as CachedChannel);
+    }
+
+    if (i.user) {
+      await this.users.set(i.user);
+    }
+    if (i.member && i.guild_id) {
+      await this.users.set(i.member.user);
+      await this.members.set(i.guild_id, i.member);
+    }
+
+    if (
+      i.data.component_type !== ComponentType.Button &&
+      i.data.component_type !== ComponentType.StringSelect &&
+      "resolved" in i.data &&
+      i.data.resolved
+    ) {
+      if ("users" in i.data.resolved && i.data.resolved.users) {
+        for (const userId in i.data.resolved.users) {
+          await this.users.set(i.data.resolved.users[userId]);
+        }
+      }
+      if ("roles" in i.data.resolved && i.data.resolved.roles) {
+        for (const roleId in i.data.resolved.roles) {
+          await this.roles.set(i.data.resolved.roles[roleId]);
         }
       }
       if ("members" in i.data.resolved && i.data.resolved.members && i.guild_id) {
@@ -104,19 +171,6 @@ export class CacheManager {
           }
         }
       }
-    }
-
-    // i.guild is somehow only the APIPartialInteractioGuild which only carries id, features and preferred_locale/locale (buggy)
-
-    if (i.user) {
-      await this.users.set(i.user);
-    }
-    if (i.member && i.guild_id) {
-      await this.users.set(i.member.user);
-      await this.members.set(i.guild_id, i.member);
-    }
-    if (i.channel && i.channel.type !== ChannelType.DM && i.channel.type !== ChannelType.GroupDM) {
-      await this.channels.set(i.channel as CachedChannel);
     }
   }
 }
