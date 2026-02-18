@@ -1,6 +1,8 @@
 {
   "name": "@honocord/cache-base",
   "version": "0.1.0",
+  "type": "module",
+  "description": "The base cache adapter for Honocord. This package provides the core caching logic and interfaces that other cache adapters can extend.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
