@@ -25,7 +25,7 @@ jobs:
               run: pnpm changeset version
             
             - name: Publish packages
-              run: pnpm run publish
+              run: pnpm run release
             
             - name: Push Version Changes
               run: |
