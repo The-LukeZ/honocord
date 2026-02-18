@@ -1,59 +1,56 @@
-name: Release
+name: Publish to npm
 
 on:
     push:
-        branches: [main, dev]
+        branches:
+            - main
+            - dev
+    workflow_dispatch:
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+permissions:
+    id-token: write # Required for OIDC
+    contents: read
 
 jobs:
-    release-beta:
-        if: github.ref == 'refs/heads/dev'
+    publish:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
-
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
-                  node-version: 22
-
-            - uses: pnpm/action-setup@v4
+                  node-version: "24"
+                  registry-url: "https://registry.npmjs.org"
+                  cache: "pnpm"
 
             - run: pnpm install --frozen-lockfile
+            - run: pnpm run build:all
+            - run: pnpm typecheck
+            - run: pnpm test
 
-            - name: Version packages
-              run: pnpm changeset version
-            
-            - name: Publish packages
-              run: pnpm run release
-            
-            - name: Push Version Changes
+            # Stable release (main branch)
+            - name: Publish stable release
+              if: github.ref == 'refs/heads/main'
               run: |
-                git config user.name "github-actions[bot]"
-                git config user.email "github-actions[bot]@users.noreply.github.com"
-                git add .
-                git commit -m "chore: version packages [skip ci]" || echo "No changes"
-                git push
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  pnpm --filter './packages/*' publish --provenance --access public
+                  pnpm publish --provenance --access public
 
-    release-stable:
-        if: github.ref == 'refs/heads/main'
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
+            # Beta release (dev branch)
+            - name: Publish beta release
+              if: github.ref == 'refs/heads/dev'
+              run: |
+                  TIMESTAMP=$(date +%s)
 
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: 22
+                  # Bump version for each subpackage and publish
+                  for pkg_dir in packages/*/; do
+                    CURRENT_VERSION=$(node -p "require('./${pkg_dir}package.json').version")
+                    BETA_VERSION="${CURRENT_VERSION}-beta.${TIMESTAMP}"
+                    npm version $BETA_VERSION --no-git-tag-version --prefix "$pkg_dir"
+                    pnpm --filter "./${pkg_dir}" publish --tag beta --no-git-checks --provenance --access public
+                  done
 
-            - uses: pnpm/action-setup@v4
-
-            - run: pnpm install --frozen-lockfile
-
-            - name: Create Release PR or Publish
-              uses: changesets/action@v1
-              with:
-                  publish: pnpm run release
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  # Bump version for root package and publish
+                  CURRENT_VERSION=$(node -p "require('./package.json').version")
+                  BETA_VERSION="${CURRENT_VERSION}-beta.${TIMESTAMP}"
+                  npm version $BETA_VERSION --no-git-tag-version
+                  pnpm publish --tag beta --no-git-checks --provenance --access public
