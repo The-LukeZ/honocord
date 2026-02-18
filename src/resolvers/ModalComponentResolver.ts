@@ -266,6 +266,30 @@ export class ModalComponentResolver {
     return mentionables.length > 0 ? mentionables : required ? [] : null;
   }
 
+  getRadioGroupValue(custom_id: string, required?: boolean): string | null {
+    const component = this.getComponent(custom_id);
+    if (component.type !== ComponentType.RadioGroup) {
+      throw new TypeError("Component is not a radio group", { cause: { custom_id, type: component.type } });
+    }
+    return component.value ?? (required ? "" : null);
+  }
+
+  getCheckboxGroupValues(custom_id: string, required?: boolean): string[] | null {
+    const component = this.getComponent(custom_id);
+    if (component.type !== ComponentType.CheckboxGroup) {
+      throw new TypeError("Component is not a checkbox group", { cause: { custom_id, type: component.type } });
+    }
+    return component.values.length > 0 ? component.values : required ? [] : null;
+  }
+
+  getCheckboxValue(custom_id: string, required?: boolean): boolean | null {
+    const component = this.getComponent(custom_id);
+    if (component.type !== ComponentType.Checkbox) {
+      throw new TypeError("Component is not a checkbox", { cause: { custom_id, type: component.type } });
+    }
+    return component.value ?? (required ? false : null);
+  }
+
   getAllComponents(): APIModalData[] {
     return this.hoistedComponents.map((component) => component);
   }
