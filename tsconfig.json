@@ -26,5 +26,6 @@
     "types": ["@cloudflare/workers-types", "@types/node"]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "packages/*/dist"]
+  "exclude": ["node_modules", "dist", "packages/*/dist"],
+  "references": [{ "path": "./packages/cache-base" }, { "path": "./packages/cache-memory" }, { "path": "./packages/cache-d1" }]
 }
