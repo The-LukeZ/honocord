@@ -13,6 +13,7 @@ import { REST } from "@discordjs/rest";
 import { BaseInteraction } from "./BaseInteraction";
 import { AttachmentBuilder } from "../structures/AttachmentBuilder";
 import type { BaseInteractionContext, InteractionResponseCallbackData } from "$types/index";
+import { inspect } from "node:util";
 
 // ── Minimal stub data ────────────────────────────────────────────────────────
 
@@ -77,7 +78,11 @@ describe("prepareResponsePayload", () => {
     expect(body.components).toHaveLength(1);
     // The ActionRow should be serialised to a plain object, not the builder instance
     expect(typeof body.components![0]).toBe("object");
-    expect((body.components![0] as any).type).toBe(ComponentType.ActionRow);
+    expect(body.components![0].type).toBe(ComponentType.ActionRow);
+    // other fields should not be set in the body
+    expect(body.attachments).toBeUndefined();
+    expect(body.embeds).toBeUndefined();
+    console.log(inspect(body, { depth: 5 }));
   });
 
   it("passes raw component objects through without double-wrapping", () => {

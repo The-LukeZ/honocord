@@ -202,13 +202,15 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
     const attachments = [...resolvedMeta, ...(options.attachments ?? [])];
     const finalFiles = [...resolvedFiles, ...rawFiles];
 
+    const body: any = {
+      ...options,
+    };
+    if (components?.length) body.components = components;
+    if (embeds?.length) body.embeds = embeds;
+    if (attachments?.length) body.attachments = attachments;
+
     const response: { body: APIInteractionResponseCallbackData; files?: RawFile[] } = {
-      body: this.toSnakeCase<APIInteractionResponseCallbackData>({
-        ...options,
-        components: components?.length ? components : undefined,
-        embeds: embeds?.length ? embeds : undefined,
-        attachments: attachments?.length ? attachments : undefined,
-      }),
+      body: this.toSnakeCase<APIInteractionResponseCallbackData>(body),
     };
     if (finalFiles.length) {
       response.files = finalFiles;
