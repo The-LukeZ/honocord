@@ -60,10 +60,10 @@ function makeInteraction(): TestInteraction {
 describe("prepareResponsePayload", () => {
   it("passes plain content through as-is", () => {
     const ix = makeInteraction();
-    const { body, files } = ix.prepare({ content: "Hello!" });
+    const body = ix.prepare({ content: "Hello!" });
 
     expect(body.content).toBe("Hello!");
-    expect(files).toBeUndefined();
+    expect(body.files).toBeUndefined();
   });
 
   it("serialises JSONEncodable components (ActionRowBuilder)", () => {
@@ -72,7 +72,7 @@ describe("prepareResponsePayload", () => {
       new ButtonBuilder().setCustomId("btn").setLabel("Click").setStyle(ButtonStyle.Primary)
     );
 
-    const { body } = ix.prepare({ content: "Hi", components: [row] });
+    const body = ix.prepare({ content: "Hi", components: [row] });
 
     expect(body.components).toBeDefined();
     expect(body.components).toHaveLength(1);
@@ -99,7 +99,7 @@ describe("prepareResponsePayload", () => {
       ],
     } as any;
 
-    const { body } = ix.prepare({ content: "Hi", components: [rawRow] });
+    const body = ix.prepare({ content: "Hi", components: [rawRow] });
 
     expect(body.components).toHaveLength(1);
     expect((body.components![0] as any).type).toBe(ComponentType.ActionRow);
@@ -109,7 +109,7 @@ describe("prepareResponsePayload", () => {
     const ix = makeInteraction();
     const embed = new EmbedBuilder().setTitle("Test").setDescription("Hello embed");
 
-    const { body } = ix.prepare({ embeds: [embed] });
+    const body = ix.prepare({ embeds: [embed] });
 
     expect(body.embeds).toBeDefined();
     expect(body.embeds).toHaveLength(1);
@@ -119,14 +119,14 @@ describe("prepareResponsePayload", () => {
 
   it("omits components key when components array is empty", () => {
     const ix = makeInteraction();
-    const { body } = ix.prepare({ content: "Hi", components: [] });
+    const body = ix.prepare({ content: "Hi", components: [] });
 
     expect(body.components).toBeUndefined();
   });
 
   it("omits embeds key when embeds array is empty", () => {
     const ix = makeInteraction();
-    const { body } = ix.prepare({ content: "Hi", embeds: [] });
+    const body = ix.prepare({ content: "Hi", embeds: [] });
 
     expect(body.embeds).toBeUndefined();
   });
@@ -135,24 +135,22 @@ describe("prepareResponsePayload", () => {
     const ix = makeInteraction();
     const builder = new AttachmentBuilder(Buffer.from("data"), { name: "test.txt" });
 
-    const { body, files } = ix.prepare({ content: "With file", files: [builder] });
+    const body = ix.prepare({ content: "With file", files: [builder] });
 
-    expect(files).toHaveLength(1);
-    expect(files?.[0].name).toBe("test.txt");
+    expect(body.files).toHaveLength(1);
+    expect(body.files?.[0].name).toBe("test.txt");
     expect(body.attachments).toHaveLength(1);
     expect((body.attachments![0] as any).filename).toBe("test.txt");
-    // files key must be stripped from the body
-    expect((body as any).files).toBeUndefined();
   });
 
   it("passes RawFile instances directly into files array", () => {
     const ix = makeInteraction();
     const raw = { name: "raw.txt", data: Buffer.from("raw") };
 
-    const { body, files } = ix.prepare({ content: "Raw file", files: [raw] });
+    const body = ix.prepare({ content: "Raw file", files: [raw] });
 
-    expect(files).toHaveLength(1);
-    expect(files?.[0].name).toBe("raw.txt");
+    expect(body.files).toHaveLength(1);
+    expect(body.files?.[0].name).toBe("raw.txt");
     // No attachments metadata for raw files
     expect(body.attachments).toBeUndefined();
   });
@@ -162,9 +160,9 @@ describe("prepareResponsePayload", () => {
     const builder = new AttachmentBuilder(Buffer.from("a"), { name: "a.png" });
     const raw = { name: "b.txt", data: Buffer.from("b") };
 
-    const { body, files } = ix.prepare({ files: [builder, raw] });
+    const body = ix.prepare({ files: [builder, raw] });
 
-    expect(files).toHaveLength(2);
+    expect(body.files).toHaveLength(2);
     // Only the builder produces an attachments[] entry
     expect(body.attachments).toHaveLength(1);
     expect((body.attachments![0] as any).filename).toBe("a.png");
@@ -173,13 +171,13 @@ describe("prepareResponsePayload", () => {
   it("converts camelCase option keys to snake_case", () => {
     const ix = makeInteraction();
     // allowedMentions → allowed_mentions
-    const { body } = ix.prepare({
+    const body = ix.prepare({
       content: "hi",
       allowed_mentions: { parse: [] },
     });
 
-    expect((body as any).allowed_mentions).toBeDefined();
-    expect((body as any).allowedMentions).toBeUndefined();
+    expect(body.allowed_mentions).toBeDefined();
+    expect(body.allowed_mentions!.parse).toHaveLength(0);
   });
 
   it("content + components do not produce an empty-message error payload", () => {
@@ -188,7 +186,7 @@ describe("prepareResponsePayload", () => {
       new ButtonBuilder().setCustomId("confirm").setLabel("Confirm").setStyle(ButtonStyle.Primary)
     );
 
-    const { body } = ix.prepare({ content: "Hello, world! 👋", components: [row] });
+    const body = ix.prepare({ content: "Hello, world! 👋", components: [row] });
 
     // Both fields must reach the payload so Discord accepts the message
     expect(body.content).toBe("Hello, world! 👋");

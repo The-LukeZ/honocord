@@ -8,6 +8,12 @@ import type {
 } from "discord-api-types/v10";
 import type { JSONEncodable } from "./utils";
 import { AttachmentBuilder } from "../structures/AttachmentBuilder";
+import {
+  CreateInteractionFollowUpResponseOptions,
+  CreateInteractionResponseOptions,
+  CreateInteractionUpdateMessageResponseOptions,
+  EditInteractionResponseOptions,
+} from "@discordjs/core/http-only";
 
 export interface InteractionResponseCallbackData extends Omit<
   APIInteractionResponseCallbackData,
@@ -83,3 +89,9 @@ export interface ResolvedAttachment {
   file: RawFile;
   metadata: AttachmentMetadata;
 }
+
+export type PreparedResponseOptions =
+  | CreateInteractionResponseOptions
+  | EditInteractionResponseOptions
+  | CreateInteractionUpdateMessageResponseOptions
+  | CreateInteractionFollowUpResponseOptions;

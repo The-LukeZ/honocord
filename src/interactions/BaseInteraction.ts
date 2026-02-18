@@ -10,7 +10,7 @@ import {
   ComponentType,
   APIMessage,
 } from "discord-api-types/v10";
-import { API } from "@discordjs/core/http-only";
+import { API, CreateInteractionResponseOptions, EditInteractionResponseOptions } from "@discordjs/core/http-only";
 import { REST } from "@discordjs/rest";
 import { ModalInteraction } from "./ModalInteraction";
 import type {
@@ -18,6 +18,7 @@ import type {
   InteractionResponseCallbackData,
   JSONEncodable,
   MessageComponentType,
+  PreparedResponseOptions,
   RawFile,
   ValidInteraction,
 } from "$types/index";
@@ -189,7 +190,9 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
     );
   }
 
-  protected prepareResponsePayload(options: InteractionResponseCallbackData) {
+  protected prepareResponsePayload<T extends PreparedResponseOptions = PreparedResponseOptions>(
+    options: InteractionResponseCallbackData
+  ): T {
     const builders = (options.files ?? []).filter((f): f is AttachmentBuilder => f instanceof AttachmentBuilder);
     const rawFiles = (options.files ?? []).filter((f): f is RawFile => !(f instanceof AttachmentBuilder));
 
@@ -214,13 +217,11 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
     if (embeds?.length) body.embeds = embeds;
     if (attachments?.length) body.attachments = attachments;
 
-    const response: { body: APIInteractionResponseCallbackData; files?: RawFile[] } = {
-      body: this.toSnakeCase<APIInteractionResponseCallbackData>(body),
-    };
+    const finalBody = this.toSnakeCase<APIInteractionResponseCallbackData>(body);
     if (finalFiles.length) {
-      response.files = finalFiles;
+      return { ...finalBody, files: finalFiles } as T;
     }
-    return response;
+    return { ...finalBody } as T;
   }
 
   async reply(options: InteractionResponseCallbackData | string, forceEphemeral = true) {
