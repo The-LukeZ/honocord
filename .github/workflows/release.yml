@@ -32,8 +32,23 @@ jobs:
             - name: Publish stable release
               if: github.ref == 'refs/heads/main'
               run: |
-                  pnpm --filter './packages/*' publish --provenance --access public
-                  pnpm publish --provenance --access public
+                  for pkg_dir in packages/*/; do
+                    PKG_NAME=$(node -p "require('./${pkg_dir}package.json').name")
+                    PKG_VERSION=$(node -p "require('./${pkg_dir}package.json').version")
+                    if npm view "${PKG_NAME}@${PKG_VERSION}" > /dev/null 2>&1; then
+                      echo "Skipping ${PKG_NAME}@${PKG_VERSION} (already published)"
+                    else
+                      pnpm --filter "./${pkg_dir}" publish --provenance --access public --no-git-checks
+                    fi
+                  done
+
+                  ROOT_NAME=$(node -p "require('./package.json').name")
+                  ROOT_VERSION=$(node -p "require('./package.json').version")
+                  if npm view "${ROOT_NAME}@${ROOT_VERSION}" > /dev/null 2>&1; then
+                    echo "Skipping ${ROOT_NAME}@${ROOT_VERSION} (already published)"
+                  else
+                    pnpm publish --provenance --access public --no-git-checks
+                  fi
 
             # Beta release (dev branch)
             - name: Publish beta release
