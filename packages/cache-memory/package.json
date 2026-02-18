@@ -17,8 +17,5 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch"
-  },
-  "dependencies": {
-    "@honocord/cache-base": "workspace:*"
   }
 }

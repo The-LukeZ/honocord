@@ -1,4 +1,15 @@
 {
-  "extends": "../../tsconfig.packages.json",
-  "include": ["src/**/*"]
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "composite": true,
+    "paths": {
+      "@honocord/cache-base": ["../cache-base/src"],
+      "@honocord/cache-memory": ["./src"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"],
+  "references": [{ "path": "../cache-base" }]
 }

@@ -75,11 +75,9 @@ importers:
 
   packages/cache-base: {}
 
-  packages/cache-memory:
-    dependencies:
-      '@honocord/cache-base':
-        specifier: workspace:*
-        version: link:../cache-base
+  packages/cache-d1: {}
+
+  packages/cache-memory: {}
 
 packages:
 
