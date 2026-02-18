@@ -1,10 +1,9 @@
-name: Publish to npm
+name: Publish to npm on Push (main)
 
 on:
   push:
     branches:
       - main
-      - dev
 
 permissions:
   id-token: write # Required for OIDC
@@ -23,20 +22,28 @@ jobs:
           cache: "pnpm"
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run build --if-present
+
+      # Build all packages first
+      - run: pnpm run build:all
+
+      # Typecheck and test
       - run: pnpm typecheck
+      - run: pnpm typecheck:packages
       - run: pnpm test
 
-      # Version and publish based on branch
-      - name: Publish stable release
-        if: github.ref == 'refs/heads/main'
-        run: pnpm publish --provenance --access public
+      # Publish packages in order (base first, then others)
+      - name: Publish cache-base
+        run: cd packages/cache-base && pnpm publish --access public --no-git-checks
+        continue-on-error: true
 
-      - name: Publish beta release
-        if: github.ref == 'refs/heads/dev'
-        run: |
-          # Generate beta version (e.g., 1.0.0-beta.1234567890)
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
-          BETA_VERSION="${CURRENT_VERSION}-beta.$(date +%s)"
-          npm version $BETA_VERSION --no-git-tag-version
-          pnpm publish --tag beta --no-git-checks --provenance --access public
+      - name: Publish cache-memory
+        run: cd packages/cache-memory && pnpm publish --access public --no-git-checks
+        continue-on-error: true
+
+      # - name: Publish cache-d1
+      #   run: cd packages/cache-d1 && pnpm publish --access public --no-git-checks
+      #   continue-on-error: true
+
+      # Publish main package last
+      - name: Publish honocord
+        run: pnpm publish --access public --no-git-checks
