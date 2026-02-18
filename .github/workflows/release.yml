@@ -17,6 +17,8 @@ jobs:
               with:
                   node-version: 20
 
+            - uses: pnpm/action-setup@v4
+
             - run: pnpm install --frozen-lockfile
 
             - name: Create Beta Release PR or Publish
@@ -36,6 +38,8 @@ jobs:
             - uses: actions/setup-node@v4
               with:
                   node-version: 20
+
+            - uses: pnpm/action-setup@v4
 
             - run: pnpm install --frozen-lockfile
 
