@@ -20,7 +20,8 @@
     "paths": {
       "@utils/*": ["./src/utils/*"],
       "@ctx/*": ["./src/interactions/*"],
-      "@resolvers/*": ["./src/resolvers/*"]
+      "@resolvers/*": ["./src/resolvers/*"],
+      "@handlers/*": ["./src/handlers/*"],
     },
     "types": ["@cloudflare/workers-types", "@types/node"]
   },

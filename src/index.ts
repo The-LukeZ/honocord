@@ -41,7 +41,6 @@ export {
   TextInputStyle,
   ApplicationCommandOptionType,
   InteractionContextType,
-  
 } from "discord-api-types/v10";
 
 export {

@@ -6,3 +6,5 @@ packages:
 onlyBuiltDependencies:
   - esbuild
   - sharp
+
+ignoreWorkspaceRootCheck: true
