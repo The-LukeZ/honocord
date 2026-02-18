@@ -1,2 +1,2 @@
 export * from "./types";
-export * from "./base-cache-manager";
+export * from "./base-cache-adapter";

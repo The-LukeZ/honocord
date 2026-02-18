@@ -1,8 +1,8 @@
 {
-  "name": "@honocord/cache-d1",
+  "name": "@honocord/cache-memory",
   "version": "0.1.0",
   "type": "module",
-  "description": "A D1 cache adapter for Honocord.",
+  "description": "A memory cache adapter for Honocord.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -22,5 +22,8 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch"
+  },
+  "dependencies": {
+    "mongoose": "^9.2.1"
   }
 }

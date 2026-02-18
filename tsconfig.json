@@ -28,5 +28,5 @@
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "packages/*/dist"],
-  "references": [{ "path": "./packages/cache-base" }, { "path": "./packages/cache-memory" }, { "path": "./packages/cache-d1" }]
+  "references": [{ "path": "./packages/cache-base" }, { "path": "./packages/cache-memory" }, { "path": "./packages/cache-do" }]
 }
