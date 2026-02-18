@@ -2,110 +2,46 @@ name: Release
 
 on:
     push:
-        branches:
-            - main
-            - dev
+        branches: [main, dev]
 
-permissions:
-    contents: write # Required for changesets to push version bumps
-    pull-requests: write # Required for changesets to create release PRs
-    id-token: write # Required for OIDC trusted publishing
+concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-    release-stable:
-        if: github.ref == 'refs/heads/main'
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  # Needed so changesets can push commits back to main
-                  fetch-depth: 0
-
-            - uses: pnpm/action-setup@v4
-
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: "24"
-                  registry-url: "https://registry.npmjs.org"
-                  cache: "pnpm"
-
-            - run: pnpm install --frozen-lockfile
-
-            - run: pnpm run build:all
-
-            - run: pnpm typecheck && pnpm typecheck:packages
-
-            - run: pnpm test
-
-            - name: Create Release PR or Publish
-              uses: changesets/action@v1
-              with:
-                  publish: pnpm changeset publish
-                  version: pnpm changeset version
-                  commit: "chore: release packages"
-                  title: "chore: release packages"
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  NPM_CONFIG_PROVENANCE: true
-
     release-beta:
         if: github.ref == 'refs/heads/dev'
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
-
-            - uses: pnpm/action-setup@v4
 
             - uses: actions/setup-node@v4
               with:
-                  node-version: "24"
-                  registry-url: "https://registry.npmjs.org"
-                  cache: "pnpm"
+                  node-version: 20
 
-            - run: pnpm install --frozen-lockfile
-            - run: pnpm run build:all
-            - run: pnpm typecheck && pnpm typecheck:packages
-            - run: pnpm test
+            - run: npm ci
 
-            - name: Configure git
-              run: |
-                  git config user.name "github-actions[bot]"
-                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-            - name: Enter pre-release mode if not already
-              run: |
-                  if [ ! -f .changeset/pre.json ]; then
-                      pnpm changeset pre enter beta
-                      git add .changeset/pre.json
-                      git commit -m "chore: enter beta pre-release mode"
-                      git push
-                  fi
-
-            - name: Add changeset if none exist
-              run: |
-                  # If there are no pending changesets, auto-create a patch bump for all packages
-                  if [ -z "$(ls .changeset/*.md 2>/dev/null | grep -v README)" ]; then
-                      pnpm changeset add --empty
-                  fi
-
-            - name: Version packages
-              run: pnpm changeset version
-
-            - name: Commit version bumps
-              run: |
-                  git add .
-                  git diff --staged --quiet || git commit -m "chore: version beta packages"
-                  git push
-
-            - name: Publish beta packages
+            - name: Create Beta Release PR or Publish
+              id: changesets
               uses: changesets/action@v1
               with:
-                  publish: pnpm changeset publish
-                  version: pnpm changeset version
-                  commit: "chore: release beta packages"
-                  title: "chore: release beta packages"
+                  publish: npm run release:beta
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  NPM_CONFIG_PROVENANCE: true
+
+    release-stable:
+        if: github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+
+            - run: npm ci
+
+            - name: Create Release PR or Publish
+              uses: changesets/action@v1
+              with:
+                  publish: npm run release
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
