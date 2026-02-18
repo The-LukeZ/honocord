@@ -27,7 +27,7 @@ export class CacheManager {
 
   constructor(
     private adapter: BaseCacheAdapter,
-    private defaultTtlMs?: number
+    private defaultTtlMs: number = 5 * 60 * 1000 /* 5 minutes */
   ) {
     this.channels = {
       get: (id) => this.adapter.get<CachedChannel>(key("channel", id)),
