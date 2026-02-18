@@ -21,7 +21,8 @@
       "@utils/*": ["./src/utils/*"],
       "@ctx/*": ["./src/interactions/*"],
       "@resolvers/*": ["./src/resolvers/*"],
-      "@handlers/*": ["./src/handlers/*"]
+      "@handlers/*": ["./src/handlers/*"],
+      "$types/*": ["./src/types/*"]
     },
     "types": ["@cloudflare/workers-types", "@types/node"]
   },
