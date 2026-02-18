@@ -20,9 +20,7 @@
     "paths": {
       "@utils/*": ["./src/utils/*"],
       "@ctx/*": ["./src/interactions/*"],
-      "@resolvers/*": ["./src/resolvers/*"],
-      "@handlers/*": ["./src/handlers/*"],
-      "$types/*": ["./src/types/*"], // @types is already used by DefinitelyTyped, so we use $types instead
+      "@resolvers/*": ["./src/resolvers/*"]
     },
     "types": ["@cloudflare/workers-types", "@types/node"]
   },

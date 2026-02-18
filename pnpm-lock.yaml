@@ -70,6 +70,14 @@ importers:
         specifier: ^0.34.2
         version: 0.34.5
 
+  packages/cache-base: {}
+
+  packages/cache-memory:
+    dependencies:
+      '@honocord/cache-base':
+        specifier: workspace:*
+        version: link:../cache-base
+
 packages:
 
   '@antfu/install-pkg@1.1.0':
