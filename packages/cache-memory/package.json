@@ -1,6 +1,7 @@
 {
   "name": "@honocord/cache-memory",
   "version": "0.1.0",
+  "private": false,
   "type": "module",
   "description": "A memory cache adapter for Honocord.",
   "main": "./dist/index.js",

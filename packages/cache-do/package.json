@@ -1,6 +1,7 @@
 {
   "name": "@honocord/cache-do",
   "version": "0.1.0",
+  "private": false,
   "type": "module",
   "description": "A Durable Objects cache adapter for Honocord.",
   "main": "./dist/index.js",
