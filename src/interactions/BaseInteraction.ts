@@ -189,7 +189,7 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
     );
   }
 
-  private prepareResponsePayload(options: InteractionResponseCallbackData) {
+  protected prepareResponsePayload(options: InteractionResponseCallbackData) {
     const builders = (options.files ?? []).filter((f): f is AttachmentBuilder => f instanceof AttachmentBuilder);
     const rawFiles = (options.files ?? []).filter((f): f is RawFile => !(f instanceof AttachmentBuilder));
 
