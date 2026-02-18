@@ -266,6 +266,8 @@ export class ModalComponentResolver {
     return mentionables.length > 0 ? mentionables : required ? [] : null;
   }
 
+  getRadioGroupValue(custom_id: string, required?: boolean): string | null;
+  getRadioGroupValue(custom_id: string, required: true): string;
   getRadioGroupValue(custom_id: string, required?: boolean): string | null {
     const component = this.getComponent(custom_id);
     if (component.type !== ComponentType.RadioGroup) {
@@ -274,6 +276,8 @@ export class ModalComponentResolver {
     return component.value ?? (required ? "" : null);
   }
 
+  getCheckboxGroupValues(custom_id: string, required?: boolean): string[] | null;
+  getCheckboxGroupValues(custom_id: string, required: true): string[];
   getCheckboxGroupValues(custom_id: string, required?: boolean): string[] | null {
     const component = this.getComponent(custom_id);
     if (component.type !== ComponentType.CheckboxGroup) {
@@ -282,6 +286,8 @@ export class ModalComponentResolver {
     return component.values.length > 0 ? component.values : required ? [] : null;
   }
 
+  getCheckboxValue(custom_id: string, required?: boolean): boolean | null;
+  getCheckboxValue(custom_id: string, required: true): boolean;
   getCheckboxValue(custom_id: string, required?: boolean): boolean | null {
     const component = this.getComponent(custom_id);
     if (component.type !== ComponentType.Checkbox) {
