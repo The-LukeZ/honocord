@@ -1,8 +1,8 @@
 {
-  "name": "@honocord/cache-memory",
+  "name": "@honocord/cache-mongo",
   "version": "0.1.0",
   "type": "module",
-  "description": "A memory cache adapter for Honocord.",
+  "description": "A MongoDB cache adapter for Honocord.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
