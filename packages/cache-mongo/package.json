@@ -1,6 +1,6 @@
 {
   "name": "@honocord/cache-mongo",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": false,
   "type": "module",
   "description": "A MongoDB cache adapter for Honocord.",

@@ -45,12 +45,12 @@ jobs:
                   for pkg_dir in packages/*/; do
                     CURRENT_VERSION=$(node -p "require('./${pkg_dir}package.json').version")
                     BETA_VERSION="${CURRENT_VERSION}-beta.${TIMESTAMP}"
-                    npm version $BETA_VERSION --no-git-tag-version --prefix "$pkg_dir"
+                    pnpm version $BETA_VERSION --no-git-tag-version --prefix "$pkg_dir"
                     pnpm --filter "./${pkg_dir}" publish --tag beta --no-git-checks --provenance --access public
                   done
 
                   # Bump version for root package and publish
                   CURRENT_VERSION=$(node -p "require('./package.json').version")
                   BETA_VERSION="${CURRENT_VERSION}-beta.${TIMESTAMP}"
-                  npm version $BETA_VERSION --no-git-tag-version
+                  pnpm version $BETA_VERSION --no-git-tag-version
                   pnpm publish --tag beta --no-git-checks --provenance --access public
