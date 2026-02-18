@@ -7,5 +7,7 @@
     "@honocord/cache-d1": "0.1.0",
     "@honocord/cache-memory": "0.1.0"
   },
-  "changesets": []
+  "changesets": [
+    "modern-keys-march"
+  ]
 }
