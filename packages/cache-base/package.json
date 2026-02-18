@@ -16,6 +16,9 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "url": "git+https://github.com/The-LukeZ/honocord.git"
+  },
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch"
