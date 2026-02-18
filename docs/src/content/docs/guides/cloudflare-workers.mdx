@@ -5,7 +5,7 @@ sidebar:
   order: 7
 ---
 
-import { LinkButton, Steps } from "@astrojs/starlight/components";
+import { LinkButton, Steps, Aside } from "@astrojs/starlight/components";
 
 Hono is designed (primarily) for Cloudflare Workers, while Honocord works well with handling async interactions automatically to fit within Workers' limits.
 
@@ -39,11 +39,18 @@ Hono is designed (primarily) for Cloudflare Workers, while Honocord works well w
      "name": "my-discord-bot",
      "main": "src/index.ts",
      "compatibility_date": "2024-01-01",
+     "compatibility_flags": ["nodejs_compat"],
      "vars": {
        "IS_CF_WORKER": "true",
      },
    }
    ```
+
+   <Aside type="caution">
+     Starting with v2.0.0 it is required to have the `compatibility_flags` present in your `wrangler.jsonc` for Honocord to work
+     properly. There is one usage of `node:path` for the new uploading files feature, and without the `nodejs_compat` flag,
+     Workers won't be able to resolve this module and will throw an error when building.
+   </Aside>
 
 3. **Bot Entry Point**
 
