@@ -69,18 +69,37 @@ jobs:
             - run: pnpm typecheck && pnpm typecheck:packages
             - run: pnpm test
 
+            - name: Configure git
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
             - name: Enter pre-release mode if not already
               run: |
                   if [ ! -f .changeset/pre.json ]; then
-                  git config user.name "github-actions[bot]"
-                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-                  pnpm changeset pre enter beta
-                  git add .changeset/pre.json
-                  git commit -m "chore: enter beta pre-release mode"
-                  git push
+                      pnpm changeset pre enter beta
+                      git add .changeset/pre.json
+                      git commit -m "chore: enter beta pre-release mode"
+                      git push
                   fi
 
-            - name: Create Release PR or Publish (beta)
+            - name: Add changeset if none exist
+              run: |
+                  # If there are no pending changesets, auto-create a patch bump for all packages
+                  if [ -z "$(ls .changeset/*.md 2>/dev/null | grep -v README)" ]; then
+                      pnpm changeset add --empty
+                  fi
+
+            - name: Version packages
+              run: pnpm changeset version
+
+            - name: Commit version bumps
+              run: |
+                  git add .
+                  git diff --staged --quiet || git commit -m "chore: version beta packages"
+                  git push
+
+            - name: Publish beta packages
               uses: changesets/action@v1
               with:
                   publish: pnpm changeset publish
