@@ -1,0 +1,11 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "honocord-docs": "2.0.0",
+    "@honocord/cache-base": "0.1.0",
+    "@honocord/cache-d1": "0.1.0",
+    "@honocord/cache-memory": "0.1.0"
+  },
+  "changesets": []
+}
