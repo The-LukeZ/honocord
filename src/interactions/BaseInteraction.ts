@@ -195,13 +195,18 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
 
     const { files: resolvedFiles, attachments: resolvedMeta } = AttachmentBuilder.resolve(...builders);
 
+    delete options.files;
+
+    const components = options.components?.map((c) => (this.isJSONEncodable(c) ? c.toJSON() : c));
+    const embeds = options.embeds?.map((e) => (this.isJSONEncodable(e) ? e.toJSON() : e));
+    const attachments = [...resolvedMeta, ...(options.attachments ?? [])];
+
     return {
       body: this.toSnakeCase<APIInteractionResponseCallbackData>({
         ...options,
-        files: undefined,
-        components: options.components?.map((c) => (this.isJSONEncodable(c) ? c.toJSON() : c)),
-        embeds: options.embeds?.map((e) => (this.isJSONEncodable(e) ? e.toJSON() : e)),
-        attachments: [...resolvedMeta, ...(options.attachments ?? [])],
+        components: components?.length ? components : undefined,
+        embeds: embeds?.length ? embeds : undefined,
+        attachments: attachments?.length ? attachments : undefined,
       }),
       files: [...resolvedFiles, ...rawFiles],
     };
