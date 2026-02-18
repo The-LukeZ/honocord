@@ -62,7 +62,7 @@ describe("prepareResponsePayload", () => {
     const { body, files } = ix.prepare({ content: "Hello!" });
 
     expect(body.content).toBe("Hello!");
-    expect(files).toHaveLength(0);
+    expect(files).toBeUndefined();
   });
 
   it("serialises JSONEncodable components (ActionRowBuilder)", () => {
@@ -133,7 +133,7 @@ describe("prepareResponsePayload", () => {
     const { body, files } = ix.prepare({ content: "With file", files: [builder] });
 
     expect(files).toHaveLength(1);
-    expect(files[0].name).toBe("test.txt");
+    expect(files?.[0].name).toBe("test.txt");
     expect(body.attachments).toHaveLength(1);
     expect((body.attachments![0] as any).filename).toBe("test.txt");
     // files key must be stripped from the body
@@ -147,7 +147,7 @@ describe("prepareResponsePayload", () => {
     const { body, files } = ix.prepare({ content: "Raw file", files: [raw] });
 
     expect(files).toHaveLength(1);
-    expect(files[0].name).toBe("raw.txt");
+    expect(files?.[0].name).toBe("raw.txt");
     // No attachments metadata for raw files
     expect(body.attachments).toBeUndefined();
   });

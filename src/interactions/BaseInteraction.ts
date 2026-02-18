@@ -200,16 +200,20 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
     const components = options.components?.map((c) => (this.isJSONEncodable(c) ? c.toJSON() : c));
     const embeds = options.embeds?.map((e) => (this.isJSONEncodable(e) ? e.toJSON() : e));
     const attachments = [...resolvedMeta, ...(options.attachments ?? [])];
+    const finalFiles = [...resolvedFiles, ...rawFiles];
 
-    return {
+    const response: { body: APIInteractionResponseCallbackData; files?: RawFile[] } = {
       body: this.toSnakeCase<APIInteractionResponseCallbackData>({
         ...options,
         components: components?.length ? components : undefined,
         embeds: embeds?.length ? embeds : undefined,
         attachments: attachments?.length ? attachments : undefined,
       }),
-      files: [...resolvedFiles, ...rawFiles],
     };
+    if (finalFiles.length) {
+      response.files = finalFiles;
+    }
+    return response;
   }
 
   async reply(options: InteractionResponseCallbackData | string, forceEphemeral = true) {
