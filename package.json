@@ -8,10 +8,7 @@
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.mjs",
-      "node": "./dist/index.mjs",
-      "module-sync": "./dist/index.js"
+      "types": "./dist/index.d.ts"
     },
     "./package.json": "./package.json"
   },
