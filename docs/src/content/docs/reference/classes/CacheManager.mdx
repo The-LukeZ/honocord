@@ -53,22 +53,22 @@ Extracts and caches users, roles, members, and channels from a raw interaction p
 
 ## `NamespaceAccessor<T>` interface
 
-| Method | Signature | Description |
-| --- | --- | --- |
-| `get` | `(id: string) => Promise<T \| null>` | Retrieve a cached entity by ID. Returns `null` if not found or expired. |
-| `set` | `(data: T, ttlMs?: number) => Promise<void>` | Cache an entity. Falls back to `defaultTtlMs` if `ttlMs` is omitted. |
-| `delete` | `(id: string) => Promise<void>` | Remove a cached entity by ID. |
-| `has` | `(id: string) => Promise<boolean>` | Check whether a non-expired entry exists for this ID. |
-| `mset` | `(entries: { value: T; ttlMs?: number }[]) => Promise<void>` | Bulk-cache multiple entities. |
+| Method   | Signature                                                    | Description                                                             |
+| -------- | ------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `get`    | `(id: string) => Promise<T \| null>`                         | Retrieve a cached entity by ID. Returns `null` if not found or expired. |
+| `set`    | `(data: T, ttlMs?: number) => Promise<void>`                 | Cache an entity. Falls back to `defaultTtlMs` if `ttlMs` is omitted.    |
+| `delete` | `(id: string) => Promise<void>`                              | Remove a cached entity by ID.                                           |
+| `has`    | `(id: string) => Promise<boolean>`                           | Check whether a non-expired entry exists for this ID.                   |
+| `mset`   | `(entries: { value: T; ttlMs?: number }[]) => Promise<void>` | Bulk-cache multiple entities.                                           |
 
 ## `MemberNamespaceAccessor` interface
 
 Same as above but all methods require `guildId` as the first argument, since members are keyed as `member:{guildId}:{userId}`.
 
-| Method | Signature |
-| --- | --- |
-| `get` | `(guildId: string, userId: string) => Promise<CachedGuildMember \| null>` |
-| `set` | `(guildId: string, member: CachedGuildMember, ttlMs?: number) => Promise<void>` |
-| `delete` | `(guildId: string, userId: string) => Promise<void>` |
-| `has` | `(guildId: string, userId: string) => Promise<boolean>` |
-| `mset` | `(guildId: string, entries: { value: CachedGuildMember; ttlMs?: number }[]) => Promise<void>` |
+| Method   | Signature                                                                                     |
+| -------- | --------------------------------------------------------------------------------------------- |
+| `get`    | `(guildId: string, userId: string) => Promise<CachedGuildMember \| null>`                     |
+| `set`    | `(guildId: string, member: CachedGuildMember, ttlMs?: number) => Promise<void>`               |
+| `delete` | `(guildId: string, userId: string) => Promise<void>`                                          |
+| `has`    | `(guildId: string, userId: string) => Promise<boolean>`                                       |
+| `mset`   | `(guildId: string, entries: { value: CachedGuildMember; ttlMs?: number }[]) => Promise<void>` |
