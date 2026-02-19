@@ -148,3 +148,107 @@ However, some things are not automatically cached due to Discord only providing 
 ## Under the Hood
 
 ![Cache Diagram](../../../assets/cache-diagram.png)
+
+As you can see, you effectivly only have to interact with the `CacheManager`. The `CacheManager` is responsible for managing the different namespaces and providing a unified interface for accessing the cache.  
+When you call `ctx.cache.getUser(userId)`, the `CacheManager` will delegate the call to the appropriate namespace accessor, which will then interact with the underlying cache adapter to retrieve the data.
+
+## Custom Cache Adapters
+
+If you write a custom cache adapter, you only need to extend the abstract `BaseCacheAdapter` class and implement the required methods.
+
+<Aside type="note">
+
+This is a very basic implementation of a Redis cache adapter. It does not handle errors, connection pooling, or other advanced features. It is only meant to serve as an example of how to implement a custom cache adapter.
+
+A Redis cache adapter might be provided officially in the future if there is enough demand for it, but for now you can use this implementation as a starting point for your own custom cache adapter.
+
+</Aside>
+
+```ts
+import { BaseCacheAdapter, CacheOptions } from "@honocord/cache-base";
+import { createClient, type RedisClientType } from "redis";
+
+export class RedisCacheAdapter extends BaseCacheAdapter {
+  private client: RedisClientType;
+  private ready: Promise<void>;
+  private namespace: string;
+  private defaultTtlMs: number | undefined;
+
+  constructor(redisUrl: string, options: Omit<CacheOptions, "cleanupInterval"> = {}) {
+    super(); // must do
+    this.client = createClient({ url: redisUrl }) as RedisClientType;
+    this.namespace = options.namespace ?? "honocord";
+    this.defaultTtlMs = options.ttl !== undefined ? options.ttl * 1000 : undefined;
+    // Auto-connect on construction; errors surface on first use
+    this.ready = this._init();
+  }
+
+  /** Prefix every key with the namespace to avoid collisions. */
+  private key(raw: string): string {
+    return `${this.namespace}:${raw}`;
+  }
+
+  private async _init(): Promise<void> {
+    await this.client.connect();
+  }
+
+  // Explicit connect for startup-time error surfacing
+  override async connect(): Promise<this> {
+    await this.ready;
+    return this;
+  }
+
+  async get<T>(key: string): Promise<T | null> {
+    await this.ready;
+    const raw = await this.client.get(this.key(key));
+    if (raw === null) return null;
+    return JSON.parse(raw) as T;
+  }
+
+  async set<T>(key: string, value: T, ttlMs?: number): Promise<void> {
+    await this.ready;
+    const effectiveTtlMs = ttlMs ?? this.defaultTtlMs;
+    const serialized = JSON.stringify(value);
+
+    if (effectiveTtlMs !== undefined) {
+      await this.client.set(this.key(key), serialized, { PX: effectiveTtlMs });
+    } else {
+      await this.client.set(this.key(key), serialized);
+    }
+  }
+
+  async delete(key: string): Promise<void> {
+    await this.ready;
+    await this.client.del(this.key(key));
+  }
+
+  async has(key: string): Promise<boolean> {
+    await this.ready;
+    return (await this.client.exists(this.key(key))) === 1;
+  }
+
+  async clear(): Promise<void> {
+    await this.ready;
+    // Delete only keys that belong to this adapter's namespace.
+    const keys = await this.client.keys(`${this.namespace}:*`);
+    if (keys.length > 0) {
+      await this.client.del(keys);
+    }
+  }
+}
+```
+
+Then use it with Honocord just like any built-in adapter:
+
+```ts
+import { Honocord } from "honocord";
+import { RedisCacheAdapter } from "./RedisCacheAdapter";
+
+const cache = new RedisCacheAdapter(process.env.REDIS_URL!, {
+  namespace: "my-bot",
+  ttl: 300, // 5-minute default TTL
+});
+await cache.connect(); // You can also don't do this and let Honocord handle connecting, but doing it yourself allows you to catch connection errors at startup
+
+const bot = new Honocord().withCache(() => cache);
+```
