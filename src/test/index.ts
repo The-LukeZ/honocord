@@ -27,6 +27,7 @@ type MyContext = BaseInteractionContext<MyEnv, MyVar>;
 
 const testHandle: HandlerFunction<MyContext, ChatInputCommandInteraction> = async (ctx) => {
   console.log(!!ctx.context.env.DATABASE);
+  await ctx.fetcher.api.stickers.get("123123123");
   await ctx.reply({
     flags: MessageFlags.IsComponentsV2,
     components: [new ContainerBuilder().addTextDisplayComponents((t) => t.setContent("Hello world"))],

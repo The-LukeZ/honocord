@@ -245,3 +245,29 @@ await cache.connect(); // You can also don't do this and let Honocord handle con
 
 const bot = new Honocord().withCache(() => cache);
 ```
+
+## Fetching
+
+On every interaction, you have a property `.fetcher` which is an instance of `Fetcher`.
+The `Fetcher` is a utility class that provides methods for fetching data from the Discord API and automatically caching it, if not already cached.
+
+For example, if you want to fetch a user by their ID, you can do:
+
+```ts
+const user = await ctx.fetcher.users.get(userId);
+```
+
+This will first check if the user is already cached, and if so, it will return the cached user. If not, it will fetch the user from the Discord API, cache it, and then return it.
+
+<Aside type="note" title="Important Note">
+
+Because not all endpoints are cachable (only the ones supported by the cache manager), the `Fetcher` has the property `api` which provides direct access to the Discord API without caching.
+
+This is an instance of [API](https://discord.js.org/docs/packages/core/2.4.0/API:Class) from discord.js, so you can use it to make any API calls that are not supported by the cache manager.
+This is a high-level wrapper around the raw REST API, so it will handle things like rate limits and retries for you.
+
+```ts
+const sticker = await ctx.fetcher.api.stickers.get(stickerId); // This won't be cached
+```
+
+</Aside>
