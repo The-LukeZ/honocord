@@ -1,0 +1,74 @@
+---
+title: CacheManager
+---
+
+`CacheManager` provides a structured, namespace-aware layer on top of a [`BaseCacheAdapter`](/reference/classes/Honocord#withcache). It is set on the Hono context by Honocord after calling `withCache()` and is accessible in middleware and handlers as `c.var.cache`.
+
+```ts
+const cache = c.var.cache; // CacheManager | null
+```
+
+## Constructor
+
+```ts
+new CacheManager(adapter: BaseCacheAdapter, defaultTtlMs?: number)
+```
+
+- `adapter` — the cache backend to use.
+- `defaultTtlMs` — fallback TTL in milliseconds for all `set`/`mset` calls that do not supply their own TTL. Defaults to `300_000` (5 minutes).
+
+## Public properties
+
+All namespace accessors share a common interface (see below). Members are the exception — they are guild-scoped and require a `guildId` on every call.
+
+###### `channels: NamespaceAccessor<CachedChannel>` (readonly)
+
+Cached channel objects. Note: channels resolved from raw interaction payloads are **not** populated here automatically — Discord only provides partial objects (`id` + `type`) in those cases.
+
+###### `roles: NamespaceAccessor<APIRole>` (readonly)
+
+Cached role objects. Roles resolved from interaction data are populated automatically.
+
+###### `users: NamespaceAccessor<APIUser>` (readonly)
+
+Cached user objects. Users found in interaction resolved data and `interaction.user` / `interaction.member.user` are populated automatically.
+
+###### `guilds: NamespaceAccessor<APIGuild>` (readonly)
+
+Cached guild objects. Guilds are **not** populated automatically — the guild object on interactions is partial and only carries `id`, `features`, and `locale`.
+
+###### `members: MemberNamespaceAccessor` (readonly)
+
+Cached guild member objects, scoped by `guildId`. Members resolved from interaction data are populated automatically.
+
+## Public methods
+
+###### `getGuildRoles(guildId: string): Promise<APIRole[]>`
+
+Returns all cached roles for the given guild. Reads a stored index of role IDs and resolves each one from the role namespace. Returns an empty array if none are cached.
+
+###### `populate(interaction: ValidInteraction): Promise<void>`
+
+Extracts and caches users, roles, members, and channels from a raw interaction payload. Called automatically by Honocord before dispatching to handlers when a cache adapter is registered.
+
+## `NamespaceAccessor<T>` interface
+
+| Method | Signature | Description |
+| --- | --- | --- |
+| `get` | `(id: string) => Promise<T \| null>` | Retrieve a cached entity by ID. Returns `null` if not found or expired. |
+| `set` | `(data: T, ttlMs?: number) => Promise<void>` | Cache an entity. Falls back to `defaultTtlMs` if `ttlMs` is omitted. |
+| `delete` | `(id: string) => Promise<void>` | Remove a cached entity by ID. |
+| `has` | `(id: string) => Promise<boolean>` | Check whether a non-expired entry exists for this ID. |
+| `mset` | `(entries: { value: T; ttlMs?: number }[]) => Promise<void>` | Bulk-cache multiple entities. |
+
+## `MemberNamespaceAccessor` interface
+
+Same as above but all methods require `guildId` as the first argument, since members are keyed as `member:{guildId}:{userId}`.
+
+| Method | Signature |
+| --- | --- |
+| `get` | `(guildId: string, userId: string) => Promise<CachedGuildMember \| null>` |
+| `set` | `(guildId: string, member: CachedGuildMember, ttlMs?: number) => Promise<void>` |
+| `delete` | `(guildId: string, userId: string) => Promise<void>` |
+| `has` | `(guildId: string, userId: string) => Promise<boolean>` |
+| `mset` | `(guildId: string, entries: { value: CachedGuildMember; ttlMs?: number }[]) => Promise<void>` |

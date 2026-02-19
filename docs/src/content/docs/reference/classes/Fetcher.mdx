@@ -1,0 +1,62 @@
+---
+title: Fetcher
+---
+
+`Fetcher` is a cache-first REST wrapper available on every interaction object as `interaction.fetcher`. It checks the `CacheManager` before making a live Discord API request, and writes the result back to the cache automatically.
+
+```ts
+// Inside any handler or middleware
+const user = await interaction.fetcher.users.get(userId);
+```
+
+If no cache adapter is configured, `Fetcher` bypasses the cache and always fetches from the API.
+
+## Constructor
+
+`Fetcher` is instantiated internally by `BaseInteraction` — you do not construct it directly.
+
+## Public properties
+
+###### `api: API` (readonly)
+
+The raw [`@discordjs/core`](https://github.com/discordjs/discord.js/tree/main/packages/core) `API` instance. Use this for any Discord REST call not covered by the named accessors.
+
+```ts
+await interaction.fetcher.api.stickers.get(stickerId);
+```
+
+## Namespaced accessors
+
+### `users`
+
+###### `get(userId: string): Promise<APIUser>`
+
+Fetches a user by ID. Returns the cached value if available, otherwise fetches from Discord and caches the result.
+
+### `channels`
+
+###### `get(channelId: string): Promise<CachedChannel>`
+
+Fetches a channel by ID. Returns the cached value if available, otherwise fetches from Discord and caches the result.
+
+### `guilds`
+
+###### `get(guildId: string): Promise<APIGuild>`
+
+Fetches a guild by ID. Returns the cached value if available, otherwise fetches from Discord and caches the result.
+
+### `roles`
+
+###### `get(guildId: string, roleId: string): Promise<APIRole>`
+
+Fetches a single role. If not cached, fetches **all** roles for the guild via `guilds.getRoles` and returns the matching one.
+
+###### `list(guildId: string): Promise<APIRole[]>`
+
+Fetches **all** roles for a guild. Returns cached roles if available (via `CacheManager.getGuildRoles`), otherwise fetches from Discord and bulk-caches the result.
+
+### `members`
+
+###### `get(guildId: string, userId: string): Promise<APIGuildMember | CachedGuildMember>`
+
+Fetches a guild member by user ID. Returns the cached value if available, otherwise fetches from Discord and caches the result.
