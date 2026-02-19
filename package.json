@@ -40,6 +40,7 @@
   "packageManager": "pnpm@10.27.0",
   "type": "module",
   "dependencies": {
+    "@honocord/cache-base": "workspace:*",
     "@cloudflare/workers-types": "^4.20260203.0",
     "@discordjs/builders": "^1.13.1",
     "@discordjs/collection": "^2.1.1",

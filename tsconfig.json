@@ -12,12 +12,12 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@honocord/cache-base": ["./packages/cache-base/src/index.ts"],
       "@utils/*": ["./src/utils/*"],
       "@ctx/*": ["./src/interactions/*"],
       "@resolvers/*": ["./src/resolvers/*"],

@@ -6,7 +6,6 @@ export default defineConfig({
   entry: {
     index: "src/index.ts",
   },
-  external: ["@honocord/cache-base"],
   alias: {
     "@utils": "src/utils",
     "@ctx": "src/interactions",
