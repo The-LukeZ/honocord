@@ -69,6 +69,9 @@ importers:
       sharp:
         specifier: ^0.34.2
         version: 0.34.5
+      starlight-image-zoom:
+        specifier: ^0.13.2
+        version: 0.13.2(@astrojs/starlight@0.37.6(astro@5.17.1(@types/node@25.2.0)(rollup@4.57.1)(typescript@5.9.3)))
 
   packages/cache-base: {}
 
@@ -2634,6 +2637,12 @@ packages:
 
   stackback@0.0.2:
     resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
+
+  starlight-image-zoom@0.13.2:
+    resolution: {integrity: sha512-fDJrx+UZXhkbhEeXKoRogTKAYtrYVJPw6wmSUI3nHUTA0vuRM6EI//2Z8bzv3Ecvz0pHKD1vAxtS01mLyessBA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@astrojs/starlight': '>=0.32.0'
 
   std-env@3.10.0:
     resolution: {integrity: sha512-5GS12FdOZNliM5mAOxFRg7Ir0pWz8MdpYm6AY6VPkGpbA7ZzmbzNcBJQ0GPvvyWgcY7QAhCgf9Uy89I03faLkg==}
@@ -6199,6 +6208,16 @@ snapshots:
       memory-pager: 1.5.0
 
   stackback@0.0.2: {}
+
+  starlight-image-zoom@0.13.2(@astrojs/starlight@0.37.6(astro@5.17.1(@types/node@25.2.0)(rollup@4.57.1)(typescript@5.9.3))):
+    dependencies:
+      '@astrojs/starlight': 0.37.6(astro@5.17.1(@types/node@25.2.0)(rollup@4.57.1)(typescript@5.9.3))
+      mdast-util-mdx-jsx: 3.2.0
+      rehype-raw: 7.0.0
+      unist-util-visit: 5.1.0
+      unist-util-visit-parents: 6.0.2
+    transitivePeerDependencies:
+      - supports-color
 
   std-env@3.10.0: {}
 

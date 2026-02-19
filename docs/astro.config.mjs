@@ -3,6 +3,7 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightCatppuccin from "@catppuccin/starlight";
 import mermaid from "astro-mermaid";
+import starlightImageZoom from "starlight-image-zoom";
 
 // https://astro.build/config
 export default defineConfig({
@@ -33,6 +34,7 @@ export default defineConfig({
     mermaid({ autoTheme: true, theme: "dark" }),
     starlight({
       plugins: [
+        starlightImageZoom({ showCaptions: false }),
         starlightCatppuccin({
           dark: {
             flavor: "mocha",
