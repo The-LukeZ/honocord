@@ -7,11 +7,12 @@ export class DurableObjectCacheAdapter extends BaseCacheAdapter {
 
   constructor(namespace: DurableObjectNamespace<HonocordCacheDO>) {
     super();
-    if (!namespace)
+    if (!namespace) {
       throw new Error(
         "[honocord] DurableObjectCacheAdapter requires a DurableObjectNamespace. " +
           "Ensure you have bound HonocordCacheDO in your wrangler.toml."
       );
+    }
     // Single named instance — all cache lives in one DO
     this.stub = namespace.get(namespace.idFromName("honocord-cache"));
   }
