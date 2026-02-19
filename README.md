@@ -39,3 +39,4 @@ Browse the [Examples](https://github.com/The-LukeZ/honocord-examples) repo for c
 
 - **cloudflare-workers** - Basic bot on Cloudflare Workers
 - **custom-hono-integration** - Integration with existing Hono apps (with Bun)
+- **webhook-events** - Handling Discord webhook events alongside interactions
