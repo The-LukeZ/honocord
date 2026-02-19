@@ -10,6 +10,12 @@ export abstract class BaseCacheAdapter {
   abstract set<T>(key: string, value: T, ttlMs?: number): Promise<void>;
 
   /**
+   * Store multiple entries at once. Each entry can have its own optional TTL. This should be more efficient than multiple `set` calls for adapters that support bulk operations (e.g. Redis MSET, MongoDB bulkWrite).
+   * @param entries An array of entries to set, each with a key, value, and optional TTL in milliseconds.
+   */
+  abstract mset(entries: { key: string; value: unknown; ttlMs?: number }[]): Promise<void>;
+
+  /**
    * Delete a single key.
    */
   abstract delete(key: string): Promise<void>;

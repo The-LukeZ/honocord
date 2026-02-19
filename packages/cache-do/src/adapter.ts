@@ -25,6 +25,10 @@ export class DurableObjectCacheAdapter extends BaseCacheAdapter {
     await this.stub.set(key, value, ttlMs);
   }
 
+  async mset(entries: { key: string; value: unknown; ttlMs?: number }[]): Promise<void> {
+    await this.stub.mset(entries);
+  }
+
   async delete(key: string): Promise<void> {
     await this.stub.delete(key);
   }

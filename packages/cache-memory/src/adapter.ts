@@ -79,6 +79,18 @@ export class MemoryCacheAdapter extends BaseCacheAdapter {
     }
   }
 
+  async mset(entries: { key: string; value: unknown; ttlMs?: number }[]): Promise<void> {
+    const now = Date.now();
+    for (const { key, value, ttlMs } of entries) {
+      const expiresAt = ttlMs !== undefined ? now + ttlMs : null;
+      this.removeExpiring(key);
+      this.store.set(key, { value, expiresAt });
+      if (expiresAt !== null) {
+        this.insertExpiring(key, expiresAt);
+      }
+    }
+  }
+
   async delete(key: string): Promise<void> {
     this.store.delete(key);
     this.removeExpiring(key);

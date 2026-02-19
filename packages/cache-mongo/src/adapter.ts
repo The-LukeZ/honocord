@@ -60,6 +60,18 @@ export class MongoCacheAdapter extends BaseCacheAdapter {
     );
   }
 
+  async mset(entries: { key: string; value: unknown; ttlMs?: number }[]): Promise<void> {
+    await this.ready;
+    const bulkOps = entries.map(({ key, value, ttlMs }) => ({
+      updateOne: {
+        filter: { _id: key },
+        update: { value, expireAt: ttlMs !== undefined ? new Date(Date.now() + ttlMs) : null },
+        upsert: true,
+      },
+    }));
+    await this.CacheModel.bulkWrite(bulkOps);
+  }
+
   async delete(key: string): Promise<void> {
     await this.ready;
     await this.CacheModel.deleteOne({ _id: key });

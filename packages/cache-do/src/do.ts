@@ -34,6 +34,31 @@ export class HonocordCacheDO extends DurableObject {
     }
   }
 
+  /**
+   * Set multiple entries at once. This is more efficient than calling `set` multiple times since it only requires one storage write and can set a single alarm for the earliest expiry among the entries.
+   * @param entries An array of entries to set, each with a key, value, and optional TTL in milliseconds
+   */
+  async mset(entries: { key: string; value: unknown; ttlMs?: number }[]): Promise<void> {
+    const now = Date.now();
+    const storageOps: Record<string, { value: unknown; expiresAt: number | null }> = {};
+    let nextAlarm: number | null = null;
+    for (const { key, value, ttlMs } of entries) {
+      const expiresAt = ttlMs !== undefined ? now + ttlMs : null;
+      this.store.set(key, { value, expiresAt });
+      storageOps[key] = { value, expiresAt };
+      if (expiresAt !== null && (nextAlarm === null || expiresAt < nextAlarm)) {
+        nextAlarm = expiresAt;
+      }
+    }
+    await this.ctx.storage.put(storageOps);
+    if (nextAlarm !== null) {
+      const current = await this.ctx.storage.getAlarm();
+      if (current === null || nextAlarm < current) {
+        await this.ctx.storage.setAlarm(nextAlarm);
+      }
+    }
+  }
+
   async delete(key: string): Promise<void> {
     this.store.delete(key);
     await this.ctx.storage.delete(key);

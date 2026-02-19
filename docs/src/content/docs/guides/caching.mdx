@@ -165,75 +165,68 @@ A Redis cache adapter might be provided officially in the future if there is eno
 </Aside>
 
 ```ts
-import { BaseCacheAdapter, CacheOptions } from "@honocord/cache-base";
-import { createClient, type RedisClientType } from "redis";
+import Redis from "iovalkey"; // works for both Valkey AND Redis
 
-export class RedisCacheAdapter extends BaseCacheAdapter {
-  private client: RedisClientType;
+export class RedisCacheAdapter implements CacheAdapter {
+  private client: Redis;
   private ready: Promise<void>;
-  private namespace: string;
-  private defaultTtlMs: number | undefined;
 
-  constructor(redisUrl: string, options: Omit<CacheOptions, "cleanupInterval"> = {}) {
-    super(); // must do
-    this.client = createClient({ url: redisUrl }) as RedisClientType;
-    this.namespace = options.namespace ?? "honocord";
-    this.defaultTtlMs = options.ttl !== undefined ? options.ttl * 1000 : undefined;
-    // Auto-connect on construction; errors surface on first use
-    this.ready = this._init();
+  constructor(urlOrOptions: string | Redis.RedisOptions) {
+    this.client = new Redis(urlOrOptions as any);
+    this.ready = new Promise((resolve, reject) => {
+      this.client.once("ready", resolve);
+      this.client.once("error", reject);
+    });
   }
 
-  /** Prefix every key with the namespace to avoid collisions. */
-  private key(raw: string): string {
-    return `${this.namespace}:${raw}`;
-  }
-
-  private async _init(): Promise<void> {
-    await this.client.connect();
-  }
-
-  // Explicit connect for startup-time error surfacing
-  override async connect(): Promise<this> {
+  async connect(): Promise<this> {
     await this.ready;
     return this;
   }
 
   async get<T>(key: string): Promise<T | null> {
     await this.ready;
-    const raw = await this.client.get(this.key(key));
-    if (raw === null) return null;
-    return JSON.parse(raw) as T;
+    const val = await this.client.get(key);
+    if (!val) return null;
+    return JSON.parse(val) as T;
   }
 
   async set<T>(key: string, value: T, ttlMs?: number): Promise<void> {
     await this.ready;
-    const effectiveTtlMs = ttlMs ?? this.defaultTtlMs;
     const serialized = JSON.stringify(value);
-
-    if (effectiveTtlMs !== undefined) {
-      await this.client.set(this.key(key), serialized, { PX: effectiveTtlMs });
+    if (ttlMs) {
+      await this.client.set(key, serialized, "PX", ttlMs); // PX = milliseconds TTL
     } else {
-      await this.client.set(this.key(key), serialized);
+      await this.client.set(key, serialized);
     }
+  }
+
+  async mset(entries: { key: string; value: unknown; ttlMs?: number }[]): Promise<void> {
+    await this.ready;
+    if (entries.length === 0) return;
+
+    const pipeline = this.client.pipeline();
+
+    for (const { key, value, ttlMs } of entries) {
+      const serialized = JSON.stringify(value);
+      if (ttlMs) {
+        pipeline.set(key, serialized, "PX", ttlMs);
+      } else {
+        pipeline.set(key, serialized);
+      }
+    }
+
+    await pipeline.exec();
   }
 
   async delete(key: string): Promise<void> {
     await this.ready;
-    await this.client.del(this.key(key));
-  }
-
-  async has(key: string): Promise<boolean> {
-    await this.ready;
-    return (await this.client.exists(this.key(key))) === 1;
+    await this.client.del(key);
   }
 
   async clear(): Promise<void> {
     await this.ready;
-    // Delete only keys that belong to this adapter's namespace.
-    const keys = await this.client.keys(`${this.namespace}:*`);
-    if (keys.length > 0) {
-      await this.client.del(keys);
-    }
+    await this.client.flushdb();
   }
 }
 ```
