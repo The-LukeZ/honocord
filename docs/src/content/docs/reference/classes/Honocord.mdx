@@ -8,17 +8,19 @@ title: Honocord
 new Honocord(options?: {
   isCFWorker?: boolean;
   debugRest?: boolean;
+  cacheTtlMs?: number;
 })
 ```
 
 - `isCFWorker?: boolean` — enable Cloudflare Workers async processing (also detected via env `c.env.IS_CF_WORKER === "true"`).
 - `debugRest?: boolean` — enable [REST](https://github.com/discordjs/discord.js/tree/main/packages/rest) debug listeners to log requests/responses.
+- `cacheTtlMs?: number` — default TTL in milliseconds for cached entities when a cache adapter is registered via `withCache`. Set `0` to disable expiration.
 
 ## Public methods
 
-###### `loadHandlers(...handlers: Handler[]): void`
+###### `loadHandlers(...handlers: FlatOrNestedArray<AnyHandler>): void`
 
-Register Slash/Context/Component/Modal handlers. Guild-scoped command handlers are registered under `guildId:commandName`.
+Register Slash/Context/Component/Modal/WebhookEvent handlers. Accepts flat or nested arrays. Guild-scoped command handlers are registered under `guildId:commandName`.
 
 ###### `use<Context extends BaseInteractionContext = BaseInteractionContext>(...middleware: MiddlewareFunction<Context>[]): this`
 
@@ -28,16 +30,28 @@ Register middleware functions that run in-order before handlers. Middleware sign
 
 Remove all registered middleware.
 
-###### `handle: (c: BaseInteractionContext) => Promise<Response | void>`
+###### `interactionsHandler: (c: BaseInteractionContext) => Promise<Response | void>`
 
-Hono-compatible POST handler for interactions. Verifies requests, replies to Ping interactions, and dispatches other interaction types. If running on CF Workers, processing can be deferred via `c.executionCtx.waitUntil` (returns 202). Synchronous mode returns error status on unhandled exceptions.
+Hono-compatible POST handler for interactions. Verifies requests, replies to Ping interactions, and dispatches other interaction types. If running on CF Workers, processing is deferred via `c.executionCtx.waitUntil` (returns 202). Synchronous mode returns a 500 on unhandled exceptions.
 
-###### `getApp(): Hono<{ Variables: BaseVariables }>`
+###### `webhookHandler: (c: Context) => Promise<Response>`
 
-Returns a Hono application with a basic health GET and the interaction POST mounted at the root.
+Hono-compatible POST handler for Discord webhook events. Verifies the request signature, routes to the matching `WebhookEventHandler` by event type, and returns 404 if no handler is found. On CF Workers, event processing is deferred via `waitUntil`.
+
+###### `getApp(options?: { interactionsPath?: string; webhookPath?: string }): Hono<{ Variables: BaseVariables }>`
+
+Returns a Hono application with a health GET on all routes, the interactions POST mounted at `/` and `options.interactionsPath` (default `/interactions`) when command handlers are registered, and the webhook POST at `options.webhookPath` (default `/webhook`) when webhook handlers are registered.
+
+###### `withCache<TheEnv>(factory: (env: TheEnv) => BaseCacheAdapter): this`
+
+Registers a cache adapter factory. The factory receives the request environment and returns a `BaseCacheAdapter` instance. Called once per unique environment on first use.
+
+See [Caching](/guides/caching/) for details on how caching works and how to implement a cache adapter.
 
 ## Runtime notes
 
 - Requests are verified using the configured public key; invalid signatures receive 401.
 - For CF Workers use `c.executionCtx.waitUntil` to offload processing and return 202 immediately.
 - When `debugRest` is enabled the internal REST client logs request/response details to aid troubleshooting.
+- Channels resolved from interaction payloads are **not** cached — Discord only provides partial objects with `id` and `type`.
+- The guild object on interactions is also partial (`id`, `features`, `locale`) and is **not** cached.
