@@ -10,7 +10,7 @@ import {
   ComponentType,
   APIMessage,
 } from "discord-api-types/v10";
-import { API, CreateInteractionResponseOptions, EditInteractionResponseOptions } from "@discordjs/core/http-only";
+import { API } from "@discordjs/core/http-only";
 import { REST } from "@discordjs/rest";
 import { ModalInteraction } from "./ModalInteraction";
 import type {
@@ -35,6 +35,7 @@ import { RoleSelectInteraction } from "./RoleSelectInteraction";
 import { MentionableSelectInteraction } from "./MentionableSelectInteraction";
 import { ChannelSelectInteraction } from "./ChannelSelectInteraction";
 import { AttachmentBuilder } from "../structures/AttachmentBuilder";
+import { Fetcher } from "@utils/Fetcher";
 
 function snakeCase(str: string): string {
   return str
@@ -71,7 +72,10 @@ function isJSONEncodable(maybeEncodable: unknown): maybeEncodable is JSONEncodab
   );
 }
 
-abstract class BaseInteraction<Type extends InteractionType, Context extends BaseInteractionContext = BaseInteractionContext> {
+export abstract class BaseInteraction<
+  Type extends InteractionType,
+  Context extends BaseInteractionContext = BaseInteractionContext,
+> {
   public readonly type: Type;
   /** The raw interaction data */
   protected readonly raw: Extract<ValidInteraction, { type: Type }>;
@@ -80,6 +84,7 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
   protected replied: boolean = false;
   protected deferred: boolean = false;
   public readonly context: Context;
+  public readonly fetcher: Fetcher;
 
   constructor(
     protected api: API,
@@ -90,6 +95,7 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
     this.raw = { ...data };
     this.rest = api.rest;
     this.context = context;
+    this.fetcher = new Fetcher(api, () => this.context.get("cache") as any);
   }
 
   get applicationId() {
@@ -424,5 +430,3 @@ abstract class BaseInteraction<Type extends InteractionType, Context extends Bas
     return this.raw.type === InteractionType.ApplicationCommandAutocomplete;
   }
 }
-
-export { BaseInteraction };
