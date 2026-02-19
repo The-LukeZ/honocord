@@ -7,13 +7,10 @@ interface MemoryEntry {
 
 export class MemoryCacheAdapter extends BaseCacheAdapter {
   private store = new Map<string, MemoryEntry>();
-  private cleanupInterval: NodeJS.Timeout | null = null;
+  private _cleanupInterval: NodeJS.Timeout | null = null;
 
-  constructor(options: Omit<CacheOptions, "namespace"> = {}) {
+  constructor(private options: Omit<CacheOptions, "namespace"> = {}) {
     super();
-    if (!!options.cleanupInterval) {
-      this.cleanupInterval = setInterval(() => this.cleanup(), (options.cleanupInterval ?? 60) * 1000);
-    }
   }
 
   private cleanup() {
@@ -22,6 +19,12 @@ export class MemoryCacheAdapter extends BaseCacheAdapter {
       if (entry.expiresAt !== null && entry.expiresAt <= now) {
         this.store.delete(key);
       }
+    }
+  }
+
+  private startCleanup() {
+    if (!!this.options.cleanupInterval) {
+      this._cleanupInterval = setInterval(() => this.cleanup(), (this.options.cleanupInterval ?? 60) * 1000);
     }
   }
 
@@ -40,6 +43,7 @@ export class MemoryCacheAdapter extends BaseCacheAdapter {
       value,
       expiresAt: ttlMs !== undefined ? new Date(Date.now() + ttlMs) : null,
     });
+    if (!this._cleanupInterval) this.startCleanup(); // Start cleanup if not already running
   }
 
   async delete(key: string): Promise<void> {
@@ -54,5 +58,9 @@ export class MemoryCacheAdapter extends BaseCacheAdapter {
 
   async clear(): Promise<void> {
     this.store.clear();
+    if (this._cleanupInterval) {
+      clearInterval(this._cleanupInterval);
+      this._cleanupInterval = null;
+    }
   }
 }
