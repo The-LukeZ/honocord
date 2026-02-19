@@ -153,13 +153,13 @@ export class CacheManager {
       await this.users.set(i.member.user);
       await this.members.set(i.guild_id, i.member);
     }
-    if (i.channel && i.channel.type !== ChannelType.DM && i.channel.type !== ChannelType.GroupDM) {
+    if (i.channel) {
       await this.channels.set(i.channel as CachedChannel);
     }
   }
 
   private async populateMessageComponent(i: Extract<ValidInteraction, { type: InteractionType.MessageComponent }>) {
-    if (i.channel && i.channel.type !== ChannelType.DM && i.channel.type !== ChannelType.GroupDM) {
+    if (i.channel) {
       await this.channels.set(i.channel as CachedChannel);
     }
 

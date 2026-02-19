@@ -59,7 +59,11 @@ pnpm add @honocord/cache-base # for custom adapters
 import { Honocord } from "honocord";
 import { MemoryCacheAdapter } from "@honocord/cache-memory";
 
-const bot = new Honocord().withCache(() => new MemoryCacheAdapter());
+const cache = new MemoryCacheAdapter({
+  ttl: 300,
+  cleanupInterval: 600, // Interval in seconds for automatic cleanup of expired entries. This is only supported by this adapter as of now.
+});
+const bot = new Honocord().withCache(() => cache);
 ```
 
 </TabItem>
@@ -141,9 +145,11 @@ You can either self-host a MongoDB instance or use a cloud provider like MongoDB
 
 The cache polulates automatically every time an interaction is received.
 
-However, some things are not automatically cached due to Discord only providing partial objects in certain cases.
+However, some things are not automatically cached due to Discord only providing partial objects in certain cases. This includes:
 
-// TODO: Finish this section
+- Guilds - Discord only sends a partial guild object with id, features and the preferred locale; This doesn't need to be cached.
+- Resolved Channels - When a user interacts with a message component or a modal, and it has a channel select menu where resolved channels are included in the interaction data, those channels are not automatically cached.
+  These channels are only partial and don't include any useful information other than the ID and type.
 
 ## Under the Hood
 
