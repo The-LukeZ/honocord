@@ -37,6 +37,7 @@ If you encounter issues or have questions:
 
 Browse the [Examples](https://github.com/The-LukeZ/honocord-examples) repo for complete, working implementations:
 
-- **cloudflare-workers** - Basic bot on Cloudflare Workers
+- **cloudflare-workers** - Bot on Cloudflare Workers with Caching
 - **custom-hono-integration** - Integration with existing Hono apps (with Bun)
 - **webhook-events** - Handling Discord webhook events alongside interactions
+- **caching-mongo** - Example of a simple MongoDB cache adapter implementation
