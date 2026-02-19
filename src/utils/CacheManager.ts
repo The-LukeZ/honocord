@@ -185,7 +185,6 @@ export class CacheManager {
         await this.roles.mset(Object.values(resolved.roles).map((role) => ({ value: role })));
       }
       if ("members" in resolved && resolved.members && i.guild_id) {
-        // We need the guildId to cache members, but it's not included in the resolved data. We can only cache the member if we also have the user object, which includes the ID.
         const resolvedUsers = "users" in resolved ? resolved.users : undefined;
         const entries = Object.entries(resolved.members).flatMap(([userId, member]) => {
           const user = resolvedUsers?.[userId];
