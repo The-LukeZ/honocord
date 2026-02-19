@@ -364,8 +364,8 @@ export class Honocord {
 
   private async createInteraction(ctx: BaseInteractionContext, interaction: ValidInteraction) {
     const cache = this._getCacheManager(ctx.env);
-    // TODO: Find out what performance impact this has
     if (this._cacheManager) {
+      // TODO: Find out what performance impact this has
       await cache.populate(interaction as ValidInteraction);
     }
     ctx.set("cache", cache);

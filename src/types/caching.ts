@@ -49,6 +49,7 @@ export interface NamespaceAccessor<T> {
   delete(id: string): Promise<void>;
   /** Check whether a non-expired entry exists for this ID. */
   has(id: string): Promise<boolean>;
+  mset: (entries: { value: T; ttlMs?: number }[]) => Promise<void>;
 }
 
 // Members are a special case since they are scoped to a guild and identified by both guildId and userId
@@ -61,4 +62,5 @@ export interface MemberNamespaceAccessor {
   delete(guildId: string, userId: string): Promise<void>;
   /** Check whether a non-expired entry exists for this member. */
   has(guildId: string, userId: string): Promise<boolean>;
+  mset: (guildId: string, entries: { value: CachedGuildMember; ttlMs?: number }[]) => Promise<void>;
 }

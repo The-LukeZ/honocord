@@ -34,6 +34,7 @@ export class CacheManager {
       set: (channel, ttlMs) => this.adapter.set(key("channel", channel.id), channel, ttlMs ?? this.defaultTtlMs),
       delete: (id) => this.adapter.delete(key("channel", id)),
       has: (id) => this.adapter.has(key("channel", id)),
+      mset: (entries) => this.adapter.mset(entries.map((e) => ({ ...e, key: key("channel", e.value.id) }))),
     };
 
     this.roles = {
@@ -41,6 +42,7 @@ export class CacheManager {
       set: (role, ttlMs) => this.adapter.set(key("role", role.id), role, ttlMs ?? this.defaultTtlMs),
       delete: (id) => this.adapter.delete(key("role", id)),
       has: (id) => this.adapter.has(key("role", id)),
+      mset: (entries) => this.adapter.mset(entries.map((e) => ({ ...e, key: key("role", e.value.id) }))),
     };
 
     this.users = {
@@ -48,6 +50,7 @@ export class CacheManager {
       set: (user, ttlMs) => this.adapter.set(key("user", user.id), user, ttlMs ?? this.defaultTtlMs),
       delete: (id) => this.adapter.delete(key("user", id)),
       has: (id) => this.adapter.has(key("user", id)),
+      mset: (entries) => this.adapter.mset(entries.map((e) => ({ ...e, key: key("user", e.value.id) }))),
     };
 
     this.guilds = {
@@ -55,6 +58,7 @@ export class CacheManager {
       set: (guild, ttlMs) => this.adapter.set(key("guild", guild.id), guild, ttlMs ?? this.defaultTtlMs),
       delete: (id) => this.adapter.delete(key("guild", id)),
       has: (id) => this.adapter.has(key("guild", id)),
+      mset: (entries) => this.adapter.mset(entries.map((e) => ({ ...e, key: key("guild", e.value.id) }))),
     };
 
     // Members are guild-scoped: key = "member:{guildId}:{userId}"
@@ -64,6 +68,7 @@ export class CacheManager {
         this.adapter.set(key("member", guildId, member.user!.id), member, ttlMs ?? this.defaultTtlMs),
       delete: (guildId, userId) => this.adapter.delete(key("member", guildId, userId)),
       has: (guildId, userId) => this.adapter.has(key("member", guildId, userId)),
+      mset: (guildId, entries) => this.adapter.mset(entries.map((e) => ({ ...e, key: key("member", guildId, e.value.user.id) }))),
     };
   }
 
@@ -74,10 +79,12 @@ export class CacheManager {
     return roles.filter(Boolean) as APIRole[];
   }
 
-  private async addRoleToGuild(guildId: string, roleId: string): Promise<void> {
+  private async addRolesToGuild(guildId: string, roleIds: string[]): Promise<void> {
+    if (!roleIds.length) return;
     const existing = (await this.adapter.get<string[]>(key("guild-roles", guildId))) ?? [];
-    if (!existing.includes(roleId)) {
-      await this.adapter.set(key("guild-roles", guildId), [...existing, roleId], this.defaultTtlMs);
+    const toAdd = roleIds.filter((id) => !existing.includes(id));
+    if (toAdd.length) {
+      await this.adapter.set(key("guild-roles", guildId), [...existing, ...toAdd], this.defaultTtlMs);
     }
   }
 
@@ -105,23 +112,26 @@ export class CacheManager {
     if (resolved) {
       // channels can't be used as the partial objects are only ID and type
       if ("users" in resolved && resolved.users) {
-        for (const user of Object.values(resolved.users)) {
-          await this.users.set(user);
-        }
+        await this.users.mset(Object.values(resolved.users).map((user) => ({ value: user })));
       }
       if ("roles" in resolved && resolved.roles) {
-        for (const role of Object.values(resolved.roles)) {
-          await this.roles.set(role);
-          if (guildId) await this.addRoleToGuild(guildId, role.id);
+        const roles = Object.values(resolved.roles);
+        await this.roles.mset(roles.map((role) => ({ value: role })));
+        if (guildId) {
+          await this.addRolesToGuild(
+            guildId,
+            roles.map((r) => r.id)
+          );
         }
       }
       if ("members" in resolved && resolved.members && guildId) {
-        for (const [userId, member] of Object.entries(resolved.members)) {
-          // We need the guildId to cache members, but it's not included in the resolved data. We can only cache the member if we also have the user object, which includes the ID.
-          const user = resolved.users?.[userId]!;
-          if (user) {
-            await this.members.set(guildId, { ...member, user });
-          }
+        // We need the guildId to cache members, but it's not included in the resolved data. We can only cache the member if we also have the user object, which includes the ID.
+        const entries = Object.entries(resolved.members).flatMap(([userId, member]) => {
+          const user = resolved.users?.[userId];
+          return user ? [{ value: { ...member, user } }] : [];
+        });
+        if (entries.length) {
+          await this.members.mset(guildId, entries);
         }
       }
     }
@@ -167,23 +177,22 @@ export class CacheManager {
       "resolved" in i.data &&
       i.data.resolved
     ) {
-      if ("users" in i.data.resolved && i.data.resolved.users) {
-        for (const userId in i.data.resolved.users) {
-          await this.users.set(i.data.resolved.users[userId]);
-        }
+      const resolved = i.data.resolved;
+      if ("users" in resolved && resolved.users) {
+        await this.users.mset(Object.values(resolved.users).map((user) => ({ value: user })));
       }
-      if ("roles" in i.data.resolved && i.data.resolved.roles) {
-        for (const roleId in i.data.resolved.roles) {
-          await this.roles.set(i.data.resolved.roles[roleId]);
-        }
+      if ("roles" in resolved && resolved.roles) {
+        await this.roles.mset(Object.values(resolved.roles).map((role) => ({ value: role })));
       }
-      if ("members" in i.data.resolved && i.data.resolved.members && i.guild_id) {
-        for (const [userId, member] of Object.entries(i.data.resolved.members)) {
-          // We need the guildId to cache members, but it's not included in the resolved data. We can only cache the member if we also have the user object, which includes the ID.
-          const user = i.data.resolved.users?.[userId]!;
-          if (user) {
-            await this.members.set(i.guild_id, { ...member, user });
-          }
+      if ("members" in resolved && resolved.members && i.guild_id) {
+        // We need the guildId to cache members, but it's not included in the resolved data. We can only cache the member if we also have the user object, which includes the ID.
+        const resolvedUsers = "users" in resolved ? resolved.users : undefined;
+        const entries = Object.entries(resolved.members).flatMap(([userId, member]) => {
+          const user = resolvedUsers?.[userId];
+          return user ? [{ value: { ...member, user } }] : [];
+        });
+        if (entries.length) {
+          await this.members.mset(i.guild_id, entries);
         }
       }
     }
