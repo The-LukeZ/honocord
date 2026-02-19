@@ -37,7 +37,7 @@ type CachedVoiceGuildChannel = Pick<
   | "rtc_region"
 >;
 
-export type CacheNamespace = "channel" | "role" | "user" | "member" | "guild";
+export type CacheNamespace = "channel" | "role" | "user" | "member" | "guild" | "guild-roles";
 export type CachedChannel = CachedDMChannel | CachedThreadChannel | CachedTextGuildChannel | CachedVoiceGuildChannel;
 
 export interface NamespaceAccessor<T> {

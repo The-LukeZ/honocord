@@ -363,7 +363,12 @@ export class Honocord {
   }
 
   private async createInteraction(ctx: BaseInteractionContext, interaction: ValidInteraction) {
-    ctx.set("cache", this._getCacheManager(ctx.env));
+    const cache = this._getCacheManager(ctx.env);
+    // TODO: Find out what performance impact this has
+    if (this._cacheManager) {
+      await cache.populate(interaction as ValidInteraction);
+    }
+    ctx.set("cache", cache);
 
     const rest = new REST({ authPrefix: "Bot" }).setToken(ctx.env.DISCORD_TOKEN as string);
     if (this.debugRest) {

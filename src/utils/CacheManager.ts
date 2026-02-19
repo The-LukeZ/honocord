@@ -67,21 +67,35 @@ export class CacheManager {
     };
   }
 
+  async getGuildRoles(guildId: string): Promise<APIRole[]> {
+    const roleIds = await this.adapter.get<string[]>(key("guild-roles", guildId));
+    if (!roleIds) return [];
+    const roles = await Promise.all(roleIds.map((roleId) => this.roles.get(roleId)));
+    return roles.filter(Boolean) as APIRole[];
+  }
+
+  private async addRoleToGuild(guildId: string, roleId: string): Promise<void> {
+    const existing = (await this.adapter.get<string[]>(key("guild-roles", guildId))) ?? [];
+    if (!existing.includes(roleId)) {
+      await this.adapter.set(key("guild-roles", guildId), [...existing, roleId], this.defaultTtlMs);
+    }
+  }
+
   populate(i: ValidInteraction) {
     switch (i.type) {
       case InteractionType.ApplicationCommand: // Chat Input Command
-        this.populateCommand(i);
-        break;
+        return this.populateCommand(i);
       case InteractionType.MessageComponent: // Message Component
-        this.populateMessageComponent(i);
-        break;
-      case InteractionType.ApplicationCommandAutocomplete: // Autocomplete
-        // this.populateResolved(i);
-        break;
+        return this.populateMessageComponent(i);
       case InteractionType.ModalSubmit: // Modal Submit
-        // this.populateResolved(i);
+        if (i.data.resolved) {
+          return this.populateResolved(i.data.resolved, i.guild_id);
+        }
+        break;
+      default:
         break;
     }
+    return Promise.resolve();
   }
 
   private async populateResolved(
@@ -98,6 +112,7 @@ export class CacheManager {
       if ("roles" in resolved && resolved.roles) {
         for (const role of Object.values(resolved.roles)) {
           await this.roles.set(role);
+          if (guildId) await this.addRoleToGuild(guildId, role.id);
         }
       }
       if ("members" in resolved && resolved.members && guildId) {
@@ -115,7 +130,7 @@ export class CacheManager {
   private async populateCommand(i: Extract<ValidInteraction, { type: InteractionType.ApplicationCommand }>) {
     if (i.data.type === ApplicationCommandType.PrimaryEntryPoint) return; // Doesnt have any data
 
-    // i.guild is somehow only the APIPartialInteractioGuild which only carries id, features and preferred_locale/locale (buggy)
+    // i.guild is somehow only the APIPartialInteractionGuild which only carries id, features and preferred_locale/locale (buggy)
 
     if (i.data.resolved) {
       await this.populateResolved(i.data.resolved, i.guild_id);
