@@ -4,7 +4,6 @@ import {
   APIAttachment,
   APIInteractionDataResolved,
   APIInteractionDataResolvedChannel,
-  APIInteractionDataResolvedGuildMember,
   APIRole,
   APIUser,
   ApplicationCommandOptionType,
