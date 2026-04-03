@@ -16,7 +16,7 @@ function sanitizeForStorage(obj: unknown): unknown {
       return obj.map(sanitizeForStorage);
     }
     if (obj instanceof Date || obj instanceof Map || obj instanceof Set) {
-      return obj; // These have their own JSON serialization
+      return obj; // These have their own serialization via structured clone
     }
     const sanitized: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
@@ -42,6 +42,11 @@ function restoreFromStorage(obj: unknown): unknown {
     if (Array.isArray(obj)) {
       return obj.map(restoreFromStorage);
     }
+    // FIX: mirror the guard from sanitizeForStorage — these types were previously
+    // silently destroyed by Object.entries() returning [] and replaced with {}
+    if (obj instanceof Date || obj instanceof Map || obj instanceof Set) {
+      return obj;
+    }
     const restored: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
       restored[key] = restoreFromStorage(value);
@@ -51,8 +56,14 @@ function restoreFromStorage(obj: unknown): unknown {
   return obj;
 }
 
+type CacheEntry = { value: unknown; expiresAt: number | null };
+
+function isCacheEntry(obj: unknown): obj is CacheEntry {
+  return typeof obj === "object" && obj !== null && "value" in obj && "expiresAt" in obj;
+}
+
 export class HonocordCacheDO extends DurableObject {
-  private store = new Map<string, { value: unknown; expiresAt: number | null }>();
+  private store = new Map<string, CacheEntry>();
 
   constructor(state: DurableObjectState, env: Cloudflare.Env) {
     super(state, env);
@@ -64,28 +75,49 @@ export class HonocordCacheDO extends DurableObject {
     const entry = this.store.get(key);
     if (!entry) {
       // Try to restore from persistent storage
-      const stored = await this.ctx.storage.get<unknown>(key);
+      let stored: unknown;
+      try {
+        stored = await this.ctx.storage.get<unknown>(key);
+      } catch (err) {
+        console.error(`[HonocordCacheDO] storage.get failed for key "${key}":`, err);
+        return null;
+      }
+
       if (!stored) return null;
-      // Restore BigInt values from their sanitized form
+
       const restored = restoreFromStorage(stored);
-      if (typeof restored === "object" && restored !== null && "value" in restored && "expiresAt" in restored) {
-        const restoredEntry = restored as { value: unknown; expiresAt: number | null };
+      if (isCacheEntry(restored)) {
         // Check expiry
-        if (restoredEntry.expiresAt !== null && Date.now() > restoredEntry.expiresAt) {
-          await this.ctx.storage.delete(key);
+        if (restored.expiresAt !== null && Date.now() > restored.expiresAt) {
+          try {
+            await this.ctx.storage.delete(key);
+          } catch (err) {
+            console.error(`[HonocordCacheDO] storage.delete failed for key "${key}":`, err);
+          }
           return null;
         }
-        // Cache it in memory
-        this.store.set(key, restoredEntry);
-        return restoredEntry.value;
+        // Cache in memory
+        this.store.set(key, restored);
+        return restored.value;
       }
+
+      // FIX: value didn't match the expected shape — cache it anyway to avoid
+      // hitting persistent storage on every subsequent call
+      const fallback: CacheEntry = { value: restored, expiresAt: null };
+      this.store.set(key, fallback);
       return restored;
     }
+
     if (entry.expiresAt !== null && Date.now() > entry.expiresAt) {
       this.store.delete(key);
-      await this.ctx.storage.delete(key);
+      try {
+        await this.ctx.storage.delete(key);
+      } catch (err) {
+        console.error(`[HonocordCacheDO] storage.delete failed for key "${key}":`, err);
+      }
       return null;
     }
+
     return entry.value;
   }
 
@@ -94,23 +126,34 @@ export class HonocordCacheDO extends DurableObject {
     this.store.set(key, { value, expiresAt });
     // Sanitize for storage to handle BigInt values (Discord API sends member.permissions as bigint)
     const sanitized = sanitizeForStorage({ value, expiresAt });
-    await this.ctx.storage.put(key, sanitized);
+    try {
+      await this.ctx.storage.put(key, sanitized);
+    } catch (err) {
+      console.error(`[HonocordCacheDO] storage.put failed for key "${key}":`, err);
+    }
     if (ttlMs !== undefined) {
-      const current = await this.ctx.storage.getAlarm();
-      if (current === null || Date.now() + ttlMs < current) {
-        await this.ctx.storage.setAlarm(Date.now() + ttlMs);
+      try {
+        const current = await this.ctx.storage.getAlarm();
+        if (current === null || Date.now() + ttlMs < current) {
+          await this.ctx.storage.setAlarm(Date.now() + ttlMs);
+        }
+      } catch (err) {
+        console.error(`[HonocordCacheDO] alarm update failed for key "${key}":`, err);
       }
     }
   }
 
   /**
-   * Set multiple entries at once. This is more efficient than calling `set` multiple times since it only requires one storage write and can set a single alarm for the earliest expiry among the entries.
+   * Set multiple entries at once. This is more efficient than calling `set` multiple times
+   * since it only requires one storage write and can set a single alarm for the earliest
+   * expiry among the entries.
    * @param entries An array of entries to set, each with a key, value, and optional TTL in milliseconds
    */
   async mset(entries: { key: string; value: unknown; ttlMs?: number }[]): Promise<void> {
     const now = Date.now();
     const storageOps: Record<string, unknown> = {};
     let nextAlarm: number | null = null;
+
     for (const { key, value, ttlMs } of entries) {
       const expiresAt = ttlMs !== undefined ? now + ttlMs : null;
       this.store.set(key, { value, expiresAt });
@@ -120,53 +163,94 @@ export class HonocordCacheDO extends DurableObject {
         nextAlarm = expiresAt;
       }
     }
-    await this.ctx.storage.put(storageOps);
+
+    try {
+      await this.ctx.storage.put(storageOps);
+    } catch (err) {
+      console.error(`[HonocordCacheDO] storage.put (mset) failed:`, err);
+    }
+
     if (nextAlarm !== null) {
-      const current = await this.ctx.storage.getAlarm();
-      if (current === null || nextAlarm < current) {
-        await this.ctx.storage.setAlarm(nextAlarm);
+      try {
+        const current = await this.ctx.storage.getAlarm();
+        if (current === null || nextAlarm < current) {
+          await this.ctx.storage.setAlarm(nextAlarm);
+        }
+      } catch (err) {
+        console.error(`[HonocordCacheDO] alarm update failed (mset):`, err);
       }
     }
   }
 
   async delete(key: string): Promise<void> {
     this.store.delete(key);
-    await this.ctx.storage.delete(key);
+    try {
+      await this.ctx.storage.delete(key);
+    } catch (err) {
+      console.error(`[HonocordCacheDO] storage.delete failed for key "${key}":`, err);
+    }
   }
 
+  // FIX: previously only checked the in-memory store, returning false for keys that
+  // exist in persistent storage after an instance restart. Delegating to get() handles
+  // both the cold-miss and expiry cases correctly.
   async has(key: string): Promise<boolean> {
-    const entry = this.store.get(key);
-    if (!entry) return false;
-    if (entry.expiresAt !== null && Date.now() > entry.expiresAt) {
-      this.store.delete(key);
-      await this.ctx.storage.delete(key);
-      return false;
-    }
-    return true;
+    return (await this.get(key)) !== null;
   }
 
   async clear(): Promise<void> {
     this.store.clear();
-    await this.ctx.storage.deleteAll();
-    await this.ctx.storage.deleteAlarm();
+    try {
+      await this.ctx.storage.deleteAll();
+      await this.ctx.storage.deleteAlarm();
+    } catch (err) {
+      console.error(`[HonocordCacheDO] clear failed:`, err);
+    }
   }
 
+  // FIX: previously only iterated the in-memory store, which is empty after an instance
+  // restart — making the alarm a no-op and allowing expired entries to accumulate in
+  // persistent storage indefinitely. Now reads from storage directly.
   async alarm(): Promise<void> {
     const now = Date.now();
-    for (const [key, entry] of this.store) {
+    let all: Map<string, unknown>;
+
+    try {
+      all = await this.ctx.storage.list<unknown>();
+    } catch (err) {
+      console.error(`[HonocordCacheDO] storage.list failed in alarm:`, err);
+      return;
+    }
+
+    const toDelete: string[] = [];
+    let nextExpiry: number | null = null;
+
+    for (const [key, raw] of all) {
+      const entry = restoreFromStorage(raw);
+      if (!isCacheEntry(entry)) continue;
+
       if (entry.expiresAt !== null && now >= entry.expiresAt) {
         this.store.delete(key);
-        await this.ctx.storage.delete(key);
-      }
-    }
-    let nextExpiry: number | null = null;
-    for (const entry of this.store.values()) {
-      if (entry.expiresAt !== null) {
+        toDelete.push(key);
+      } else if (entry.expiresAt !== null) {
         nextExpiry = nextExpiry === null ? entry.expiresAt : Math.min(nextExpiry, entry.expiresAt);
       }
     }
+
+    if (toDelete.length > 0) {
+      try {
+        await this.ctx.storage.delete(toDelete);
+      } catch (err) {
+        console.error(`[HonocordCacheDO] storage.delete (alarm eviction) failed:`, err);
+      }
+    }
+
     if (nextExpiry !== null) {
-      await this.ctx.storage.setAlarm(nextExpiry);
+      try {
+        await this.ctx.storage.setAlarm(nextExpiry);
+      } catch (err) {
+        console.error(`[HonocordCacheDO] setAlarm failed in alarm handler:`, err);
+      }
     }
   }
 }
