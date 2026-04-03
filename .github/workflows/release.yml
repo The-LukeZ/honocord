@@ -56,5 +56,5 @@ jobs:
                   createGithubReleases: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # temporary, until trusted publishing works with custom orgs
                   NPM_CONFIG_PROVENANCE: true
