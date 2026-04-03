@@ -30,18 +30,18 @@ jobs:
                   # Fetch full history so Changesets can diff against previous tags
                   fetch-depth: 0
 
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v3
+
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: 22
                   cache: pnpm
-                  registry-url: 'https://registry.npmjs.org'
+                  registry-url: "https://registry.npmjs.org"
 
             - name: Update npm for OIDC trusted publishing
               run: npm install -g npm@latest
-
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v3
 
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
