@@ -10,3 +10,4 @@ dist
 .env.*
 
 docs/src/content/docs/built-with.mdx
+.changeset/
