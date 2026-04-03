@@ -1,5 +1,8 @@
 # Honocord - Imagine an interactions bot
 
+> [!IMPORTANT]
+> No, this ain't abandoned - I'm just busy with other projects and life stuff. I you want something added or want to help out, open an issue or PR and I'll try to get to it when I can. Thanks for understanding!
+
 Honocord is a powerful, type-safe library for building Discord bots using interactions with the Hono web framework.
 
 ## What is Honocord?
