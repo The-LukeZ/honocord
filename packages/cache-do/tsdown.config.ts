@@ -1,5 +1,9 @@
 import { defineConfig } from "tsdown";
 
+/**
+ * Shared configuration for cache adapters.
+ * Matches the pattern defined in ../../tsdown.base.config.ts
+ */
 export default defineConfig({
   clean: true,
   outDir: "dist",

@@ -44,3 +44,46 @@ Browse the [Examples](https://github.com/The-LukeZ/honocord-examples) repo for c
 - **custom-hono-integration** - Integration with existing Hono apps (with Bun)
 - **webhook-events** - Handling Discord webhook events alongside interactions
 - **caching-mongo** - Example of a simple MongoDB cache adapter implementation
+
+## Testing
+
+Tests are located in `src/tests/` and follow the directory structure of the modules they test:
+
+```tree
+src/
+├── tests/
+│   ├── interactions/
+│   │   └── BaseInteraction.test.ts
+│   └── utils/
+│       └── Autocomplete.test.ts
+├── interactions/
+├── utils/
+└── ...
+```
+
+Run tests with:
+
+```bash
+pnpm test          # Run all tests
+pnpm test --watch  # Run in watch mode
+```
+
+Tests use [Vitest](https://vitest.dev/) for fast unit testing with TypeScript support.
+
+## Contributing
+
+The repository is organized as a monorepo with the following structure:
+
+- **`src/`** - Core Honocord library
+- **`packages/`** - Optional cache adapters (`cache-base`, `cache-memory`, `cache-do`, `cache-mongo`)
+- **`docs/`** - Documentation site (Astro)
+
+### Building
+
+```bash
+pnpm build         # Build the root package
+pnpm build:all     # Build root and all cache packages
+pnpm typecheck     # Type check the root package
+```
+
+All packages use [tsdown](https://tsdown.dev/) for zero-config builds.

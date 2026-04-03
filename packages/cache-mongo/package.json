@@ -25,7 +25,8 @@
   },
   "scripts": {
     "build": "tsdown",
-    "dev": "tsdown --watch"
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "mongoose": "^9.2.1"
