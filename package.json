@@ -50,6 +50,7 @@
     "hono": "^4.12.10"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.30.0",
     "@types/node": "^25.5.2",
     "prettier": "^3.8.1",
     "tsdown": "0.19.0-beta.2",
