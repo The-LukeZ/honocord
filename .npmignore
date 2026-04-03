@@ -1,3 +1,6 @@
 .prettierrc
 .prettierignore
+tsconfig.json
 tsdown.config.ts
+src/tests/
+src/**/*.test.ts

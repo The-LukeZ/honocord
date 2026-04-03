@@ -104,7 +104,7 @@ export async function verifyKey(
 }
 
 export async function verifyDiscordRequest<T extends APIInteraction | APIWebhookEvent>(
-  req: HonoRequest,
+  req: HonoRequest<any, any>,
   discordPublicKey: string | CryptoKey
 ) {
   const signature = req.header("x-signature-ed25519");

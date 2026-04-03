@@ -91,4 +91,4 @@ export type BaseInteractionContext<
   TBindings extends Bindings = any,
   TVariables extends Variables = any,
   TPath extends string = "/",
-> = Context<{ Bindings: TBindings; Variables: TVariables & BaseVariables }, TPath, BlankInput>;
+> = Context<{ Bindings: TBindings; Variables: TVariables & BaseVariables }, TPath, any>;
