@@ -1,96 +1,54 @@
-name: Publish to npm
+name: Release
 
 on:
     push:
         branches:
-            - dev
-    workflow_dispatch:
-        inputs:
-            release_type:
-                description: "Release type"
-                required: true
-                default: "stable"
-                type: choice
-                options:
-                    - stable
-            publish_cache_base:
-                description: "Publish @honocord/cache-base"
-                type: boolean
-                default: false
-            publish_cache_do:
-                description: "Publish @honocord/cache-do"
-                type: boolean
-                default: false
-            publish_cache_memory:
-                description: "Publish @honocord/cache-memory"
-                type: boolean
-                default: false
-            publish_cache_mongo:
-                description: "Publish @honocord/cache-mongo"
-                type: boolean
-                default: false
-            publish_root:
-                description: "Publish honocord (root)"
-                type: boolean
-                default: false
+            - main
 
-permissions:
-    id-token: write # Required for OIDC
-    contents: read
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 
 jobs:
-    publish:
+    release:
+        name: Release
         runs-on: ubuntu-latest
+        permissions:
+            contents: write # to create git tags and GitHub Releases
+            pull-requests: write # to open and update the "Version Packages" PR
+            id-token: write # for npm provenance
+
         steps:
-            - uses: actions/checkout@v4
-            - uses: pnpm/action-setup@v4
-            - uses: actions/setup-node@v4
+            - name: Checkout
+              uses: actions/checkout@v4
               with:
-                  node-version: "24"
-                  registry-url: "https://registry.npmjs.org"
-                  cache: "pnpm"
+                  # Fetch full history so Changesets can diff against previous tags
+                  fetch-depth: 0
 
-            - run: pnpm install --frozen-lockfile --ignore-scripts
-            - run: pnpm run build:all
-            - run: pnpm typecheck
-            - run: pnpm test
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v3
 
-            # Stable release (main branch)
-            - name: Publish stable release
-              if: github.event_name == 'workflow_dispatch'
-              run: |
-                  if [ "${{ inputs.publish_cache_base }}" = "true" ]; then
-                    pnpm --filter './packages/cache-base' publish --provenance --access public
-                  fi
-                  if [ "${{ inputs.publish_cache_do }}" = "true" ]; then
-                    pnpm --filter './packages/cache-do' publish --provenance --access public
-                  fi
-                  if [ "${{ inputs.publish_cache_memory }}" = "true" ]; then
-                    pnpm --filter './packages/cache-memory' publish --provenance --access public
-                  fi
-                  if [ "${{ inputs.publish_cache_mongo }}" = "true" ]; then
-                    pnpm --filter './packages/cache-mongo' publish --provenance --access public
-                  fi
-                  if [ "${{ inputs.publish_root }}" = "true" ]; then
-                    pnpm publish --provenance --access public
-                  fi
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: pnpm
+                  registry-url: https://registry.npmjs.org
 
-            # Beta release (dev branch)
-            - name: Publish beta release
-              if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
-              run: |
-                  TIMESTAMP=$(date +%s)
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
 
-                  # Bump version for each subpackage and publish
-                  for pkg_dir in packages/*/; do
-                    CURRENT_VERSION=$(node -p "require('./${pkg_dir}package.json').version")
-                    BETA_VERSION="${CURRENT_VERSION}-beta.${TIMESTAMP}"
-                    pnpm version $BETA_VERSION --no-git-tag-version --prefix "$pkg_dir"
-                    pnpm --filter "./${pkg_dir}" publish --tag beta --no-git-checks --provenance --access public
-                  done
+            - name: Build packages
+              run: pnpm build
 
-                  # Bump version for root package and publish
-                  CURRENT_VERSION=$(node -p "require('./package.json').version")
-                  BETA_VERSION="${CURRENT_VERSION}-beta.${TIMESTAMP}"
-                  pnpm version $BETA_VERSION --no-git-tag-version
-                  pnpm publish --tag beta --no-git-checks --provenance --access public
+            - name: Create release PR or publish to npm
+              uses: changesets/action@v1
+              with:
+                  publish: pnpm changeset publish
+                  version: pnpm changeset version
+                  commit: "chore: version packages"
+                  title: "chore: version packages"
+                  createGithubReleases: true
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  NPM_CONFIG_PROVENANCE: true
