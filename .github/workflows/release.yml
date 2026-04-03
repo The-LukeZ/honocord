@@ -25,7 +25,7 @@ jobs:
 
         steps:
             - name: Checkout
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
               with:
                   # Fetch full history so Changesets can diff against previous tags
                   fetch-depth: 0
@@ -34,7 +34,7 @@ jobs:
               uses: pnpm/action-setup@v3
 
             - name: Setup Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: 22
                   cache: pnpm
@@ -59,5 +59,5 @@ jobs:
                   createGithubReleases: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # temporary, until trusted publishing works with custom orgs
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
                   NPM_CONFIG_PROVENANCE: true
