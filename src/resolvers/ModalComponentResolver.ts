@@ -266,6 +266,21 @@ export class ModalComponentResolver {
     return mentionables.length > 0 ? mentionables : required ? [] : null;
   }
 
+  getFiles(custom_id: string, required?: boolean): Collection<string, APIAttachment> | null;
+  getFiles(custom_id: string, required: true): Collection<string, APIAttachment>;
+  getFiles(custom_id: string, required?: boolean): Collection<string, APIAttachment> | null {
+    const component = this.getComponent(custom_id);
+    if (component.type !== ComponentType.FileUpload) {
+      throw new TypeError("Component is not a file upload", { cause: { custom_id, type: component.type } });
+    }
+    const values = component.values;
+    const attachments = values.map((id) => this._resolved.attachments?.get(id)).filter(Boolean) as APIAttachment[];
+    if (attachments.length === 0) {
+      return required ? new Collection() : null;
+    }
+    return new Collection(attachments.map((attachment) => [attachment.id, attachment]));
+  }
+
   getRadioGroupValue(custom_id: string, required?: boolean): string | null;
   getRadioGroupValue(custom_id: string, required: true): string;
   getRadioGroupValue(custom_id: string, required?: boolean): string | null {
