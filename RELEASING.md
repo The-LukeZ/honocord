@@ -5,7 +5,7 @@ Packages are versioned independently — a change to one package does not bump o
 
 ## Packages
 
-- `src`
+- `.`
 - `packages/*`
 
 ---
