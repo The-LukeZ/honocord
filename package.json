@@ -40,23 +40,23 @@
   "packageManager": "pnpm@10.27.0",
   "type": "module",
   "dependencies": {
-    "@cloudflare/workers-types": "^4.20260203.0",
-    "@discordjs/builders": "^1.13.1",
+    "@cloudflare/workers-types": "^4.20260405.1",
+    "@discordjs/builders": "^1.14.1",
     "@discordjs/collection": "^2.1.1",
     "@discordjs/core": "^2.4.0",
-    "@discordjs/rest": "^2.6.0",
+    "@discordjs/rest": "^2.6.1",
     "@honocord/cache-base": "workspace:*",
     "discord-api-types": "0.38.39",
-    "hono": "^4.11.7",
+    "hono": "^4.12.10",
     "starlight-contextual-menu": "^0.1.5",
     "starlight-llms-txt": "^0.8.0"
   },
   "devDependencies": {
-    "@types/node": "^25.2.0",
+    "@types/node": "^25.5.2",
     "prettier": "^3.8.1",
     "tsdown": "0.19.0-beta.2",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.2"
   },
   "repository": {
     "url": "git+https://github.com/The-LukeZ/honocord.git"

@@ -10,6 +10,9 @@ import starlightContextualMenu from "starlight-contextual-menu";
 // https://astro.build/config
 export default defineConfig({
   trailingSlash: "ignore",
+
+  site: "https://honocord.thelukez.com",
+
   redirects: {
     "/github": {
       destination: "https://github.com/The-LukeZ/honocord",
@@ -92,6 +95,14 @@ export default defineConfig({
           autogenerate: { directory: "guides" },
         },
         {
+          label: "For LLMs",
+          link: "/llms.txt",
+          badge: {
+            text: "New",
+            variant: "tip"
+          }
+        },
+        {
           label: "Built With Honocord",
           slug: "built-with",
         },
@@ -103,6 +114,7 @@ export default defineConfig({
             { label: "Constants", autogenerate: { directory: "reference/constants" } },
             { label: "Types", autogenerate: { directory: "reference/types" } },
           ],
+          collapsed: true,
         },
         {
           label: "Examples",
