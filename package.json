@@ -47,9 +47,7 @@
     "@discordjs/rest": "^2.6.1",
     "@honocord/cache-base": "workspace:*",
     "discord-api-types": "0.38.39",
-    "hono": "^4.12.10",
-    "starlight-contextual-menu": "^0.1.5",
-    "starlight-llms-txt": "^0.8.0"
+    "hono": "^4.12.10"
   },
   "devDependencies": {
     "@changesets/cli": "^2.30.0",
