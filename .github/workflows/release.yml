@@ -7,7 +7,7 @@ on:
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+    cancel-in-progress: false
 
 jobs:
     release:
@@ -39,12 +39,12 @@ jobs:
               run: pnpm install --frozen-lockfile
 
             - name: Build packages
-              run: pnpm build
+              run: pnpm build:all
 
             - name: Create release PR or publish to npm
               uses: changesets/action@v1
               with:
-                  publish: pnpm changeset publish
+                  publish: pnpm changeset publish --access public
                   version: pnpm changeset version
                   commit: "chore: version packages"
                   title: "chore: version packages"
