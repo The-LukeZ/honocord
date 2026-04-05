@@ -40,14 +40,16 @@
   "packageManager": "pnpm@10.27.0",
   "type": "module",
   "dependencies": {
-    "@honocord/cache-base": "workspace:*",
     "@cloudflare/workers-types": "^4.20260203.0",
     "@discordjs/builders": "^1.13.1",
     "@discordjs/collection": "^2.1.1",
     "@discordjs/core": "^2.4.0",
     "@discordjs/rest": "^2.6.0",
+    "@honocord/cache-base": "workspace:*",
     "discord-api-types": "0.38.39",
-    "hono": "^4.11.7"
+    "hono": "^4.11.7",
+    "starlight-contextual-menu": "^0.1.5",
+    "starlight-llms-txt": "^0.8.0"
   },
   "devDependencies": {
     "@types/node": "^25.2.0",

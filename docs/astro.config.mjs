@@ -4,6 +4,8 @@ import starlight from "@astrojs/starlight";
 import starlightCatppuccin from "@catppuccin/starlight";
 import mermaid from "astro-mermaid";
 import starlightImageZoom from "starlight-image-zoom";
+import starlightLlmsTxt from "starlight-llms-txt";
+import starlightContextualMenu from "starlight-contextual-menu";
 
 // https://astro.build/config
 export default defineConfig({
@@ -34,6 +36,20 @@ export default defineConfig({
     mermaid({ autoTheme: true, theme: "dark" }),
     starlight({
       plugins: [
+        starlightLlmsTxt({
+          projectName: "Honocord",
+          promote: [
+            "index*",
+            "guides*",
+            "reference/classes*",
+            "reference/functions*",
+            "reference/constants*",
+            "reference/types*",
+          ],
+        }),
+        starlightContextualMenu({
+          actions: ["copy", "view", "claude", "chatgpt", "lechat"],
+        }),
         starlightImageZoom({ showCaptions: false }),
         starlightCatppuccin({
           dark: {
