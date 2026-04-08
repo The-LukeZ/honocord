@@ -25,6 +25,16 @@ All namespace accessors share a common interface (see below). Members are the ex
 
 Cached channel objects. Note: channels resolved from raw interaction payloads are **not** populated here automatically — Discord only provides partial objects (`id` + `type`) in those cases.
 
+###### `getDMChannel: (userId: string) => Promise<CachedDMChannel>`
+
+Fetches a DM channel for a user. Returns the cached value if available, otherwise creates a new DM channel via Discord and caches the result.
+
+###### `setDMChannel: (userId: string, channel: CachedDMChannel, ttlMs?: number) => Promise<void>`
+
+Manually cache a DM channel for a user. Useful if you have a DM channel object from another source and want to store it in the cache.  
+Note, that DM channels are stored in two places: the `dmChannels` namespace keyed by user ID, and the `channels` namespace keyed by channel ID.
+Both must be populated for the cache to function properly. This method handles both automatically.
+
 ###### `roles: NamespaceAccessor<APIRole>` (readonly)
 
 Cached role objects. Roles resolved from interaction data are populated automatically.
