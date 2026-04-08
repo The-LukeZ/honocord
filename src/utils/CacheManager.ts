@@ -79,6 +79,22 @@ export class CacheManager {
     return roles.filter(Boolean) as APIRole[];
   }
 
+  async getDMChannel(
+    userId: string
+  ): Promise<Extract<CachedChannel, { type: ChannelType.DM | ChannelType.GroupDM }> | undefined> {
+    const channelId = await this.adapter.get<string>(key("dm-channel", userId));
+    const cachedChannel = channelId ? await this.channels.get(channelId) : undefined;
+    if (cachedChannel && (cachedChannel.type === ChannelType.DM || cachedChannel.type === ChannelType.GroupDM)) {
+      return cachedChannel;
+    }
+    return undefined; // We should never get here, but just in case
+  }
+
+  async setDMChannel(userId: string, channel: CachedChannel, ttlMs?: number): Promise<void> {
+    await this.channels.set(channel, ttlMs);
+    await this.adapter.set(key("dm-channel", userId), channel.id, ttlMs ?? this.defaultTtlMs);
+  }
+
   private async addRolesToGuild(guildId: string, roleIds: string[]): Promise<void> {
     if (!roleIds.length) return;
     const existing = (await this.adapter.get<string[]>(key("guild-roles", guildId))) ?? [];

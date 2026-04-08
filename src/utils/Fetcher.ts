@@ -49,6 +49,15 @@ export class Fetcher {
       ),
   };
 
+  readonly dmChannels = {
+    get: (userId: string): Promise<CachedChannel> =>
+      this.fetchAndCache(
+        () => this.cache?.getDMChannel(userId) ?? Promise.resolve(null),
+        (channel) => this.cache!.setDMChannel(userId, channel),
+        () => this.api.users.createDM(userId) as Promise<CachedChannel>
+      ),
+  };
+
   readonly guilds = {
     get: (guildId: string): Promise<APIGuild> =>
       this.fetchAndCache(
