@@ -26,12 +26,6 @@ importers:
       discord-api-types:
         specifier: 0.38.53
         version: 0.38.53
-      starlight-contextual-menu:
-        specifier: ^0.1.5
-        version: 0.1.5(starlight-markdown@0.1.5)
-      starlight-llms-txt:
-        specifier: ^0.11.0
-        version: 0.11.0(@astrojs/markdown-satteri@0.3.5)(@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.2)(typescript@7.0.2))
     devDependencies:
       '@changesets/cli':
         specifier: ^2.31.1
@@ -81,9 +75,15 @@ importers:
       sharp:
         specifier: ^0.35.3
         version: 0.35.3(@types/node@26.2.0)
+      starlight-contextual-menu:
+        specifier: ^0.1.5
+        version: 0.1.5(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0))(starlight-markdown@0.1.5(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0)))
       starlight-image-zoom:
         specifier: ^0.15.0
         version: 0.15.0(@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.2)(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0))(typescript@7.0.2))
+      starlight-llms-txt:
+        specifier: ^0.11.0
+        version: 0.11.0(@astrojs/markdown-satteri@0.3.5)(@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.2)(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0))(typescript@7.0.2))(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0))
 
   packages/cache-base: {}
 
@@ -6942,9 +6942,10 @@ snapshots:
 
   stackback@0.0.2: {}
 
-  starlight-contextual-menu@0.1.5(starlight-markdown@0.1.5):
+  starlight-contextual-menu@0.1.5(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0))(starlight-markdown@0.1.5(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0))):
     dependencies:
-      starlight-markdown: 0.1.5
+      astro: 7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0)
+      starlight-markdown: 0.1.5(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0))
 
   starlight-image-zoom@0.15.0(@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.2)(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0))(typescript@7.0.2)):
     dependencies:
@@ -6956,12 +6957,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  starlight-llms-txt@0.11.0(@astrojs/markdown-satteri@0.3.5)(@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.2)(typescript@7.0.2)):
+  starlight-llms-txt@0.11.0(@astrojs/markdown-satteri@0.3.5)(@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.2)(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0))(typescript@7.0.2))(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0)):
     dependencies:
       '@astrojs/mdx': 7.0.5(@astrojs/markdown-satteri@0.3.5)(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0))
       '@astrojs/starlight': 0.41.7(@astrojs/markdown-remark@7.2.2)(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0))(typescript@7.0.2)
       '@types/hast': 3.0.5
       '@types/micromatch': 4.0.10
+      astro: 7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0)
       github-slugger: 2.0.0
       hast-util-select: 6.0.4
       micromatch: 4.0.8
@@ -6975,7 +6977,9 @@ snapshots:
       - '@astrojs/markdown-satteri'
       - supports-color
 
-  starlight-markdown@0.1.5: {}
+  starlight-markdown@0.1.5(astro@7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0)):
+    dependencies:
+      astro: 7.2.0(@astrojs/markdown-remark@7.2.2)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@26.2.0)
 
   std-env@4.2.0: {}
 
