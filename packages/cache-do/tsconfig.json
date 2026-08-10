@@ -3,10 +3,9 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "paths": {
-      "@honocord/cache-base": ["../cache-base/src"],
-      "@honocord/cache-memory": ["./src"]
-    }
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
+    "paths": {},
+    "types": ["@cloudflare/workers-types"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

@@ -21,7 +21,6 @@
     "build:all": "pnpm build:packages && pnpm build",
     "dev": "tsdown --watch",
     "dev:packages": "pnpm --filter \"./packages/*\" dev",
-    "prepare": "pnpm run build:all",
     "typecheck": "tsc --noEmit",
     "typecheck:packages": "pnpm --filter \"./packages/*\" run typecheck",
     "format": "prettier --write .",
