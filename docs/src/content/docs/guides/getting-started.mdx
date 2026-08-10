@@ -25,7 +25,17 @@ poop add honocord
 
 ### Required Dependencies
 
-There shouldn't be any needed peer dependencies, but if there is an issue with that - open an issue.
+Honocord declares `hono` as a peer dependency, so you install it yourself:
+
+```bash
+npm install hono
+pnpm add hono
+yarn add hono
+bun add hono
+```
+
+`hono@^4.13.1` or higher is required. The `@honocord/cache-mongo` adapter has its own peer
+dependency on `mongoose@^9.9.1` — see [Caching](/guides/caching).
 
 ## Discord Application Setup
 
