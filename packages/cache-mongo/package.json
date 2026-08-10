@@ -29,6 +29,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "mongoose": "^9.2.1"
+    "mongoose": "^9.9.1"
   }
 }
