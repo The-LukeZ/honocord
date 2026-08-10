@@ -1,6 +1,6 @@
 {
   "name": "honocord",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": false,
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -45,9 +45,7 @@
     "@discordjs/core": "^2.6.0",
     "@discordjs/rest": "^2.6.3",
     "@honocord/cache-base": "workspace:*",
-    "discord-api-types": "0.38.53",
-    "starlight-contextual-menu": "^0.1.5",
-    "starlight-llms-txt": "^0.11.0"
+    "discord-api-types": "0.38.53"
   },
   "peerDependencies": {
     "hono": "^4.13.1"
