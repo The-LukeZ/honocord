@@ -88,14 +88,26 @@ importers:
   packages/cache-base: {}
 
   packages/cache-do:
+    dependencies:
+      '@honocord/cache-base':
+        specifier: workspace:*
+        version: link:../cache-base
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^5.20260808.1
         version: 5.20260808.1
 
-  packages/cache-memory: {}
+  packages/cache-memory:
+    dependencies:
+      '@honocord/cache-base':
+        specifier: workspace:*
+        version: link:../cache-base
 
   packages/cache-mongo:
+    dependencies:
+      '@honocord/cache-base':
+        specifier: workspace:*
+        version: link:../cache-base
     devDependencies:
       mongoose:
         specifier: ^9.9.1

@@ -26,12 +26,15 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "typecheck": "tsc --noEmit --project tsconfig.typecheck.json"
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "mongoose": "^9.9.1"
   },
   "devDependencies": {
     "mongoose": "^9.9.1"
+  },
+  "dependencies": {
+    "@honocord/cache-base": "workspace:*"
   }
 }

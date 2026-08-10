@@ -26,9 +26,12 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "typecheck": "tsc --noEmit --project tsconfig.typecheck.json"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260808.1"
+  },
+  "dependencies": {
+    "@honocord/cache-base": "workspace:*"
   }
 }
