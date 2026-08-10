@@ -1,5 +1,6 @@
 import { BaseCacheAdapter } from "@honocord/cache-base";
-import { DurableObjectNamespace } from "@cloudflare/workers-types";
+// DurableObjectNamespace / DurableObjectStub come from @cloudflare/workers-types, which is a
+// global ambient declaration file — importing from it breaks .d.ts bundling.
 import type { HonocordCacheDO } from "./do";
 
 export class DurableObjectCacheAdapter extends BaseCacheAdapter {
