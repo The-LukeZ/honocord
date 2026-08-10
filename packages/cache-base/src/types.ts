@@ -8,7 +8,7 @@ export interface CacheOptions {
    * Interval in seconds to clean up expired entries. Default is 60 seconds. Set to 0 or omit to disable automatic cleanup.
    *
    * Should stay between 10 seconds and 1 hour to balance performance and memory usage. Adapters that don't support automatic cleanup will ignore this option.
-   * 
+   *
    * **Supported Adapters**: MemoryCacheAdapter
    */
   cleanupInterval?: number;

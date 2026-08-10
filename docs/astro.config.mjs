@@ -99,8 +99,8 @@ export default defineConfig({
           link: "/llms.txt",
           badge: {
             text: "New",
-            variant: "tip"
-          }
+            variant: "tip",
+          },
         },
         {
           label: "Built With Honocord",

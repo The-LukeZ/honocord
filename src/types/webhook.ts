@@ -31,5 +31,4 @@ export type WebhookEventHandlerFnForWorkers<
 > = (c: ContextWithData) => Promise<any> | any;
 
 export type WebhookEventHandlerFn<Data extends APIWebhookEventPayload, Env extends BlankEnv, Variables extends { data: Data }> =
-  | WebhookEventHandlerFnForWorkers<Data, Env, Variables>
-  | WebhookEventHandlerFnWithRequest<Data, Env, Variables>;
+  WebhookEventHandlerFnForWorkers<Data, Env, Variables> | WebhookEventHandlerFnWithRequest<Data, Env, Variables>;

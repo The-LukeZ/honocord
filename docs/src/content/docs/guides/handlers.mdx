@@ -207,6 +207,7 @@ messageHandler.addHandler(async (c) => {
 ### Worker Mode (Cloudflare Workers)
 
 For Cloudflare Workers, set the second constructor parameter to `true`. In worker mode:
+
 - No return value is required from your handler
 - Honocord automatically responds with `200 OK` to Discord
 - Processing happens asynchronously via `waitUntil`, extending the worker's lifetime
@@ -222,7 +223,7 @@ const messageHandler = new WebhookEventHandler(
 messageHandler.addHandler(async (c) => {
   const message = c.var.data;
   console.log(`Processing message: ${message.content}`);
-  
+
   // No return needed - Honocord handles the response
   // Your code runs asynchronously via waitUntil
 });
@@ -230,14 +231,14 @@ messageHandler.addHandler(async (c) => {
 
 ### Webhook vs Interactions
 
-| Feature          | Interactions                           | Webhooks                                     |
-| ---------------- | -------------------------------------- | -------------------------------------------- |
-| **Trigger**      | User actions (slash commands, buttons) | Discord events (entitlements, lobby messages) |
-| **Response**     | Required within 3 seconds              | Must respond within 3 seconds (204 or 200)   |
-| **Reply Method** | `interaction.reply()`                  | Use REST API separately                      |
-| **Route**        | `/` or `/interactions`                 | `/webhook`                                   |
+| Feature          | Interactions                           | Webhooks                                       |
+| ---------------- | -------------------------------------- | ---------------------------------------------- |
+| **Trigger**      | User actions (slash commands, buttons) | Discord events (entitlements, lobby messages)  |
+| **Response**     | Required within 3 seconds              | Must respond within 3 seconds (204 or 200)     |
+| **Reply Method** | `interaction.reply()`                  | Use REST API separately                        |
+| **Route**        | `/` or `/interactions`                 | `/webhook`                                     |
 | **Setup**        | Interactions Endpoint URL              | Webhook Events URL in Discord Developer Portal |
-| **CF Workers**   | Async via `waitUntil`                  | Async via `waitUntil` (worker mode)          |
+| **CF Workers**   | Async via `waitUntil`                  | Async via `waitUntil` (worker mode)            |
 
 ### Webhook Handler Setup
 
@@ -259,11 +260,9 @@ export default bot.getApp();
 ```
 
 <Aside type="tip">
-On Cloudflare Workers, webhook events are processed asynchronously using `waitUntil`. This means:
-- Discord receives an immediate `200 OK` response
-- Your handler code runs in the background
-- The worker's lifetime is extended to complete processing
-- Prevents timeouts for slow operations (API calls, database writes)
+  On Cloudflare Workers, webhook events are processed asynchronously using `waitUntil`. This means: - Discord receives an
+  immediate `200 OK` response - Your handler code runs in the background - The worker's lifetime is extended to complete
+  processing - Prevents timeouts for slow operations (API calls, database writes)
 </Aside>
 
 ### Standalone Webhook Handlers
@@ -283,7 +282,7 @@ const handler = new WebhookEventHandler(
 handler.addHandler(async (c) => {
   const entitlement = c.var.data;
   console.log(`New entitlement: ${entitlement.id}`);
-  
+
   // Must return Response in standard mode
   return c.json({ ok: true });
 });
@@ -300,7 +299,8 @@ export default app;
 ```
 
 <Aside type="caution">
-Worker mode handlers (`forWorker: true`) cannot use `fetch()` or `getApp()` because they don't return Response objects. Use them with Honocord's `webhookHandler` instead.
+  Worker mode handlers (`forWorker: true`) cannot use `fetch()` or `getApp()` because they don't return Response objects. Use them
+  with Honocord's `webhookHandler` instead.
 </Aside>
 
 ### Available Webhook Events

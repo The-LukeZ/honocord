@@ -1,56 +1,56 @@
 name: Release
 
 on:
-    push:
-        branches:
-            - main
+  push:
+    branches:
+      - main
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
-    contents: write # to create git tags and GitHub Releases
-    pull-requests: write # to open and update the "Version Packages" PR
-    id-token: write # for npm provenance
+  contents: write # to create git tags and GitHub Releases
+  pull-requests: write # to open and update the "Version Packages" PR
+  id-token: write # for npm provenance
 
 jobs:
-    release:
-        name: Release
-        runs-on: ubuntu-24.04
-        permissions:
-            contents: write # to create git tags and GitHub Releases
-            pull-requests: write # to open and update the "Version Packages" PR
-            id-token: write # for npm provenance
+  release:
+    name: Release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # to create git tags and GitHub Releases
+      pull-requests: write # to open and update the "Version Packages" PR
+      id-token: write # for npm provenance
 
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v6
-              with:
-                  # Fetch full history so Changesets can diff against previous tags
-                  fetch-depth: 0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          # Fetch full history so Changesets can diff against previous tags
+          fetch-depth: 0
 
-            - name: Setup pnpm
-              uses: pnpm/setup@v2
-              with:
-                  version: 11
-                  runtime: node@24
-                  cache: true
-                  install: false
+      - name: Setup pnpm
+        uses: pnpm/setup@v2
+        with:
+          version: 11
+          runtime: node@24
+          cache: true
+          install: false
 
-            - name: Install dependencies
-              run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-            - name: Build packages
-              run: pnpm build
+      - name: Build packages
+        run: pnpm build
 
-            - name: Create release PR or publish to npm
-              uses: changesets/action@v1
-              with:
-                  publish: pnpm changeset publish --access public
-                  version: pnpm changeset version
-                  commit: "chore: version packages"
-                  title: "chore: version packages"
-                  createGithubReleases: true
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create release PR or publish to npm
+        uses: changesets/action@v1
+        with:
+          publish: pnpm changeset publish --access public
+          version: pnpm changeset version
+          commit: "chore: version packages"
+          title: "chore: version packages"
+          createGithubReleases: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

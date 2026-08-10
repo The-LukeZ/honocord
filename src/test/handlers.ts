@@ -46,58 +46,58 @@ const buttonHandler = new ComponentHandler<MyContext, ComponentType.Button>("tes
 
 buttonHandler.addHandler(async (ctx) => {
   console.log("Button clicked with custom ID:", ctx.customId);
-const modalData: ModalInteractionResponseCallbackData = {
-  title: "Test Modal",
-  custom_id: "test_modal",
-  components: [
-    {
-      type: ComponentType.Label,
-      label: "This is a label",
-      component: {
-        type: ComponentType.Checkbox,
-        custom_id: "checkbox_1",
+  const modalData: ModalInteractionResponseCallbackData = {
+    title: "Test Modal",
+    custom_id: "test_modal",
+    components: [
+      {
+        type: ComponentType.Label,
+        label: "This is a label",
+        component: {
+          type: ComponentType.Checkbox,
+          custom_id: "checkbox_1",
+        },
       },
-    },
-    {
-      type: ComponentType.Label,
-      label: "This is a text input",
-      component: {
-        type: ComponentType.CheckboxGroup,
-        custom_id: "checkbox_group_1",
-        options: [
-          {
-            label: "Option 1",
-            description: "This is option 1",
-            value: "option_1",
-          },
-          {
-            label: "Option 2",
-            value: "option_2",
-          },
-        ],
+      {
+        type: ComponentType.Label,
+        label: "This is a text input",
+        component: {
+          type: ComponentType.CheckboxGroup,
+          custom_id: "checkbox_group_1",
+          options: [
+            {
+              label: "Option 1",
+              description: "This is option 1",
+              value: "option_1",
+            },
+            {
+              label: "Option 2",
+              value: "option_2",
+            },
+          ],
+        },
       },
-    },
-    {
-      type: ComponentType.Label,
-      label: "This is a select menu",
-      component: {
-        type: ComponentType.RadioGroup,
-        custom_id: "radio_group_1",
-        options: [
-          {
-            label: "Option A",
-            description: "This is option A",
-            value: "option_a",
-          },
-          {
-            label: "Option B",
-            value: "option_b",
-          },
-        ],
+      {
+        type: ComponentType.Label,
+        label: "This is a select menu",
+        component: {
+          type: ComponentType.RadioGroup,
+          custom_id: "radio_group_1",
+          options: [
+            {
+              label: "Option A",
+              description: "This is option A",
+              value: "option_a",
+            },
+            {
+              label: "Option B",
+              value: "option_b",
+            },
+          ],
+        },
       },
-    },
-  ],
-};
+    ],
+  };
 
   ctx.showModal(modalData);
 });

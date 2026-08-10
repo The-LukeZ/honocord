@@ -162,8 +162,7 @@ export class SlashCommandHandler<Context extends BaseInteractionContext = BaseIn
 
   addSubcommandGroup(
     input:
-      | SlashCommandSubcommandGroupBuilder
-      | ((group: SlashCommandSubcommandGroupBuilder) => SlashCommandSubcommandGroupBuilder)
+      SlashCommandSubcommandGroupBuilder | ((group: SlashCommandSubcommandGroupBuilder) => SlashCommandSubcommandGroupBuilder)
   ): this {
     super.addSubcommandGroup(input);
     return this;
