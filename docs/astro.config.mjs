@@ -3,7 +3,8 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightCatppuccin from "@catppuccin/starlight";
 import mermaid from "astro-mermaid";
-import starlightImageZoom from "starlight-image-zoom";
+// Disabled: starlight-image-zoom does not support the current Starlight version.
+// import starlightImageZoom from "starlight-image-zoom";
 import starlightLlmsTxt from "starlight-llms-txt";
 import starlightContextualMenu from "starlight-contextual-menu";
 
@@ -53,7 +54,7 @@ export default defineConfig({
         starlightContextualMenu({
           actions: ["copy", "view", "claude", "chatgpt", "lechat"],
         }),
-        starlightImageZoom({ showCaptions: false }),
+        // starlightImageZoom({ showCaptions: false }),
         starlightCatppuccin({
           dark: {
             flavor: "mocha",
