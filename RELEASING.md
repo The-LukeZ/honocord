@@ -5,7 +5,7 @@ Packages are versioned independently — a change to one package does not bump o
 
 ## Packages
 
-- `src`
+- `.`
 - `packages/*`
 
 ---
@@ -64,6 +64,12 @@ The PR will:
 You can keep merging feature PRs — the "Version Packages" PR will update itself each time, batching all pending changesets together.
 
 ### If there are no pending changesets → does nothing
+
+### The `changeset-release/main` branch
+
+This branch is **fully managed by the Action** — never push to it manually.
+
+When the Action detects pending changesets, it creates or force-updates `changeset-release/main` with the version bumps already applied and opens (or updates) a "Version Packages" PR. The branch will be stale between releases; once you push new changesets, the Action refreshes it automatically.
 
 ---
 
