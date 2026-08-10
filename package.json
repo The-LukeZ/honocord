@@ -40,20 +40,23 @@
   "packageManager": "pnpm@11.21.0",
   "type": "module",
   "dependencies": {
-    "@cloudflare/workers-types": "^5.20260808.1",
     "@discordjs/builders": "^1.14.1",
     "@discordjs/collection": "^2.1.1",
     "@discordjs/core": "^2.6.0",
     "@discordjs/rest": "^2.6.3",
     "@honocord/cache-base": "workspace:*",
     "discord-api-types": "0.38.53",
-    "hono": "^4.13.1",
     "starlight-contextual-menu": "^0.1.5",
     "starlight-llms-txt": "^0.11.0"
   },
+  "peerDependencies": {
+    "hono": "^4.13.1"
+  },
   "devDependencies": {
     "@changesets/cli": "^2.31.1",
+    "@cloudflare/workers-types": "^5.20260808.1",
     "@types/node": "^26.2.0",
+    "hono": "^4.13.1",
     "prettier": "^3.9.6",
     "tsdown": "0.22.14",
     "typescript": "^7.0.2",

@@ -8,3 +8,7 @@ ignoreWorkspaceRootCheck: true
 allowBuilds:
   esbuild: true
   sharp: true
+
+peerDependencyRules:
+  allowedVersions:
+    starlight-contextual-menu>astro: "7"

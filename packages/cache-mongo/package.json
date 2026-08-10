@@ -28,7 +28,10 @@
     "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
+  "peerDependencies": {
+    "mongoose": "^9.9.1"
+  },
+  "devDependencies": {
     "mongoose": "^9.9.1"
   }
 }

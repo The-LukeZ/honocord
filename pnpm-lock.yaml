@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@cloudflare/workers-types':
-        specifier: ^5.20260808.1
-        version: 5.20260808.1
       '@discordjs/builders':
         specifier: ^1.14.1
         version: 1.14.1
@@ -29,9 +26,6 @@ importers:
       discord-api-types:
         specifier: 0.38.53
         version: 0.38.53
-      hono:
-        specifier: ^4.13.1
-        version: 4.13.1
       starlight-contextual-menu:
         specifier: ^0.1.5
         version: 0.1.5(starlight-markdown@0.1.5)
@@ -42,9 +36,15 @@ importers:
       '@changesets/cli':
         specifier: ^2.31.1
         version: 2.31.1(@types/node@26.2.0)
+      '@cloudflare/workers-types':
+        specifier: ^5.20260808.1
+        version: 5.20260808.1
       '@types/node':
         specifier: ^26.2.0
         version: 26.2.0
+      hono:
+        specifier: ^4.13.1
+        version: 4.13.1
       prettier:
         specifier: ^3.9.6
         version: 3.9.6
@@ -96,7 +96,7 @@ importers:
   packages/cache-memory: {}
 
   packages/cache-mongo:
-    dependencies:
+    devDependencies:
       mongoose:
         specifier: ^9.9.1
         version: 9.9.1
