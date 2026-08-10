@@ -17,7 +17,7 @@ permissions:
 jobs:
     release:
         name: Release
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         permissions:
             contents: write # to create git tags and GitHub Releases
             pull-requests: write # to open and update the "Version Packages" PR
@@ -31,14 +31,12 @@ jobs:
                   fetch-depth: 0
 
             - name: Setup pnpm
-              uses: pnpm/action-setup@v3
-
-            - name: Setup Node.js
-              uses: actions/setup-node@v6
+              uses: pnpm/setup@v2
               with:
-                  node-version: 24
-                  cache: pnpm
-                  registry-url: "https://registry.npmjs.org"
+                  version: 11
+                  runtime: node@24
+                  cache: true
+                  install: false
 
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
