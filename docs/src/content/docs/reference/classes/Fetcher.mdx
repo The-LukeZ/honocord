@@ -39,6 +39,12 @@ Fetches a user by ID. Returns the cached value if available, otherwise fetches f
 
 Fetches a channel by ID. Returns the cached value if available, otherwise fetches from Discord and caches the result.
 
+### `dmChannels`
+
+###### `get(userId: string): Promise<CachedDMChannel>`
+
+Fetches a DM channel for a user. Returns the cached value if available, otherwise creates a new DM channel via Discord and caches the result.
+
 ### `guilds`
 
 ###### `get(guildId: string): Promise<APIGuild>`

@@ -42,7 +42,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build packages
-        run: pnpm build
+        run: pnpm build:all
 
       - name: Create release PR or publish to npm
         uses: changesets/action@v1

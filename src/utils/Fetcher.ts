@@ -1,6 +1,6 @@
 import { API } from "@discordjs/core/http-only";
 import { CacheManager } from "./CacheManager";
-import type { APIGuild, APIGuildMember, APIRole, APIUser } from "discord-api-types/v10";
+import type { APIGuild, APIGuildMember, APIRole, APIUser, ChannelType } from "discord-api-types/v10";
 import type { CachedChannel, CachedGuildMember } from "$types/caching";
 
 export class Fetcher {
@@ -46,6 +46,15 @@ export class Fetcher {
         () => this.cache?.channels.get(channelId) ?? Promise.resolve(null),
         (channel) => this.cache!.channels.set(channel),
         () => this.api.channels.get(channelId) as Promise<CachedChannel>
+      ),
+  };
+
+  readonly dmChannels = {
+    get: (userId: string): Promise<Extract<CachedChannel, { type: ChannelType.DM | ChannelType.GroupDM }>> =>
+      this.fetchAndCache(
+        () => this.cache?.getDMChannel(userId) ?? Promise.resolve(null),
+        (channel) => this.cache!.setDMChannel(userId, channel),
+        () => this.api.users.createDM(userId) as Promise<Extract<CachedChannel, { type: ChannelType.DM | ChannelType.GroupDM }>>
       ),
   };
 
