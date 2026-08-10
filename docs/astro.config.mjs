@@ -92,15 +92,11 @@ export default defineConfig({
       sidebar: [
         {
           label: "Guides",
-          autogenerate: { directory: "guides" },
+          items: [{ autogenerate: { directory: "guides" } }],
         },
         {
           label: "For LLMs",
           link: "/llms.txt",
-          badge: {
-            text: "New",
-            variant: "tip",
-          },
         },
         {
           label: "Built With Honocord",
@@ -109,10 +105,10 @@ export default defineConfig({
         {
           label: "Reference",
           items: [
-            { label: "Classes", autogenerate: { directory: "reference/classes" } },
-            { label: "Functions", autogenerate: { directory: "reference/functions" } },
-            { label: "Constants", autogenerate: { directory: "reference/constants" } },
-            { label: "Types", autogenerate: { directory: "reference/types" } },
+            { label: "Classes", items: [{ autogenerate: { directory: "reference/classes" } }] },
+            { label: "Functions", items: [{ autogenerate: { directory: "reference/functions" } }] },
+            { label: "Constants", items: [{ autogenerate: { directory: "reference/constants" } }] },
+            { label: "Types", items: [{ autogenerate: { directory: "reference/types" } }] },
           ],
           collapsed: true,
         },
