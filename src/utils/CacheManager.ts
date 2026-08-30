@@ -1,3 +1,6 @@
+import { CachedChannel, CachedGuildMember, CacheNamespace, MemberNamespaceAccessor, NamespaceAccessor } from "$types/caching";
+import { ValidInteraction } from "$types/interactions";
+import type { BaseCacheAdapter } from "@honocord/cache-base";
 import {
   APIInteractionDataResolved,
   APIMessageApplicationCommandInteractionDataResolved,
@@ -10,9 +13,6 @@ import {
   type APIRole,
   type APIUser,
 } from "discord-api-types/v10";
-import type { BaseCacheAdapter } from "@honocord/cache-base";
-import { ValidInteraction } from "$types/interactions";
-import { CachedChannel, CachedGuildMember, CacheNamespace, MemberNamespaceAccessor, NamespaceAccessor } from "$types/caching";
 
 function key(ns: CacheNamespace, ...parts: string[]): string {
   return `${ns}:${parts.join(":")}`;
@@ -79,6 +79,15 @@ export class CacheManager {
     return roles.filter(Boolean) as APIRole[];
   }
 
+  async setGuildRoles(guildId: string, roles: APIRole[]): Promise<void> {
+    await this.adapter.set(
+      key("guild-roles", guildId),
+      roles.map((role) => role.id),
+      this.defaultTtlMs
+    );
+    await this.roles.mset(roles.map((role) => ({ value: role })));
+  }
+
   async getDMChannel(
     userId: string
   ): Promise<Extract<CachedChannel, { type: ChannelType.DM | ChannelType.GroupDM }> | undefined> {
@@ -93,15 +102,6 @@ export class CacheManager {
   async setDMChannel(userId: string, channel: CachedChannel, ttlMs?: number): Promise<void> {
     await this.channels.set(channel, ttlMs);
     await this.adapter.set(key("dm-channel", userId), channel.id, ttlMs ?? this.defaultTtlMs);
-  }
-
-  private async addRolesToGuild(guildId: string, roleIds: string[]): Promise<void> {
-    if (!roleIds.length) return;
-    const existing = (await this.adapter.get<string[]>(key("guild-roles", guildId))) ?? [];
-    const toAdd = roleIds.filter((id) => !existing.includes(id));
-    if (toAdd.length) {
-      await this.adapter.set(key("guild-roles", guildId), [...existing, ...toAdd], this.defaultTtlMs);
-    }
   }
 
   populate(i: ValidInteraction) {
@@ -131,14 +131,7 @@ export class CacheManager {
         await this.users.mset(Object.values(resolved.users).map((user) => ({ value: user })));
       }
       if ("roles" in resolved && resolved.roles) {
-        const roles = Object.values(resolved.roles);
-        await this.roles.mset(roles.map((role) => ({ value: role })));
-        if (guildId) {
-          await this.addRolesToGuild(
-            guildId,
-            roles.map((r) => r.id)
-          );
-        }
+        await this.roles.mset(Object.values(resolved.roles).map((role) => ({ value: role })));
       }
       if ("members" in resolved && resolved.members && guildId) {
         // We need the guildId to cache members, but it's not included in the resolved data. We can only cache the member if we also have the user object, which includes the ID.

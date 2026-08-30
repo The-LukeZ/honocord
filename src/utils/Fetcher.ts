@@ -1,7 +1,7 @@
-import { API } from "@discordjs/core/http-only";
-import { CacheManager } from "./CacheManager";
-import type { APIGuild, APIGuildMember, APIRole, APIUser, ChannelType } from "discord-api-types/v10";
 import type { CachedChannel, CachedGuildMember } from "$types/caching";
+import { API } from "@discordjs/core/http-only";
+import type { APIGuild, APIGuildMember, APIRole, APIUser, ChannelType } from "discord-api-types/v10";
+import { CacheManager } from "./CacheManager";
 
 export class Fetcher {
   constructor(
@@ -77,15 +77,13 @@ export class Fetcher {
           return roles.find((r) => r.id === roleId)!;
         }
       ),
-    list: (guildId: string): Promise<APIRole[]> =>
-      this.fetchAndCache(
-        () => this.cache?.getGuildRoles(guildId) ?? Promise.resolve(null),
-        async (roles) => {
-          if (!this.cache) return;
-          await this.cache.roles.mset(roles.map((r) => ({ value: r })));
-        },
-        () => this.api.guilds.getRoles(guildId)
-      ),
+    list: async (guildId: string): Promise<APIRole[]> => {
+      const roles = await this.api.guilds.getRoles(guildId);
+      if (this.cache) {
+        await this.cache.setGuildRoles(guildId, roles);
+      }
+      return roles;
+    },
   };
 
   readonly members = {
