@@ -36,7 +36,7 @@
   ],
   "author": "The-LukeZ",
   "license": "MIT",
-  "packageManager": "pnpm@11.21.0",
+  "packageManager": "pnpm@11.24.0",
   "type": "module",
   "dependencies": {
     "@discordjs/builders": "^1.14.1",
