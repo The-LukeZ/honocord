@@ -161,6 +161,8 @@ const adminCommand = new SlashCommandHandler()
   });
 ```
 
+Need to handle commands whose name isn't known at load time (e.g. per-guild custom commands)? See the [Dynamic Commands](/guides/dynamic-commands) guide.
+
 ## Loading Handlers
 
 Finally, you must load your handlers into the `Honocord` instance for them to be processed.

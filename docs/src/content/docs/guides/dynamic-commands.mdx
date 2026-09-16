@@ -1,0 +1,113 @@
+---
+title: Dynamic Commands
+description: Handle application commands whose name isn't known ahead of time, using Honocord's dynamic handlers.
+sidebar:
+  order: 4.5
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+`SlashCommandHandler` and `ContextCommandHandler` require a fixed `name` set at load time. That works for commands your bot code defines up front, but not for commands whose name is only known at runtime — for example, per-guild custom commands stored in a database, where the application command is registered with Discord but Honocord has no matching named handler for it.
+
+Honocord's **dynamic handlers** catch exactly this case. They're fallback handlers with no name of their own — instead of being looked up by name, one is invoked whenever an incoming application command interaction doesn't match any registered `SlashCommandHandler` or `ContextCommandHandler`.
+
+## When They Fire
+
+For every application command interaction, Honocord first checks the normal handler registry (global commands, then guild-specific commands by name). Only if **nothing matches** does it fall back to a dynamic handler.
+
+Which dynamic handler runs depends on the interaction's scope:
+
+- **Invoked in a guild** (`guild_id` present): the guild-scoped dynamic handler is tried first. If none is registered, Honocord falls back to the global-scoped one.
+- **Invoked in a DM** (no `guild_id`): only the global-scoped dynamic handler is ever tried.
+
+This mirrors the fact that Discord's interaction payload doesn't tell you whether a command was originally registered as guild- or global-scoped — only where it was invoked.
+
+<Aside type="note">
+  Only **one instance** of each dynamic handler class may be registered per `Honocord` instance. Loading a second one for the same
+  class logs a warning and overwrites the first.
+</Aside>
+
+## The Four Classes
+
+| Class                                | Catches                                                                 |
+| ------------------------------------ | ----------------------------------------------------------------------- |
+| `DynamicGuildSlashCommandHandler`    | Unmatched chat input commands invoked in a guild                        |
+| `DynamicGlobalSlashCommandHandler`   | Unmatched chat input commands invoked in a DM, or as fallback           |
+| `DynamicGuildContextCommandHandler`  | Unmatched User/Message context commands invoked in a guild              |
+| `DynamicGlobalContextCommandHandler` | Unmatched User/Message context commands invoked in a DM, or as fallback |
+
+Unlike `SlashCommandHandler`/`ContextCommandHandler`, these classes don't extend a Discord builder — there's no `.setName()` or `.setDescription()`, since the command is expected to be registered with Discord elsewhere (e.g. by your own admin flow that creates per-guild custom commands via the REST API directly).
+
+## Slash Commands
+
+```ts
+import { DynamicGuildSlashCommandHandler } from "honocord";
+
+const customCommand = new DynamicGuildSlashCommandHandler().addHandler(async (ctx) => {
+  // ctx.commandName is the name Discord sent, unknown to Honocord ahead of time
+  const definition = await db.customCommands.findOne({ guildId: ctx.guildId, name: ctx.commandName });
+
+  if (!definition) {
+    // reply() is ephemeral by default
+    await ctx.reply("This command is no longer configured.");
+    return;
+  }
+
+  await ctx.reply(definition.response);
+});
+```
+
+### Autocomplete
+
+Dynamic slash handlers support autocomplete the same way `SlashCommandHandler` does:
+
+```ts
+customCommand.addAutocompleteHandler(async (ctx) => {
+  const focused = ctx.options.getFocused();
+  const results = await db.customCommandOptions.search(ctx.commandName, focused.value);
+  await ctx.respond(results.map((r) => ({ name: r, value: r })));
+});
+```
+
+## Context Menu Commands
+
+A single dynamic context handler receives **both** User and Message context interactions — narrow with `isOfType`:
+
+```ts
+import { DynamicGuildContextCommandHandler } from "honocord";
+import { ApplicationCommandType } from "discord-api-types/v10";
+
+const customContextCommand = new DynamicGuildContextCommandHandler().addHandler(async (ctx) => {
+  if (ctx.isOfType(ApplicationCommandType.User)) {
+    await ctx.reply(`Ran on user ${ctx.targetUser.username}`);
+  } else if (ctx.isOfType(ApplicationCommandType.Message)) {
+    await ctx.reply(`Ran on message ${ctx.targetMessage.id}`);
+  }
+});
+```
+
+## Global Fallback
+
+Register a global dynamic handler to catch anything the guild-scoped one (or a DM invocation) doesn't:
+
+```ts
+import { DynamicGlobalSlashCommandHandler } from "honocord";
+
+const globalFallback = new DynamicGlobalSlashCommandHandler().addHandler(async (ctx) => {
+  console.warn(`Unrecognized command "${ctx.commandName}"`);
+  await ctx.reply("This command isn't available right now.");
+});
+```
+
+## Loading
+
+Load dynamic handlers like any other handler:
+
+```ts
+bot.loadHandlers(customCommand, customContextCommand, globalFallback);
+```
+
+<Aside type="tip">
+  A dynamic handler being registered is enough on its own to mount the interactions route — you don't need at least one named
+  `SlashCommandHandler`/`ContextCommandHandler` loaded too.
+</Aside>

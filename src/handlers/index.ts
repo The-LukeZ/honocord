@@ -5,6 +5,9 @@ export { ComponentHandler } from "./ComponentHandler";
 export { ModalHandler } from "./ModalHandler";
 export { WebhookEventHandler } from "./WebhookEventHandler";
 export type { BlankVariables } from "./WebhookEventHandler";
+export { DynamicGuildSlashCommandHandler, DynamicGlobalSlashCommandHandler } from "./DynamicSlashCommandHandler";
+export { DynamicGuildContextCommandHandler, DynamicGlobalContextCommandHandler } from "./DynamicContextCommandHandler";
+export type { DynamicContextInteraction } from "./DynamicContextCommandHandler";
 
 // Import types needed for handler type definitions
 import type { SlashCommandHandler } from "./SlashCommandHandler";
@@ -16,6 +19,8 @@ import type { MessageContextInteraction } from "@ctx/MessageContextCommandIntera
 import type { UserContextInteraction } from "@ctx/UserContextCommandInteraction";
 import type { ApplicationWebhookEventType, BaseInteractionContext, ContextCommandType } from "../types";
 import { WebhookEventHandler } from "./WebhookEventHandler";
+import type { DynamicGuildSlashCommandHandler, DynamicGlobalSlashCommandHandler } from "./DynamicSlashCommandHandler";
+import type { DynamicGuildContextCommandHandler, DynamicGlobalContextCommandHandler } from "./DynamicContextCommandHandler";
 
 /**
  * Union type of all possible handlers
@@ -31,7 +36,11 @@ export type Handler<Context extends BaseInteractionContext = BaseInteractionCont
   | ComponentHandler<Context, ComponentType.MentionableSelect>
   | ComponentHandler<Context, ComponentType.ChannelSelect>
   | ModalHandler<Context>
-  | WebhookEventHandler<ApplicationWebhookEventType, Context["env"], Context["var"], boolean, any>;
+  | WebhookEventHandler<ApplicationWebhookEventType, Context["env"], Context["var"], boolean, any>
+  | DynamicGuildSlashCommandHandler<Context>
+  | DynamicGlobalSlashCommandHandler<Context>
+  | DynamicGuildContextCommandHandler<Context>
+  | DynamicGlobalContextCommandHandler<Context>;
 
 /**
  * Helper type to allow handlers with any context extending BaseInteractionContext
