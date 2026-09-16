@@ -37,6 +37,10 @@ import {
   type Handler,
   type AnyHandler,
   WebhookEventHandler,
+  DynamicGuildSlashCommandHandler,
+  DynamicGlobalSlashCommandHandler,
+  DynamicGuildContextCommandHandler,
+  DynamicGlobalContextCommandHandler,
 } from "@handlers/index";
 import { ButtonInteraction } from "@ctx/ButtonInteraction";
 import { StringSelectInteraction } from "@ctx/StringSelectInteraction";
@@ -90,6 +94,14 @@ export class Honocord {
   private guildCommandHandlers = new Map<string, SlashCommandHandler | ContextCommandHandler>();
   private componentHandlers = new Map<string, ComponentHandler>();
   private modalHandlers = new Map<string, ModalHandler>();
+  /**
+   * Fallback handlers used when no specific named handler matches an application command
+   * interaction. At most one of each is allowed per `Honocord` instance.
+   */
+  private dynamicGuildSlashHandler?: DynamicGuildSlashCommandHandler;
+  private dynamicGlobalSlashHandler?: DynamicGlobalSlashCommandHandler;
+  private dynamicGuildContextHandler?: DynamicGuildContextCommandHandler;
+  private dynamicGlobalContextHandler?: DynamicGlobalContextCommandHandler;
   private middleware = new Array<MiddlewareFunction<any>>();
   private webhookHandlers = new Map<ApplicationWebhookEventType, WebhookEventHandler<any>>();
   private isCFWorker: boolean;
@@ -140,40 +152,83 @@ export class Honocord {
 
     for (const handler of flattenedHandlers) {
       if (handler instanceof SlashCommandHandler || handler instanceof ContextCommandHandler) {
-        if (handler.isGuildCommand()) {
-          for (const guildId of handler.guildIds.values()) {
-            const key = `${guildId}:${handler.name}`;
-            if (this.guildCommandHandlers.has(key)) {
-              console.warn(`Guild command handler for "${handler.name}" in guild "${guildId}" already exists. Overwriting.`);
-            }
-            this.guildCommandHandlers.set(key, handler as SlashCommandHandler | ContextCommandHandler);
-          }
-          continue;
-        }
-
-        if (this.globalCommandHandlers.has(handler.name)) {
-          console.warn(`Command handler for "${handler.name}" already exists. Overwriting.`);
-        }
-        this.globalCommandHandlers.set(handler.name, handler as SlashCommandHandler | ContextCommandHandler);
+        this.registerCommandHandler(handler);
       } else if (handler instanceof ComponentHandler) {
-        const prefix = handler.prefix;
-        if (this.componentHandlers.has(prefix)) {
-          console.warn(`Component handler with prefix "${prefix}" already exists. Overwriting.`);
-        }
-        this.componentHandlers.set(prefix, handler as ComponentHandler<any>);
+        this.registerComponentHandler(handler);
       } else if (handler instanceof ModalHandler) {
-        const prefix = handler.prefix;
-        if (this.modalHandlers.has(prefix)) {
-          console.warn(`Modal handler with prefix "${prefix}" already exists. Overwriting.`);
-        }
-        this.modalHandlers.set(prefix, handler);
+        this.registerModalHandler(handler);
       } else if (handler instanceof WebhookEventHandler) {
-        if (this.webhookHandlers.has(handler.eventType)) {
-          console.warn(`Webhook handler for event type "${handler.eventType}" already exists. Overwriting.`);
-        }
-        this.webhookHandlers.set(handler.eventType, handler);
+        this.registerWebhookHandler(handler);
+      } else if (handler instanceof DynamicGuildSlashCommandHandler) {
+        this.registerDynamicHandler("dynamicGuildSlashHandler", handler, "Dynamic guild slash command handler");
+      } else if (handler instanceof DynamicGlobalSlashCommandHandler) {
+        this.registerDynamicHandler("dynamicGlobalSlashHandler", handler, "Dynamic global slash command handler");
+      } else if (handler instanceof DynamicGuildContextCommandHandler) {
+        this.registerDynamicHandler("dynamicGuildContextHandler", handler, "Dynamic guild context command handler");
+      } else if (handler instanceof DynamicGlobalContextCommandHandler) {
+        this.registerDynamicHandler("dynamicGlobalContextHandler", handler, "Dynamic global context command handler");
       }
     }
+  }
+
+  private registerCommandHandler(handler: SlashCommandHandler<any> | ContextCommandHandler<any, any, any>): void {
+    if (handler.isGuildCommand()) {
+      for (const guildId of handler.guildIds.values()) {
+        const key = `${guildId}:${handler.name}`;
+        if (this.guildCommandHandlers.has(key)) {
+          console.warn(`Guild command handler for "${handler.name}" in guild "${guildId}" already exists. Overwriting.`);
+        }
+        this.guildCommandHandlers.set(key, handler);
+      }
+      return;
+    }
+
+    if (this.globalCommandHandlers.has(handler.name)) {
+      console.warn(`Command handler for "${handler.name}" already exists. Overwriting.`);
+    }
+    this.globalCommandHandlers.set(handler.name, handler);
+  }
+
+  private registerComponentHandler(handler: ComponentHandler<any, any>): void {
+    const prefix = handler.prefix;
+    if (this.componentHandlers.has(prefix)) {
+      console.warn(`Component handler with prefix "${prefix}" already exists. Overwriting.`);
+    }
+    this.componentHandlers.set(prefix, handler);
+  }
+
+  private registerModalHandler(handler: ModalHandler): void {
+    const prefix = handler.prefix;
+    if (this.modalHandlers.has(prefix)) {
+      console.warn(`Modal handler with prefix "${prefix}" already exists. Overwriting.`);
+    }
+    this.modalHandlers.set(prefix, handler);
+  }
+
+  private registerWebhookHandler(handler: WebhookEventHandler<any>): void {
+    if (this.webhookHandlers.has(handler.eventType)) {
+      console.warn(`Webhook handler for event type "${handler.eventType}" already exists. Overwriting.`);
+    }
+    this.webhookHandlers.set(handler.eventType, handler);
+  }
+
+  /**
+   * Registers a fallback (dynamic) command handler onto one of the four dedicated slots,
+   * warning if that slot is already occupied.
+   */
+  private registerDynamicHandler(
+    prop: "dynamicGuildSlashHandler" | "dynamicGlobalSlashHandler" | "dynamicGuildContextHandler" | "dynamicGlobalContextHandler",
+    handler:
+      | DynamicGuildSlashCommandHandler
+      | DynamicGlobalSlashCommandHandler
+      | DynamicGuildContextCommandHandler
+      | DynamicGlobalContextCommandHandler,
+    label: string
+  ): void {
+    if (this[prop]) {
+      console.warn(`${label} already exists. Overwriting.`);
+    }
+    (this[prop] as typeof handler) = handler;
   }
 
   private createCommandInteraction(ctx: BaseInteractionContext, interaction: APIApplicationCommandInteraction, api: API) {
@@ -207,18 +262,61 @@ export class Honocord {
     }
   }
 
+  /**
+   * Resolves the dynamic (fallback) command handler for an unmatched application command
+   * interaction. When invoked inside a guild, the guild-scoped dynamic handler is tried
+   * first, falling back to the global one. DM invocations only ever reach the global one.
+   */
+  private resolveDynamicCommandHandler(commandType: ApplicationCommandType, guildId?: string) {
+    if (commandType === ApplicationCommandType.ChatInput) {
+      if (guildId && this.dynamicGuildSlashHandler) return this.dynamicGuildSlashHandler;
+      return this.dynamicGlobalSlashHandler;
+    }
+    if (commandType === ApplicationCommandType.User || commandType === ApplicationCommandType.Message) {
+      if (guildId && this.dynamicGuildContextHandler) return this.dynamicGuildContextHandler;
+      return this.dynamicGlobalContextHandler;
+    }
+    return undefined;
+  }
+
+  private executeDynamicCommandHandler(
+    handler:
+      | DynamicGuildSlashCommandHandler
+      | DynamicGlobalSlashCommandHandler
+      | DynamicGuildContextCommandHandler
+      | DynamicGlobalContextCommandHandler,
+    interactionObj: ReturnType<typeof this.createCommandInteraction>,
+    commandType: ApplicationCommandType
+  ) {
+    if (
+      (handler instanceof DynamicGuildSlashCommandHandler || handler instanceof DynamicGlobalSlashCommandHandler) &&
+      commandType === ApplicationCommandType.ChatInput
+    ) {
+      return handler.execute(interactionObj as ChatInputCommandInteraction);
+    } else if (handler instanceof DynamicGuildContextCommandHandler || handler instanceof DynamicGlobalContextCommandHandler) {
+      if (commandType === ApplicationCommandType.User || commandType === ApplicationCommandType.Message) {
+        return handler.execute(interactionObj as UserContextInteraction | MessageContextInteraction);
+      }
+    }
+  }
+
   private async handleCommandInteraction(ctx: BaseInteractionContext, interaction: APIApplicationCommandInteraction, api: API) {
     const interactionObj = this.createCommandInteraction(ctx, interaction, api);
     const commandName = interaction.data.name;
+    const commandType = interaction.data.type;
+    const guildId = interaction.guild_id;
     const handler = this.globalCommandHandlers.get(commandName);
 
     // Store interaction in context for middleware access
     ctx.set("command", interactionObj as any);
 
     await this.runMiddleware(ctx, async () => {
+      let matched = false;
+
       if (handler) {
+        matched = true;
         try {
-          await this.executeCommandHandler(handler, interactionObj, interaction.data.type);
+          await this.executeCommandHandler(handler, interactionObj, commandType);
         } catch (error) {
           console.error(`Error executing command handler for "${commandName}"`, error);
           throw error;
@@ -226,17 +324,30 @@ export class Honocord {
       }
 
       // Could be a guild command
-      const guildId = interaction.guild_id;
       if (guildId) {
         const key = `${guildId}:${commandName}`;
         const guildHandler = this.guildCommandHandlers.get(key);
         if (guildHandler) {
+          matched = true;
           try {
-            await this.executeCommandHandler(guildHandler, interactionObj, interaction.data.type);
+            await this.executeCommandHandler(guildHandler, interactionObj, commandType);
           } catch (error) {
             console.error(`Error executing guild command handler for "${commandName}" in guild "${guildId}"`, error);
             throw error;
           }
+        }
+      }
+
+      if (matched) return;
+
+      // Fall back to the dynamic handler for this command type + scope, if any
+      const dynamicHandler = this.resolveDynamicCommandHandler(commandType, guildId);
+      if (dynamicHandler) {
+        try {
+          await this.executeDynamicCommandHandler(dynamicHandler, interactionObj, commandType);
+        } catch (error) {
+          console.error(`Error executing dynamic command handler for "${commandName}"`, error);
+          throw error;
         }
       }
     });
@@ -251,13 +362,17 @@ export class Honocord {
   ) {
     const interactionObj = new AutocompleteInteraction(api, interaction, ctx);
     const commandName = interaction.data.name;
+    const guildId = interaction.guild_id;
     const handler = this.globalCommandHandlers.get(commandName);
 
     // Store interaction in context for middleware access
     ctx.set("autocomplete", interactionObj as any);
 
     await this.runMiddleware(ctx, async () => {
+      let matched = false;
+
       if (handler && handler instanceof SlashCommandHandler) {
+        matched = true;
         try {
           await handler.executeAutocomplete(interactionObj);
         } catch (error) {
@@ -267,17 +382,31 @@ export class Honocord {
       }
 
       // Could be a guild command
-      const guildId = interaction.guild_id;
       if (guildId) {
         const key = `${guildId}:${commandName}`;
         const guildHandler = this.guildCommandHandlers.get(key);
         if (guildHandler && guildHandler instanceof SlashCommandHandler) {
+          matched = true;
           try {
             await guildHandler.executeAutocomplete(interactionObj);
           } catch (error) {
             console.error(`Error executing guild autocomplete handler for "${commandName}" in guild "${guildId}"`, error);
             throw error;
           }
+        }
+      }
+
+      if (matched) return;
+
+      // Fall back to the dynamic slash handler's autocomplete for this scope, if any
+      const dynamicHandler =
+        guildId && this.dynamicGuildSlashHandler ? this.dynamicGuildSlashHandler : this.dynamicGlobalSlashHandler;
+      if (dynamicHandler) {
+        try {
+          await dynamicHandler.executeAutocomplete(interactionObj);
+        } catch (error) {
+          console.error(`Error executing dynamic autocomplete handler for "${commandName}"`, error);
+          throw error;
         }
       }
     });
@@ -484,7 +613,14 @@ export class Honocord {
     };
     const app = new Hono<{ Variables: BaseVariables }>();
     app.get("*", (c) => c.text("🔥 Honocord is running!"));
-    if (this.globalCommandHandlers.size > 0 || this.guildCommandHandlers.size > 0) {
+    const hasCommandHandlers =
+      this.globalCommandHandlers.size > 0 ||
+      this.guildCommandHandlers.size > 0 ||
+      this.dynamicGuildSlashHandler != undefined ||
+      this.dynamicGlobalSlashHandler != undefined ||
+      this.dynamicGuildContextHandler != undefined ||
+      this.dynamicGlobalContextHandler != undefined;
+    if (hasCommandHandlers) {
       app.post("/", this.interactionsHandler);
       app.post(options.interactionsPath || "/interactions", this.interactionsHandler);
     }
