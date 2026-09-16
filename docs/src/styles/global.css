@@ -52,7 +52,7 @@ code[dir="auto"] {
     padding-inline: 0;
   }
 
-  .sl-link-button ::global(svg) {
+  .sl-link-button :global(svg) {
     flex-shrink: 0;
   }
 
@@ -63,10 +63,10 @@ code[dir="auto"] {
     }
   }
 
-  ::global(.sl-markdown-content) .sl-link-button {
+  :global(.sl-markdown-content) .sl-link-button {
     margin-inline-end: 1rem;
   }
-  ::global(.sl-markdown-content) .sl-link-button:not(:where(p *)) {
+  :global(.sl-markdown-content) .sl-link-button:not(:where(p *)) {
     margin-block: 1rem;
   }
 }

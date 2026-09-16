@@ -15,10 +15,12 @@
   "placement": {
     "mode": "smart",
   },
-  "route": {
-    "custom_domain": true,
-    "pattern": "honocord.thelukez.com",
-  },
+  "routes": [
+    {
+      "custom_domain": true,
+      "pattern": "honocord.thelukez.com",
+    },
+  ],
   "workers_dev": false,
   "preview_urls": true,
 }
