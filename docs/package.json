@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "docs:reference": "pnpm --filter honocord run docs:reference",
-    "build": "pnpm run docs:reference && astro build",
+    "build": "pnpm --filter @honocord/cache-base run build && pnpm run docs:reference && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
