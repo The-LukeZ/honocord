@@ -9,9 +9,13 @@ import type { CacheManager } from "@utils/CacheManager.js";
  * Base variables that the library uses
  */
 export interface BaseVariables {
+  /** Set for the duration of an autocomplete request. Access via `c.var.autocomplete`. */
   autocomplete?: ChatInputCommandInteraction;
+  /** Set for the duration of a slash command interaction. Access via `c.var.command`. */
   command?: ChatInputCommandInteraction;
+  /** Set for the duration of a modal submit interaction. Access via `c.var.modal`. */
   modal?: ModalInteraction;
+  /** Set for the duration of a message component interaction. Access via `c.var.component`. */
   component?: TMessageComponentInteraction;
   /**
    * The cache manager for this context, if available. This will be populated by the library if a cache adapter is provided in the environment.

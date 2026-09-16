@@ -4,6 +4,7 @@ import type { Context } from "hono";
 
 export { ApplicationWebhookEventType } from "discord-api-types/v10";
 
+/** The raw Discord webhook event body, narrowed to a specific event type `T`. */
 export type APIWebhookEventPayload<T extends ApplicationWebhookEventType = ApplicationWebhookEventType> = Extract<
   APIWebhookEventBody,
   { type: T }

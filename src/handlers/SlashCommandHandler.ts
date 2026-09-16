@@ -28,10 +28,12 @@ export class SlashCommandHandler<Context extends BaseInteractionContext = BaseIn
    */
   readonly guildIds = new Set<string>();
 
+  /** Whether this command is registered per-guild (`true`) or globally (`false`, the default). */
   isGuildCommand(): boolean {
     return this.guildIds.size > 0;
   }
 
+  /** Replaces `guildIds` with the given list, making this a guild-scoped command. */
   setGuildIds(guildIds: string[]): this {
     this.guildIds.clear();
     for (const guildId of guildIds) {
@@ -40,6 +42,7 @@ export class SlashCommandHandler<Context extends BaseInteractionContext = BaseIn
     return this;
   }
 
+  /** Adds one or more guild IDs to `guildIds`, making this a guild-scoped command. */
   addGuildIds(...guildIds: string[]): this {
     for (const guildId of guildIds) {
       this.guildIds.add(guildId);
@@ -47,6 +50,7 @@ export class SlashCommandHandler<Context extends BaseInteractionContext = BaseIn
     return this;
   }
 
+  /** Removes one or more guild IDs from `guildIds`. */
   removeGuildIds(...guildIds: string[]): this {
     for (const guildId of guildIds) {
       this.guildIds.delete(guildId);

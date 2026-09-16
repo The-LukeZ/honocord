@@ -1,0 +1,16 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts"],
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "excludeExternals": true,
+  "githubPages": false,
+  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter", "./tooling/typedoc/frontmatter-plugin.mjs"],
+  "out": "tooling/typedoc/generated",
+  "flattenOutputFiles": false,
+  "fileExtension": ".md",
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "mergeReadme": false,
+  "readme": "none"
+}

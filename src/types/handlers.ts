@@ -1,6 +1,7 @@
 import type { BaseInteractionContext } from "./context";
 import type { AnyInteraction } from "./interactions";
 
+/** Signature for a handler's execute function, typed to the specific interaction it receives. */
 export type HandlerFunction<
   Context extends BaseInteractionContext = BaseInteractionContext,
   InteractionArg extends AnyInteraction<Context> = AnyInteraction<Context>,

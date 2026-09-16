@@ -4,12 +4,16 @@ import type { BaseInteractionContext, MessageComponentInteractionPayload, Resolv
 import { MessageComponentInteraction } from "./MessageComponentInteraction";
 import { Collection } from "@discordjs/collection";
 
+/** A user select menu interaction. Passed to a `ComponentHandler` registered for `ComponentType.UserSelect`. */
 class UserSelectInteraction<Context extends BaseInteractionContext = BaseInteractionContext> extends MessageComponentInteraction<
   Context,
   ComponentType.UserSelect
 > {
+  /** IDs of the selected users. */
   public readonly values: string[];
+  /** The selected users, keyed by ID. */
   public readonly users: Collection<string, APIUser>;
+  /** The selected users' guild member data, keyed by ID. Only populated when the interaction was sent from a guild. */
   public readonly members: Collection<string, ResolvedSelectedGuildMember> = new Collection();
   constructor(api: API, interaction: MessageComponentInteractionPayload<ComponentType.UserSelect>, c: Context) {
     super(api, interaction, c);

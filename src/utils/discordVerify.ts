@@ -103,6 +103,13 @@ export async function verifyKey(
   }
 }
 
+/**
+ * Verifies and parses an incoming Discord request (interaction or webhook event) as a Hono middleware helper.
+ *
+ * @param req - The Hono request to verify
+ * @param discordPublicKey - The application's public key from the Discord developer dashboard
+ * @returns `{ isValid: false }` if verification failed, or `{ isValid: true, data: T }` with the parsed body
+ */
 export async function verifyDiscordRequest<T extends APIInteraction | APIWebhookEvent>(
   req: HonoRequest<any, any>,
   discordPublicKey: string | CryptoKey

@@ -72,18 +72,30 @@ function isJSONEncodable(maybeEncodable: unknown): maybeEncodable is JSONEncodab
   );
 }
 
+/**
+ * Base class for all typed Discord interactions. Wraps the raw interaction payload with
+ * response helpers (`reply`, `editReply`, `followUp`, ...), type guards (`isButton`, `isModal`, ...),
+ * and convenience getters mirroring the raw payload's fields.
+ *
+ * Not instantiated directly — use one of the concrete subclasses (`ChatInputCommandInteraction`,
+ * `ButtonInteraction`, `ModalInteraction`, etc.), which `Honocord` constructs and passes to handlers.
+ */
 export abstract class BaseInteraction<
   Type extends InteractionType,
   Context extends BaseInteractionContext = BaseInteractionContext,
 > {
+  /** The interaction's Discord interaction type. */
   public readonly type: Type;
   /** The raw interaction data */
   protected readonly raw: Extract<ValidInteraction, { type: Type }>;
+  /** REST client used to make requests to the Discord API. */
   public readonly rest: REST;
   protected _ephemeral: boolean | null = null;
   protected replied: boolean = false;
   protected deferred: boolean = false;
+  /** The Hono interaction context this interaction was created from. */
   public readonly context: Context;
+  /** Cache-aware fetcher for resolving Discord entities referenced by this interaction. */
   public readonly fetcher: Fetcher;
 
   constructor(
@@ -98,62 +110,77 @@ export abstract class BaseInteraction<
     this.fetcher = new Fetcher(api, () => this.context.get("cache") as any);
   }
 
+  /** The ID of the application this interaction was sent to. */
   get applicationId() {
     return this.raw.application_id;
   }
 
+  /** Entitlements for the invoking user, for monetized apps. */
   get entitlements() {
     return this.raw.entitlements;
   }
 
+  /** The ID of the channel the interaction was sent from, if any. */
   get channelId() {
     return this.raw.channel?.id;
   }
 
+  /** The partial channel object the interaction was sent from, if any. Not cached — see {@link Honocord}'s runtime notes. */
   get channel() {
     return this.raw.channel;
   }
 
+  /** The ID of the guild the interaction was sent from, if any. */
   get guildId() {
     return this.raw.guild_id;
   }
 
+  /** The partial guild object the interaction was sent from, if any. Not cached. */
   get guild() {
     return this.raw.guild;
   }
 
+  /** The ID of the user who triggered the interaction. */
   get userId() {
     return this.raw.user?.id;
   }
 
+  /** The user who triggered the interaction (resolved from `member.user` in guilds, `user` in DMs). */
   get user() {
     return (this.raw.member?.user || this.raw.user) as APIUser; // One is always given.
   }
 
+  /** The guild member who triggered the interaction, if sent from a guild. */
   get member() {
     return this.raw.member;
   }
 
+  /** The invoking user's locale. */
   get locale() {
     return this.raw.guild_locale;
   }
 
+  /** The guild's locale, if sent from a guild. */
   get guildLocale() {
     return this.raw.guild_locale;
   }
 
+  /** The interaction token, used to send/edit/delete responses. */
   get token() {
     return this.raw.token;
   }
 
+  /** The interaction's ID. */
   get id() {
     return this.raw.id;
   }
 
+  /** Bitwise set of permissions the app has in the source location of the interaction. */
   get appPermissions() {
     return this.raw.app_permissions;
   }
 
+  /** Discord's interaction payload version (always `1`). */
   get version() {
     return this.raw.version;
   }
@@ -166,18 +193,22 @@ export abstract class BaseInteraction<
     return toSnakeCase(obj) as T;
   }
 
+  /** Type guard narrowing `guild_id`/`guild`/`guild_locale` to defined when the interaction was sent from a guild. */
   inGuild(): this is BaseInteraction<Type> & { guild_id: Snowflake; guild: APIPartialInteractionGuild; guild_locale: Locale } {
     return Boolean(this.raw.guild_id && this.raw.guild && this.raw.guild_locale);
   }
 
+  /** Type guard narrowing `guild_id`/`guild`/`guild_locale` to `undefined` when the interaction was sent from a DM. */
   inDM(): this is BaseInteraction<Type> & { guild_id: undefined; guild: undefined; guild_locale: undefined } {
     return !this.inGuild();
   }
 
+  /** Returns entitlements belonging to this interaction's application. */
   getAppEntitlements() {
     return this.entitlements.filter((entitlement) => entitlement.application_id === this.applicationId);
   }
 
+  /** Whether the guild this interaction was sent from currently has an active, non-expired entitlement. */
   guildHavePremium(): boolean {
     return (
       this.getAppEntitlements().filter(
@@ -187,6 +218,7 @@ export abstract class BaseInteraction<
     );
   }
 
+  /** Whether the user who triggered this interaction currently has an active, non-expired entitlement. */
   userHavePremium(): boolean {
     return (
       this.getAppEntitlements().filter(
@@ -196,6 +228,7 @@ export abstract class BaseInteraction<
     );
   }
 
+  /** @internal */
   protected prepareResponsePayload<T extends PreparedResponseOptions = PreparedResponseOptions>(
     options: InteractionResponseCallbackData
   ): T {
@@ -230,6 +263,13 @@ export abstract class BaseInteraction<
     return { ...finalBody } as T;
   }
 
+  /**
+   * Sends the initial response to the interaction.
+   *
+   * @param options - The message content, or a string shorthand for `{ content: options }`
+   * @param forceEphemeral - Whether to force the response to be ephemeral (visible only to the invoking user). Defaults to `true`.
+   * @returns The created interaction response, including the created message.
+   */
   async reply(options: InteractionResponseCallbackData | string, forceEphemeral = true) {
     const replyOptions = typeof options === "string" ? { content: options } : options;
     if (forceEphemeral) {
@@ -247,6 +287,12 @@ export abstract class BaseInteraction<
     return response;
   }
 
+  /**
+   * Acknowledges the interaction without sending an initial response, showing a "thinking" state.
+   * Use `editReply` afterwards to send the actual response, within the 15-minute interaction token lifetime.
+   *
+   * @param forceEphemeral - Whether the eventual response should be ephemeral. Defaults to `true`.
+   */
   async deferReply(forceEphemeral = true) {
     const response = await this.api.interactions.defer(this.id, this.token, {
       flags: forceEphemeral ? 64 : undefined,
@@ -365,10 +411,13 @@ export abstract class BaseInteraction<
   }
 
   // Typeguards
+
+  /** Type guard: whether this is an application command interaction (slash command or context menu command). */
   isCommand(): this is CommandInteraction<ApplicationCommandType, Context> {
     return this.raw.type === InteractionType.ApplicationCommand;
   }
 
+  /** Type guard: whether this is a chat input (slash) command interaction. */
   isChatInputCommand(): this is ChatInputCommandInteraction<Context> {
     return (
       this.raw.type === InteractionType.ApplicationCommand &&
@@ -376,6 +425,7 @@ export abstract class BaseInteraction<
     );
   }
 
+  /** Type guard: whether this is a user context menu command interaction. */
   isUserContextCommand(): this is UserContextInteraction<Context> {
     return (
       this.raw.type === InteractionType.ApplicationCommand &&
@@ -383,6 +433,7 @@ export abstract class BaseInteraction<
     );
   }
 
+  /** Type guard: whether this is a message context menu command interaction. */
   isMessageContextCommand(): this is MessageContextInteraction<Context> {
     return (
       this.raw.type === InteractionType.ApplicationCommand &&
@@ -390,42 +441,52 @@ export abstract class BaseInteraction<
     );
   }
 
+  /** Type guard: whether this is a modal submit interaction. */
   isModal(): this is ModalInteraction {
     return this.raw.type === InteractionType.ModalSubmit;
   }
 
+  /** Type guard: whether this is a modal submit interaction that opened from a message (not a slash command). */
   isMessageModal(): this is ModalInteraction<Context & { message: APIMessage }> {
     return this.isModal() && !!this.message;
   }
 
+  /** Type guard: whether this is a message component interaction (button or select menu). */
   isMessageComponent(): this is MessageComponentInteraction<Context, MessageComponentType> {
     return this.raw.type === InteractionType.MessageComponent;
   }
 
+  /** Type guard: whether this is a button click interaction. */
   isButton(): this is ButtonInteraction<Context> {
     return this.isMessageComponent() && this.raw.data.component_type === ComponentType.Button;
   }
 
+  /** Type guard: whether this is a string select menu interaction. */
   isStringSelect(): this is StringSelectInteraction<Context> {
     return this.isMessageComponent() && this.raw.data.component_type === ComponentType.StringSelect;
   }
 
+  /** Type guard: whether this is a user select menu interaction. */
   isUserSelect(): this is UserSelectInteraction<Context> {
     return this.isMessageComponent() && this.raw.data.component_type === ComponentType.UserSelect;
   }
 
+  /** Type guard: whether this is a role select menu interaction. */
   isRoleSelect(): this is RoleSelectInteraction<Context> {
     return this.isMessageComponent() && this.raw.data.component_type === ComponentType.RoleSelect;
   }
 
+  /** Type guard: whether this is a mentionable (user + role) select menu interaction. */
   isMentionableSelect(): this is MentionableSelectInteraction<Context> {
     return this.isMessageComponent() && this.raw.data.component_type === ComponentType.MentionableSelect;
   }
 
+  /** Type guard: whether this is a channel select menu interaction. */
   isChannelSelect(): this is ChannelSelectInteraction<Context> {
     return this.isMessageComponent() && this.raw.data.component_type === ComponentType.ChannelSelect;
   }
 
+  /** Type guard: whether this is an autocomplete request for a slash command option. */
   isAutocomplete(): this is AutocompleteInteraction<Context> & { type: InteractionType.ApplicationCommandAutocomplete } {
     return this.raw.type === InteractionType.ApplicationCommandAutocomplete;
   }

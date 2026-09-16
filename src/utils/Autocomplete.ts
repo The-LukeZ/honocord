@@ -25,25 +25,33 @@ export class AutocompleteHelper<T extends string | number = string | number> {
   private value: T;
   private userLocale?: Locale;
 
+  /**
+   * @param value - The current input value from the user to filter against.
+   * @param user - The user object, used to provide localized results if available.
+   */
   constructor(value: T, user?: APIUser) {
     this.value = (typeof value === "string" ? value.toLowerCase() : value) as T;
     this.userLocale = user?.locale as Locale | undefined;
   }
 
+  /** The current array of choices stored in the helper. */
   get choices() {
     return this._choices;
   }
 
+  /** Adds one or more choices to the existing list. */
   addChoices(...choices: APIApplicationCommandOptionChoice<T>[]) {
     this._choices.push(...choices);
     return this;
   }
 
+  /** Overwrites the current list of choices with a new set. */
   setChoices(...choices: APIApplicationCommandOptionChoice<T>[]) {
     this._choices = choices;
     return this;
   }
 
+  /** Removes all choices from the helper. */
   clear() {
     this._choices = [];
     return this;

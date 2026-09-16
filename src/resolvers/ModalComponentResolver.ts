@@ -17,16 +17,19 @@ import {
 import { APIInteractionDataResolvedCollections, ResolvedSelectedGuildMember } from "../types";
 import { Collection, ReadonlyCollection } from "@discordjs/collection";
 
+/** Base shape shared by every resolved modal component's data. */
 export interface BaseModalData<Type extends ComponentType> {
   id?: number;
   type: Type;
 }
 
+/** Resolved data for a text input modal component. */
 export interface TextInputModalData extends BaseModalData<ComponentType.TextInput> {
   custom_id: string;
   value: string;
 }
 
+/** Resolved data for a select menu modal component, with entity lookups already resolved. */
 export interface SelectMenuModalData extends BaseModalData<
   | ComponentType.ChannelSelect
   | ComponentType.MentionableSelect
@@ -45,8 +48,9 @@ export interface SelectMenuModalData extends BaseModalData<
   values: readonly string[];
 }
 
+/** Union of every resolved modal component data shape returned by `ModalComponentResolver`. */
 // Technically, we had to add file uploads too, but we ain't using them anyway
-type APIModalData =
+export type APIModalData =
   | TextInputModalData
   | SelectMenuModalData
   | APIModalSubmitCheckboxComponent
@@ -54,6 +58,10 @@ type APIModalData =
   | APIModalSubmitRadioGroupComponent
   | APIModalSubmitFileUploadComponent;
 
+/**
+ * Resolves field values from a modal submission by custom ID, with entity lookups (users, members,
+ * roles, channels, attachments) already resolved. Available as `interaction.fields` on `ModalInteraction`.
+ */
 export class ModalComponentResolver {
   private _resolved: APIInteractionDataResolvedCollections;
   private hoistedComponents: Collection<string, APIModalData>;
@@ -103,6 +111,12 @@ export class ModalComponentResolver {
     return this.hoistedComponents.has(custom_id);
   }
 
+  /**
+   * Gets a component's resolved data by its custom ID.
+   *
+   * @param custom_id - The custom ID of the component to get.
+   * @throws {TypeError} If no component with the given custom ID exists.
+   */
   getComponent(custom_id: string): APIModalData {
     const component = this.hoistedComponents.get(custom_id);
 
@@ -266,6 +280,13 @@ export class ModalComponentResolver {
     return mentionables.length > 0 ? mentionables : required ? [] : null;
   }
 
+  /**
+   * Gets the uploaded files from a file upload component.
+   *
+   * @param custom_id - The custom ID of the component.
+   * @param required - Whether to throw an error if the component is not found or not a file upload.
+   * @returns The uploaded files, or null if not set and not required.
+   */
   getFiles(custom_id: string, required?: boolean): Collection<string, APIAttachment> | null;
   getFiles(custom_id: string, required: true): Collection<string, APIAttachment>;
   getFiles(custom_id: string, required?: boolean): Collection<string, APIAttachment> | null {
@@ -281,6 +302,13 @@ export class ModalComponentResolver {
     return new Collection(attachments.map((attachment) => [attachment.id, attachment]));
   }
 
+  /**
+   * Gets the selected value of a radio group component.
+   *
+   * @param custom_id - The custom ID of the component.
+   * @param required - Whether to throw an error if the component is not found or not a radio group.
+   * @returns The selected value, or null if not set and not required.
+   */
   getRadioGroupValue(custom_id: string, required?: boolean): string | null;
   getRadioGroupValue(custom_id: string, required: true): string;
   getRadioGroupValue(custom_id: string, required?: boolean): string | null {
@@ -291,6 +319,13 @@ export class ModalComponentResolver {
     return component.value ?? (required ? "" : null);
   }
 
+  /**
+   * Gets the checked values of a checkbox group component.
+   *
+   * @param custom_id - The custom ID of the component.
+   * @param required - Whether to throw an error if the component is not found or not a checkbox group.
+   * @returns The checked values, or null if not set and not required.
+   */
   getCheckboxGroupValues(custom_id: string, required?: boolean): string[] | null;
   getCheckboxGroupValues(custom_id: string, required: true): string[];
   getCheckboxGroupValues(custom_id: string, required?: boolean): string[] | null {
@@ -301,6 +336,13 @@ export class ModalComponentResolver {
     return component.values.length > 0 ? component.values : required ? [] : null;
   }
 
+  /**
+   * Gets the checked state of a checkbox component.
+   *
+   * @param custom_id - The custom ID of the component.
+   * @param required - Whether to throw an error if the component is not found or not a checkbox.
+   * @returns The checked state, or null if not set and not required.
+   */
   getCheckboxValue(custom_id: string, required?: boolean): boolean | null;
   getCheckboxValue(custom_id: string, required: true): boolean;
   getCheckboxValue(custom_id: string, required?: boolean): boolean | null {
@@ -311,6 +353,7 @@ export class ModalComponentResolver {
     return component.value ?? (required ? false : null);
   }
 
+  /** Returns the resolved data for every component in the modal. */
   getAllComponents(): APIModalData[] {
     return this.hoistedComponents.map((component) => component);
   }

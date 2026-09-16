@@ -14,6 +14,10 @@ export class AttachmentBuilder {
   private contentType?: string;
   private key?: string; // Not really needed but allows users to set a custom key for their own reference if they want
 
+  /**
+   * @param attachment - The file content — a Buffer, Uint8Array, string path, or readable stream.
+   * @param data - Optional metadata (name, description, content type, reference key).
+   */
   constructor(attachment: BufferResolvable | Stream, data: AttachmentData = {}) {
     this.attachment = attachment;
     this.name = data.name;
@@ -22,27 +26,33 @@ export class AttachmentBuilder {
     this.key = data.key;
   }
 
+  /** Sets the attachment's alt-text description. */
   setDescription(description: string): this {
     this.description = description;
     return this;
   }
+  /** Sets the attachment's MIME content type. */
   setContentType(contentType: string): this {
     this.contentType = contentType;
     return this;
   }
+  /** Sets a custom reference key for your own use — not sent to Discord. */
   setKey(key: string): this {
     this.key = key;
     return this;
   }
+  /** Replaces the attachment's file content. */
   setFile(attachment: BufferResolvable | Stream): this {
     this.attachment = attachment;
     return this;
   }
+  /** Sets the attachment's filename. */
   setName(name: string): this {
     this.name = name;
     return this;
   }
 
+  /** Marks (or unmarks) the attachment as a spoiler by prefixing/stripping `SPOILER_` from its filename. */
   setSpoiler(spoiler = true): this {
     if (!this.name) return this;
     if (spoiler === this.spoiler) return this;
@@ -54,6 +64,7 @@ export class AttachmentBuilder {
     return this;
   }
 
+  /** Whether the attachment's filename is currently marked as a spoiler. */
   get spoiler() {
     return this.name ? basename(this.name).startsWith("SPOILER_") : false;
   }
@@ -108,6 +119,7 @@ export class AttachmentBuilder {
     };
   }
 
+  /** Creates a new `AttachmentBuilder` from an existing builder or a plain `AttachmentPayload` object. */
   static from(other: AttachmentBuilder | AttachmentPayload): AttachmentBuilder {
     if (other instanceof AttachmentBuilder) {
       return new AttachmentBuilder(other.attachment, {

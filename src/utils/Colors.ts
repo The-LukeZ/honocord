@@ -1,5 +1,5 @@
 // From discord.js
-interface Colors {
+export interface Colors {
   /** 0x1ABC9C | rgb(26,188,156) */
   Aqua: number;
   /** 0x3498DB | rgb(52,152,219) */

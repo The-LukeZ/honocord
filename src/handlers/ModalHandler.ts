@@ -10,6 +10,10 @@ export class ModalHandler<Context extends BaseInteractionContext = BaseInteracti
   public readonly prefix: string;
   private handlerFn?: (interaction: ModalInteraction<Context>) => Promise<any> | any;
 
+  /**
+   * @param prefix - The custom ID prefix this handler matches against. See the [Custom ID System](/guides/custom-id-system) guide.
+   * @param handler - Optional handler function, equivalent to calling `addHandler` afterwards
+   */
   constructor(prefix: string, handler?: (interaction: ModalInteraction<Context>) => Promise<any> | any) {
     if (!prefix || typeof prefix !== "string") {
       throw new TypeError("Modal handler prefix must be a non-empty string");
@@ -19,6 +23,12 @@ export class ModalHandler<Context extends BaseInteractionContext = BaseInteracti
     if (handler) this.handlerFn = handler;
   }
 
+  /**
+   * Adds the modal handler function.
+   *
+   * @param handler - The function to handle the modal submit interaction
+   * @returns The current ModalHandler instance
+   */
   addHandler(handler: (interaction: ModalInteraction<Context>) => Promise<any> | any): ModalHandler<Context> {
     this.handlerFn = handler;
     return this;

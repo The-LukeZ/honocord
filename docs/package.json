@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "docs:reference": "pnpm --filter honocord run docs:reference",
+    "build": "pnpm run docs:reference && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },

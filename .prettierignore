@@ -9,6 +9,10 @@ dist
 .env
 .env.*
 
-docs/src/content/docs/built-with.mdx
 .changeset/
 CLAUDE.md
+tooling/typedoc/generated
+docs/src/content/docs/reference/classes
+docs/src/content/docs/reference/functions
+docs/src/content/docs/reference/constants
+docs/src/content/docs/reference/types

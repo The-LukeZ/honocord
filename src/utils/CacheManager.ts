@@ -18,13 +18,35 @@ function key(ns: CacheNamespace, ...parts: string[]): string {
   return `${ns}:${parts.join(":")}`;
 }
 
+/**
+ * Provides a structured, namespace-aware layer on top of a `BaseCacheAdapter`. Set on the Hono
+ * context by `Honocord` after calling `withCache()` and accessible in middleware and handlers as
+ * `c.var.cache`, or via `interaction.fetcher`.
+ *
+ * @example
+ * ```ts
+ * const cache = c.var.cache; // CacheManager | null
+ * ```
+ */
 export class CacheManager {
+  /**
+   * Cached channel objects. Note: channels resolved from raw interaction payloads are **not**
+   * populated here automatically — Discord only provides partial objects (`id` + `type`) in those cases.
+   */
   readonly channels: NamespaceAccessor<CachedChannel>;
+  /** Cached role objects. Roles resolved from interaction data are populated automatically. */
   readonly roles: NamespaceAccessor<APIRole>;
+  /** Cached user objects. Users found in interaction resolved data and `interaction.user`/`interaction.member.user` are populated automatically. */
   readonly users: NamespaceAccessor<APIUser>;
+  /** Cached guild objects. **Not** populated automatically — the guild object on interactions is partial and only carries `id`, `features`, and `locale`. */
   readonly guilds: NamespaceAccessor<APIGuild>;
+  /** Cached guild member objects, scoped by `guildId`. Members resolved from interaction data are populated automatically. */
   readonly members: MemberNamespaceAccessor;
 
+  /**
+   * @param adapter - The cache backend to use
+   * @param defaultTtlMs - Fallback TTL in milliseconds for all `set`/`mset` calls that don't supply their own TTL. Defaults to 5 minutes.
+   */
   constructor(
     private adapter: BaseCacheAdapter,
     private defaultTtlMs: number = 5 * 60 * 1000 /* 5 minutes */
@@ -72,6 +94,12 @@ export class CacheManager {
     };
   }
 
+  /**
+   * Returns all cached roles for the given guild.
+   *
+   * Reads a stored index of role IDs and resolves each one from the role namespace. Returns an
+   * empty array if none are cached.
+   */
   async getGuildRoles(guildId: string): Promise<APIRole[]> {
     const roleIds = await this.adapter.get<string[]>(key("guild-roles", guildId));
     if (!roleIds) return [];
@@ -79,6 +107,10 @@ export class CacheManager {
     return roles.filter(Boolean) as APIRole[];
   }
 
+  /**
+   * Caches all roles for a guild, and stores an index of their IDs so `getGuildRoles` can look
+   * them back up later.
+   */
   async setGuildRoles(guildId: string, roles: APIRole[]): Promise<void> {
     await this.adapter.set(
       key("guild-roles", guildId),
@@ -88,6 +120,12 @@ export class CacheManager {
     await this.roles.mset(roles.map((role) => ({ value: role })));
   }
 
+  /**
+   * Fetches a cached DM channel for a user.
+   *
+   * Unlike other namespace accessors, DM channels are looked up by user ID rather than channel ID —
+   * use this instead of `channels.get` when you only have the user ID.
+   */
   async getDMChannel(
     userId: string
   ): Promise<Extract<CachedChannel, { type: ChannelType.DM | ChannelType.GroupDM }> | undefined> {
@@ -99,11 +137,23 @@ export class CacheManager {
     return undefined; // We should never get here, but just in case
   }
 
+  /**
+   * Manually caches a DM channel for a user. Useful if you have a DM channel object from another
+   * source and want to store it in the cache.
+   *
+   * DM channels are stored in two places: the `dm-channel` namespace keyed by user ID, and the
+   * `channel` namespace keyed by channel ID. Both must be populated for the cache to function
+   * properly — this method handles both automatically.
+   */
   async setDMChannel(userId: string, channel: CachedChannel, ttlMs?: number): Promise<void> {
     await this.channels.set(channel, ttlMs);
     await this.adapter.set(key("dm-channel", userId), channel.id, ttlMs ?? this.defaultTtlMs);
   }
 
+  /**
+   * Extracts and caches users, roles, members, and channels from a raw interaction payload.
+   * Called automatically by `Honocord` before dispatching to handlers when a cache adapter is registered.
+   */
   populate(i: ValidInteraction) {
     switch (i.type) {
       case InteractionType.ApplicationCommand: // Chat Input Command

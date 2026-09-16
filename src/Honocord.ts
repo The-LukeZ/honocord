@@ -47,7 +47,8 @@ import { ChannelSelectInteraction } from "@ctx/ChannelSelectInteraction";
 import { BaseCacheAdapter, NullCacheAdapter } from "@honocord/cache-base";
 import { CacheManager } from "@utils/CacheManager";
 
-interface HonocordOptions {
+/** Constructor options for {@link Honocord}. */
+export interface HonocordOptions {
   /**
    * Indicates whether the Honocord instance is running on Cloudflare Workers.
    *
@@ -70,8 +71,11 @@ interface HonocordOptions {
   cacheTtlMs?: number;
 }
 
-interface HonocordAppOptions {
+/** Options for {@link Honocord.getApp}. */
+export interface HonocordAppOptions {
+  /** Path the interactions handler is mounted at, in addition to `/`. @default "/interactions" */
   interactionsPath?: `/${string}`;
+  /** Path the webhook handler is mounted at. @default "/webhook" */
   webhookPath?: `/${string}`;
 }
 

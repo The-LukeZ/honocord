@@ -77,6 +77,7 @@ export interface AttachmentMetadata {
   description?: string;
 }
 
+/** Metadata for an `AttachmentBuilder`, passed as its constructor's second argument. */
 export interface AttachmentData {
   name?: string;
   description?: string;
@@ -90,6 +91,7 @@ export interface ResolvedAttachment {
   metadata: AttachmentMetadata;
 }
 
+/** Union of `@discordjs/core` response option shapes accepted by `BaseInteraction`'s response methods after attachments are resolved. */
 export type PreparedResponseOptions =
   | CreateInteractionResponseOptions
   | EditInteractionResponseOptions

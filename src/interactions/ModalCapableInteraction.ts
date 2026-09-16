@@ -3,6 +3,7 @@ import { ModalBuilder } from "@discordjs/builders";
 import { BaseInteraction } from "./BaseInteraction";
 import type { BaseInteractionContext, ModalInteractionResponseCallbackData } from "../types";
 
+/** Base class for interactions that can open a modal in response (commands and message components). */
 class ModalCapableInteraction<
   Type extends InteractionType,
   Context extends BaseInteractionContext = BaseInteractionContext,

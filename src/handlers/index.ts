@@ -4,6 +4,7 @@ export { ContextCommandHandler } from "./ContextCommandHandler";
 export { ComponentHandler } from "./ComponentHandler";
 export { ModalHandler } from "./ModalHandler";
 export { WebhookEventHandler } from "./WebhookEventHandler";
+export type { BlankVariables } from "./WebhookEventHandler";
 
 // Import types needed for handler type definitions
 import type { SlashCommandHandler } from "./SlashCommandHandler";

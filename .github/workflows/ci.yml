@@ -26,6 +26,8 @@ jobs:
 
       - run: pnpm typecheck && pnpm typecheck:packages
 
+      - run: pnpm run docs:reference
+
       - run: pnpm test
 
       - run: pnpm check

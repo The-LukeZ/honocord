@@ -12,7 +12,8 @@ import {
 } from "discord-api-types/v10";
 import { APIInteractionDataResolvedCollections, ResolvedSelectedGuildMember } from "../types";
 
-type AutocompleteFocusedOption = {
+/** The currently-focused option during an autocomplete request, as returned by `getFocused`. */
+export type AutocompleteFocusedOption = {
   /**
    * The name of the option.
    */
@@ -32,7 +33,10 @@ type AutocompleteFocusedOption = {
 };
 
 /**
- * A resolver for command interaction options.
+ * Resolves typed option values from a slash command or autocomplete interaction, including
+ * subcommand/subcommand-group hoisting and lookups into resolved entity data (users, members,
+ * roles, channels, attachments). Available as `interaction.options` on
+ * `ChatInputCommandInteraction` and `AutocompleteInteraction`.
  */
 class CommandInteractionOptionResolver {
   /**
@@ -122,8 +126,7 @@ class CommandInteractionOptionResolver {
   /**
    * Gets the selected subcommand.
    *
-   * @param {boolean} [required=true] Whether to throw an error if there is no subcommand.
-   * @returns {?string} The name of the selected subcommand, or null if not set and not required.
+   * @returns The name of the selected subcommand, or null if not set and not required.
    */
   getSubcommand(): string | null;
   getSubcommand(required: true): string;
@@ -151,6 +154,7 @@ class CommandInteractionOptionResolver {
     return this._group;
   }
 
+  /** Gets the currently-focused option during an autocomplete request, or `null` if none is focused. */
   getFocused(): AutocompleteFocusedOption | null {
     return (this._hoistedOptions as AutocompleteFocusedOption[]).find((option) => option.focused) || null;
   }
@@ -255,6 +259,7 @@ class CommandInteractionOptionResolver {
    * Gets a member option.
    *
    * @param name The name of the option.
+   * @param required Whether to throw an error if the option is not found.
    * @returns The value of the option, or null if the user is not present in the guild or the option is not set.
    */
   getMember(name: string, required?: boolean): ResolvedSelectedGuildMember | null;

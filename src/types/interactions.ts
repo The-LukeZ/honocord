@@ -46,6 +46,7 @@ export interface APIInteractionDataResolvedCollections {
 /** Represents an interaction which the lib user can handle themselves (ping is handled internally) */
 export type ValidInteraction = Exclude<APIInteraction, APIPingInteraction>;
 
+/** Union of every typed interaction class Honocord can construct from an incoming interaction. */
 export type AnyInteraction<Context extends BaseInteractionContext = BaseInteractionContext> =
   | ChatInputCommandInteraction<Context>
   | UserContextInteraction<Context>

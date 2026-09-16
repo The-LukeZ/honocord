@@ -3,7 +3,8 @@ import { APIWebhookEvent, ApplicationWebhookEventType, ApplicationWebhookType } 
 import type { APIWebhookEventPayload, WebhookEventHandlerFnForWorkers, WebhookEventHandlerFnWithRequest } from "$types/webhook";
 import { verifyDiscordRequest } from "@utils/discordVerify";
 
-type BlankVariables = Record<string, any>;
+/** Default (empty) Hono variables type used by `WebhookEventHandler` when no `Variables` type parameter is given. */
+export type BlankVariables = Record<string, any>;
 
 /**
  * Represents a webhook event handler to be used by an Honocord instance or standalone fetch handler or Hono app.
