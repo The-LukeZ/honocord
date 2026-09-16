@@ -8,6 +8,7 @@ ignoreWorkspaceRootCheck: true
 allowBuilds:
   esbuild: true
   sharp: true
+  workerd: true
 
 peerDependencyRules:
   allowedVersions:

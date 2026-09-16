@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "honocord-docs",
+  "compatibility_date": "2026-09-16",
+  "assets": {
+    "directory": "./dist",
+  },
+  "version_metadata": {
+    "binding": "VERSION_METADATA",
+  },
+  "cache": {
+    "enabled": true,
+  },
+  "compatibility_flags": ["nodejs_compat"],
+  "placement": {
+    "mode": "smart",
+  },
+  "route": {
+    "custom_domain": true,
+    "pattern": "honocord.thelukez.com",
+  },
+  "workers_dev": false,
+  "preview_urls": true,
+}
