@@ -1,6 +1,6 @@
 import { CachedChannel, CachedGuildMember, CacheNamespace, MemberNamespaceAccessor, NamespaceAccessor } from "$types/caching";
 import { ValidInteraction } from "$types/interactions";
-import type { BaseCacheAdapter } from "@honocord/cache-base";
+import type { BaseCacheAdapter } from "../cache";
 import {
   APIInteractionDataResolved,
   APIMessageApplicationCommandInteractionDataResolved,

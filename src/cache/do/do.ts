@@ -1,4 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
+import type { CacheEntry as MsetEntry } from "../index";
 
 /**
  * Recursively sanitizes an object to handle BigInt values that cannot be JSON serialized.
@@ -149,7 +150,7 @@ export class HonocordCacheDO extends DurableObject {
    * expiry among the entries.
    * @param entries An array of entries to set, each with a key, value, and optional TTL in milliseconds
    */
-  async mset(entries: { key: string; value: unknown; ttlMs?: number }[]): Promise<void> {
+  async mset(entries: MsetEntry[]): Promise<void> {
     const now = Date.now();
     const storageOps: Record<string, unknown> = {};
     let nextAlarm: number | null = null;

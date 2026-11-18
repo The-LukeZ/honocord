@@ -22,9 +22,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm run build:all
+      - run: pnpm run build
 
-      - run: pnpm typecheck && pnpm typecheck:packages
+      - run: pnpm typecheck
 
       - run: pnpm run docs:reference
 

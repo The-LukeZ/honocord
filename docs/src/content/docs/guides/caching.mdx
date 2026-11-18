@@ -14,11 +14,11 @@ This guide will walk you through the basics of Honocord's caching system, how to
 
 Honocord provides several built-in cache adapters:
 
-- [`MemoryCacheAdapter`](https://github.com/The-LukeZ/honocord/tree/dev/packages/cache-memory) - A simple in-memory cache adapter for quick caching needs
-- [`DurableObjectCacheAdapter`](https://github.com/The-LukeZ/honocord/tree/dev/packages/cache-do) - A cache adapter that uses Cloudflare Durable Objects for caching on Workers
-- [`MongoCacheAdapter`](https://github.com/The-LukeZ/honocord/tree/dev/packages/cache-mongo) - A cache adapter that uses MongoDB for caching
+- [`MemoryCacheAdapter`](https://github.com/The-LukeZ/honocord/tree/dev/src/cache/memory) (`honocord/cache/memory`) - A simple in-memory cache adapter for quick caching needs
+- [`DurableObjectCacheAdapter`](https://github.com/The-LukeZ/honocord/tree/dev/src/cache/do) (`honocord/cache/do`) - A cache adapter that uses Cloudflare Durable Objects for caching on Workers
+- [`MongoCacheAdapter`](https://github.com/The-LukeZ/honocord/tree/dev/src/cache/mongo) (`honocord/cache/mongo`) - A cache adapter that uses MongoDB for caching
 
-You can also create your own custom cache adapter by implementing the abstract [`BaseCacheAdapter`](https://github.com/The-LukeZ/honocord/tree/dev/packages/cache-base) class.
+You can also create your own custom cache adapter by extending the abstract [`BaseCacheAdapter`](https://github.com/The-LukeZ/honocord/tree/dev/src/cache) class from `honocord/cache`.
 
 It is important to note that you cannot use every adapter in every environment.
 
@@ -37,11 +37,14 @@ Only the setup before that may vary slightly based on the adapter.
 
 ### Installation
 
+All adapters ship with the `honocord` package as subpath exports, so there is nothing extra to install.
+The only exception is the MongoDB adapter, which needs `mongoose` (an optional peer dependency):
+
 ```bash
-pnpm add @honocord/cache-memory
-pnpm add @honocord/cache-do
-pnpm add @honocord/cache-mongo mongoose # mongoose is a peer dependency
-pnpm add @honocord/cache-base # for custom adapters
+npm install mongoose
+pnpm add mongoose
+yarn add mongoose
+bun add mongoose
 ```
 
 ### Usage
@@ -57,7 +60,7 @@ pnpm add @honocord/cache-base # for custom adapters
 
 ```ts
 import { Honocord } from "honocord";
-import { MemoryCacheAdapter } from "@honocord/cache-memory";
+import { MemoryCacheAdapter } from "honocord/cache/memory";
 
 const cache = new MemoryCacheAdapter({
   ttl: 300,
@@ -76,13 +79,13 @@ This setup requires a bit more work, as you need to set up a Durable Object and 
 
 ```ts title="src/index.ts"
 import { Honocord } from "honocord";
-import { DurableObjectCacheAdapter } from "@honocord/cache-do";
+import { DurableObjectCacheAdapter } from "honocord/cache/do";
 
 const bot = new Honocord().withCache<Cloudflare.Env>((env) => new DurableObjectCacheAdapter(env.MY_CACHE_DO));
 
 export default bot.getApp();
 
-export { HonocordCacheDO } from "@honocord/cache-do"; // You need to export the Durable Object class so you can use it
+export { HonocordCacheDO } from "honocord/cache/do"; // You need to export the Durable Object class so you can use it
 ```
 
 ##### Worker Setup
@@ -126,7 +129,7 @@ Honocord already does the heavy lifting of implementing the Durable Object and p
 
 ```ts
 import { Honocord } from "honocord";
-import { MongoCacheAdapter } from "@honocord/cache-mongo";
+import { MongoCacheAdapter } from "honocord/cache/mongo";
 
 const cache = new MongoCacheAdapter(process.env.MONGO_URI!);
 await cache.connect(); // You need to connect to the database before using the cache adapter
@@ -140,6 +143,21 @@ You can either self-host a MongoDB instance or use a cloud provider like MongoDB
 </TabItem>
 
 </Tabs>
+
+## Migrating from @honocord/cache-\* packages
+
+The separate `@honocord/cache-*` packages have been merged into the `honocord` package. Export names are unchanged, only the import paths differ:
+
+| Old import               | New import              |
+| ------------------------ | ----------------------- |
+| `@honocord/cache-base`   | `honocord/cache`        |
+| `@honocord/cache-memory` | `honocord/cache/memory` |
+| `@honocord/cache-do`     | `honocord/cache/do`     |
+| `@honocord/cache-mongo`  | `honocord/cache/mongo`  |
+
+1. Uninstall the old packages, e.g. `pnpm remove @honocord/cache-base @honocord/cache-memory @honocord/cache-do @honocord/cache-mongo` (only the ones you installed).
+2. Update your imports to the new paths from the table above.
+3. If you use the MongoDB adapter, keep `mongoose` installed in your project.
 
 ## Working with the Cache
 
@@ -160,7 +178,7 @@ When you call `ctx.cache.getUser(userId)`, the `CacheManager` will delegate the 
 
 ## Custom Cache Adapters
 
-If you write a custom cache adapter, you only need to extend the abstract `BaseCacheAdapter` class and implement the required methods.
+If you write a custom cache adapter, you only need to extend the abstract `BaseCacheAdapter` class from `honocord/cache` and implement the required methods.
 
 <Aside type="note">
 
@@ -171,13 +189,17 @@ A Redis cache adapter might be provided officially in the future if there is eno
 </Aside>
 
 ```ts
+import { BaseCacheAdapter, type CacheEntry, type CacheOptions } from "honocord/cache";
 import Redis from "iovalkey"; // works for both Valkey AND Redis
 
-export class RedisCacheAdapter implements CacheAdapter {
+export class RedisCacheAdapter extends BaseCacheAdapter {
   private client: Redis;
   private ready: Promise<void>;
+  private options: CacheOptions;
 
-  constructor(urlOrOptions: string | Redis.RedisOptions) {
+  constructor(urlOrOptions: string | Redis.RedisOptions, options: CacheOptions = {}) {
+    super();
+    this.options = options;
     this.client = new Redis(urlOrOptions as any);
     this.ready = new Promise((resolve, reject) => {
       this.client.once("ready", resolve);
@@ -192,7 +214,7 @@ export class RedisCacheAdapter implements CacheAdapter {
 
   async get<T>(key: string): Promise<T | null> {
     await this.ready;
-    const val = await this.client.get(key);
+    const val = await this.client.get(this.withNamespace(key));
     if (!val) return null;
     return JSON.parse(val) as T;
   }
@@ -200,14 +222,15 @@ export class RedisCacheAdapter implements CacheAdapter {
   async set<T>(key: string, value: T, ttlMs?: number): Promise<void> {
     await this.ready;
     const serialized = JSON.stringify(value);
-    if (ttlMs) {
-      await this.client.set(key, serialized, "PX", ttlMs); // PX = milliseconds TTL
+    const ttl = this.resolveTtl(ttlMs);
+    if (ttl) {
+      await this.client.set(this.withNamespace(key), serialized, "PX", ttl); // PX = milliseconds TTL
     } else {
-      await this.client.set(key, serialized);
+      await this.client.set(this.withNamespace(key), serialized);
     }
   }
 
-  async mset(entries: { key: string; value: unknown; ttlMs?: number }[]): Promise<void> {
+  async mset(entries: CacheEntry[]): Promise<void> {
     await this.ready;
     if (entries.length === 0) return;
 
@@ -215,10 +238,11 @@ export class RedisCacheAdapter implements CacheAdapter {
 
     for (const { key, value, ttlMs } of entries) {
       const serialized = JSON.stringify(value);
-      if (ttlMs) {
-        pipeline.set(key, serialized, "PX", ttlMs);
+      const ttl = this.resolveTtl(ttlMs);
+      if (ttl) {
+        pipeline.set(this.withNamespace(key), serialized, "PX", ttl);
       } else {
-        pipeline.set(key, serialized);
+        pipeline.set(this.withNamespace(key), serialized);
       }
     }
 
@@ -227,12 +251,27 @@ export class RedisCacheAdapter implements CacheAdapter {
 
   async delete(key: string): Promise<void> {
     await this.ready;
-    await this.client.del(key);
+    await this.client.del(this.withNamespace(key));
+  }
+
+  async has(key: string): Promise<boolean> {
+    await this.ready;
+    const count = await this.client.exists(this.withNamespace(key));
+    return count === 1;
   }
 
   async clear(): Promise<void> {
     await this.ready;
     await this.client.flushdb();
+  }
+
+  private withNamespace(key: string): string {
+    return this.options.namespace ? `${this.options.namespace}:${key}` : key;
+  }
+
+  private resolveTtl(ttlMs?: number): number | undefined {
+    if (ttlMs) return ttlMs;
+    return this.options.ttl ? this.options.ttl * 1000 : undefined; // ttl option is in seconds
   }
 }
 ```

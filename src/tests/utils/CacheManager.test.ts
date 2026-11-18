@@ -1,4 +1,4 @@
-import { BaseCacheAdapter } from "@honocord/cache-base";
+import { BaseCacheAdapter, type CacheEntry } from "../../cache";
 import { InteractionType } from "discord-api-types/v10";
 import { describe, expect, it } from "vitest";
 import { CacheManager } from "../../utils/CacheManager";
@@ -14,7 +14,7 @@ class MemoryCacheAdapter extends BaseCacheAdapter {
     this.store.set(key, value);
   }
 
-  async mset(entries: { key: string; value: unknown; ttlMs?: number }[]): Promise<void> {
+  async mset(entries: CacheEntry[]): Promise<void> {
     for (const entry of entries) {
       this.store.set(entry.key, entry.value);
     }

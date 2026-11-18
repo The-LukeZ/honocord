@@ -74,16 +74,14 @@ Tests use [Vitest](https://vitest.dev/) for fast unit testing with TypeScript su
 
 The repository is organized as a monorepo with the following structure:
 
-- **`src/`** - Core Honocord library
-- **`packages/`** - Optional cache adapters (`cache-base`, `cache-memory`, `cache-do`, `cache-mongo`)
+- **`src/`** - Core Honocord library, including the cache adapters (`src/cache`, exposed as `honocord/cache`, `honocord/cache/memory`, `honocord/cache/do` and `honocord/cache/mongo`)
 - **`docs/`** - Documentation site (Astro)
 
 ### Building
 
 ```bash
 pnpm build         # Build the root package
-pnpm build:all     # Build root and all cache packages
 pnpm typecheck     # Type check the root package
 ```
 
-All packages use [tsdown](https://tsdown.dev/) for zero-config builds.
+The package uses [tsdown](https://tsdown.dev/) for zero-config builds.

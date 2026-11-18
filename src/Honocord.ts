@@ -48,7 +48,7 @@ import { UserSelectInteraction } from "@ctx/UserSelectInteraction";
 import { RoleSelectInteraction } from "@ctx/RoleSelectInteraction";
 import { MentionableSelectInteraction } from "@ctx/MentionableSelectInteraction";
 import { ChannelSelectInteraction } from "@ctx/ChannelSelectInteraction";
-import { BaseCacheAdapter, NullCacheAdapter } from "@honocord/cache-base";
+import { BaseCacheAdapter, NullCacheAdapter } from "./cache";
 import { CacheManager } from "@utils/CacheManager";
 
 /** Constructor options for {@link Honocord}. */
