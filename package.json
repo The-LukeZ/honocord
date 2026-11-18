@@ -37,31 +37,31 @@
   ],
   "author": "The-LukeZ",
   "license": "MIT",
-  "packageManager": "pnpm@11.24.0",
+  "packageManager": "pnpm@12.19.0",
   "type": "module",
   "dependencies": {
-    "@discordjs/builders": "^1.14.1",
+    "@discordjs/builders": "^1.15.0",
     "@discordjs/collection": "^2.1.1",
-    "@discordjs/core": "^2.6.0",
+    "@discordjs/core": "^2.7.0",
     "@discordjs/rest": "^2.6.3",
     "@honocord/cache-base": "workspace:*",
-    "discord-api-types": "0.38.55"
+    "discord-api-types": "0.38.58"
   },
   "peerDependencies": {
     "hono": "^4.13.1"
   },
   "devDependencies": {
-    "@changesets/cli": "^3.0.2",
-    "@cloudflare/workers-types": "^5.20260911.1",
-    "@types/node": "^26.5.1",
-    "hono": "^4.13.7",
-    "prettier": "^3.9.6",
-    "tsdown": "0.23.0",
+    "@changesets/cli": "^3.0.3",
+    "@cloudflare/workers-types": "^5.20261110.1",
+    "@types/node": "^26.6.6",
+    "hono": "^4.13.18",
+    "prettier": "^3.10.0",
+    "tsdown": "0.23.7",
     "typedoc": "^0.28.20",
-    "typedoc-plugin-frontmatter": "^1.3.2",
-    "typedoc-plugin-markdown": "^4.13.0",
+    "typedoc-plugin-frontmatter": "^1.3.3",
+    "typedoc-plugin-markdown": "^4.14.1",
     "typescript": "6.0.3",
-    "vitest": "^5.0.0"
+    "vitest": "^5.1.0"
   },
   "repository": {
     "url": "git+https://github.com/The-LukeZ/honocord.git"

@@ -16,3 +16,6 @@ docs/src/content/docs/reference/classes
 docs/src/content/docs/reference/functions
 docs/src/content/docs/reference/constants
 docs/src/content/docs/reference/types
+
+# Astro generated
+docs/.astro
