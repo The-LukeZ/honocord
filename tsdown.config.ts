@@ -14,7 +14,7 @@ export default defineConfig({
     "@handlers": "src/handlers",
   },
   sourcemap: true,
-  dts: { tsc: { build: true } },
+  dts: true,
   format: ["esm", "cjs"],
   minify: false,
 });

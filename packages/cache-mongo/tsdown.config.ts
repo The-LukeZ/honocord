@@ -11,7 +11,7 @@ export default defineConfig({
     index: "src/index.ts",
   },
   sourcemap: true,
-  dts: { tsc: { build: true } },
+  dts: true,
   format: ["esm", "cjs"],
   minify: false,
 });
