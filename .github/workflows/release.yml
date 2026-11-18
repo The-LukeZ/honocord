@@ -12,7 +12,7 @@ concurrency:
 permissions:
   contents: write # to create git tags and GitHub Releases
   pull-requests: write # to open and update the "Version Packages" PR
-  id-token: write # for npm provenance
+  id-token: write # npm trusted publishing (OIDC) and provenance, no NPM_TOKEN
 
 jobs:
   release:
@@ -21,19 +21,19 @@ jobs:
     permissions:
       contents: write # to create git tags and GitHub Releases
       pull-requests: write # to open and update the "Version Packages" PR
-      id-token: write # for npm provenance
+      id-token: write # npm trusted publishing (OIDC) and provenance, no NPM_TOKEN
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           # Fetch full history so Changesets can diff against previous tags
           fetch-depth: 0
 
       - name: Setup pnpm
-        uses: pnpm/setup@v2
+        uses: pnpm/setup@v3
         with:
-          runtime: node@24
+          runtime: node@26
           cache: true
           install: false
 
