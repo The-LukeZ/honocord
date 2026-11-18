@@ -11,7 +11,7 @@ export default defineConfig({
     index: "src/index.ts",
   },
   sourcemap: true,
-  dts: { build: true },
+  dts: { tsc: { build: true } },
   format: ["esm", "cjs"],
   minify: false,
   deps: { neverBundle: ["cloudflare:workers"] }, // DurableObject is can be seen as peer dependency that is mandatory for using this adapter, but the userto provide this.

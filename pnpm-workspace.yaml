@@ -5,6 +5,9 @@ packages:
 
 ignoreWorkspaceRootCheck: true
 
+# 1 week, in minutes
+minimumReleaseAge: 10080
+
 allowBuilds:
   esbuild: true
   sharp: true
