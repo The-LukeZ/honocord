@@ -1,4 +1,4 @@
-import { BaseCacheAdapter, CacheOptions } from "@honocord/cache-base";
+import { BaseCacheAdapter, type CacheEntry, type CacheOptions } from "../index";
 
 interface MemoryEntry {
   value: unknown;
@@ -79,7 +79,7 @@ export class MemoryCacheAdapter extends BaseCacheAdapter {
     }
   }
 
-  async mset(entries: { key: string; value: unknown; ttlMs?: number }[]): Promise<void> {
+  async mset(entries: CacheEntry[]): Promise<void> {
     const now = Date.now();
     for (const { key, value, ttlMs } of entries) {
       const expiresAt = ttlMs !== undefined ? now + ttlMs : null;

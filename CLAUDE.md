@@ -5,14 +5,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-pnpm build:all          # Build all packages + root (use before publishing)
-pnpm build              # Build root only
-pnpm build:packages     # Build packages/* only
-pnpm dev                # Watch mode (root)
-pnpm dev:packages       # Watch mode (packages/*)
+pnpm build              # Build the package (use before publishing)
+pnpm dev                # Watch mode
 pnpm test               # Run Vitest tests
-pnpm typecheck          # TypeScript check (root)
-pnpm typecheck:packages # TypeScript check (packages/*)
+pnpm typecheck          # TypeScript check
 pnpm format             # Format with Prettier
 pnpm check              # Check formatting (CI uses this)
 ```
@@ -29,10 +25,11 @@ Honocord is a type-safe library for building Discord bots using Discord's Intera
 ### Monorepo structure
 
 - `src/` — Core library (the `honocord` npm package)
-- `packages/cache-base/` — Abstract cache adapter interface
-- `packages/cache-memory/` — In-memory cache implementation
-- `packages/cache-do/` — Cloudflare Durable Objects cache
-- `packages/cache-mongo/` — MongoDB cache adapter
+- `src/cache/` - Cache adapters, shipped as subpath exports of `honocord`:
+  - `src/cache/index.ts` (`honocord/cache`) - `BaseCacheAdapter`, `NullCacheAdapter`, cache option types
+  - `src/cache/memory` (`honocord/cache/memory`) - In-memory cache implementation
+  - `src/cache/do` (`honocord/cache/do`) - Cloudflare Durable Objects cache (needs Workers runtime)
+  - `src/cache/mongo` (`honocord/cache/mongo`) - MongoDB cache adapter (`mongoose` is an optional peer dependency)
 - `docs/` — Astro Starlight documentation site (not published to npm)
 
 ### Core data flow
@@ -61,7 +58,7 @@ Honocord is a type-safe library for building Discord bots using Discord's Intera
 
 ### Cache adapters
 
-All adapters extend `BaseCache` from `@honocord/cache-base`. Register one with `honocord.withCache(adapter)`. The `CacheManager` wraps it with namespaced helpers.
+All adapters extend `BaseCacheAdapter` from `honocord/cache` (source in `src/cache/`). Custom adapters do the same. Register one with `honocord.withCache(adapter)`. The `CacheManager` wraps it with namespaced helpers.
 
 ## Versioning & releases
 

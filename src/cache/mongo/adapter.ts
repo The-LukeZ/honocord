@@ -1,6 +1,6 @@
 // cache/adapters/MongoCacheAdapter.ts
 import mongoose, { Schema, model, type Model } from "mongoose";
-import { BaseCacheAdapter } from "@honocord/cache-base";
+import { BaseCacheAdapter, type CacheEntry } from "../index";
 
 interface CacheDoc {
   _id: string;
@@ -60,7 +60,7 @@ export class MongoCacheAdapter extends BaseCacheAdapter {
     );
   }
 
-  async mset(entries: { key: string; value: unknown; ttlMs?: number }[]): Promise<void> {
+  async mset(entries: CacheEntry[]): Promise<void> {
     await this.ready;
     const bulkOps = entries.map(({ key, value, ttlMs }) => ({
       updateOne: {

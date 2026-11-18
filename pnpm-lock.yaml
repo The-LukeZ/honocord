@@ -187,9 +187,6 @@ importers:
       '@discordjs/rest':
         specifier: ^2.6.3
         version: 2.6.3
-      '@honocord/cache-base':
-        specifier: workspace:*
-        version: link:packages/cache-base
       discord-api-types:
         specifier: 0.38.58
         version: 0.38.58
@@ -206,6 +203,9 @@ importers:
       hono:
         specifier: ^4.13.18
         version: 4.13.18
+      mongoose:
+        specifier: ^9.12.1
+        version: 9.12.1
       prettier:
         specifier: ^3.10.0
         version: 3.10.0
@@ -264,34 +264,6 @@ importers:
       wrangler:
         specifier: ^4.160.1
         version: 4.160.1(@cloudflare/workers-types@5.20261110.1)(@types/node@26.6.6)
-
-  packages/cache-base: {}
-
-  packages/cache-do:
-    dependencies:
-      '@honocord/cache-base':
-        specifier: workspace:*
-        version: link:../cache-base
-    devDependencies:
-      '@cloudflare/workers-types':
-        specifier: ^5.20261110.1
-        version: 5.20261110.1
-
-  packages/cache-memory:
-    dependencies:
-      '@honocord/cache-base':
-        specifier: workspace:*
-        version: link:../cache-base
-
-  packages/cache-mongo:
-    dependencies:
-      '@honocord/cache-base':
-        specifier: workspace:*
-        version: link:../cache-base
-    devDependencies:
-      mongoose:
-        specifier: ^9.12.1
-        version: 9.12.1
 
 packages:
 

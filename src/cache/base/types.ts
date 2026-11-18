@@ -1,5 +1,8 @@
 export interface CacheOptions {
-  ttl?: number; // Time to live in seconds
+  /**
+   * Default time to live in seconds, used when an entry is stored without its own TTL.
+   */
+  ttl?: number;
   /**
    * Optional namespace for all cache keys. This can help avoid key collisions when using multiple cache managers or sharing a cache store with other applications.
    */
@@ -14,14 +17,14 @@ export interface CacheOptions {
   cleanupInterval?: number;
 }
 
-export interface CacheSetOptions {
-  ttl?: number;
-}
-
-export interface CacheAdapter {
-  get<T>(key: string): Promise<T | null>;
-  set<T>(key: string, value: T, options?: CacheSetOptions): Promise<void>;
-  delete(key: string): Promise<boolean>;
-  clear(): Promise<void>;
-  has(key: string): Promise<boolean>;
+/**
+ * A single entry passed to {@link BaseCacheAdapter.mset}.
+ */
+export interface CacheEntry {
+  key: string;
+  value: unknown;
+  /**
+   * Optional time to live in milliseconds.
+   */
+  ttlMs?: number;
 }

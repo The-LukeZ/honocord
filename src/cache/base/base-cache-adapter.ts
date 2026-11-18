@@ -1,3 +1,5 @@
+import type { CacheEntry } from "./types";
+
 export abstract class BaseCacheAdapter {
   /**
    * Retrieve a value by key. Returns `null` if not found or expired.
@@ -13,7 +15,7 @@ export abstract class BaseCacheAdapter {
    * Store multiple entries at once. Each entry can have its own optional TTL. This should be more efficient than multiple `set` calls for adapters that support bulk operations (e.g. Redis MSET, MongoDB bulkWrite).
    * @param entries An array of entries to set, each with a key, value, and optional TTL in milliseconds.
    */
-  abstract mset(entries: { key: string; value: unknown; ttlMs?: number }[]): Promise<void>;
+  abstract mset(entries: CacheEntry[]): Promise<void>;
 
   /**
    * Delete a single key.

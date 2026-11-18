@@ -1,4 +1,4 @@
-import { BaseCacheAdapter } from "@honocord/cache-base";
+import { BaseCacheAdapter, type CacheEntry } from "../index";
 // DurableObjectNamespace / DurableObjectStub come from @cloudflare/workers-types, which is a
 // global ambient declaration file — importing from it breaks .d.ts bundling.
 import type { HonocordCacheDO } from "./do";
@@ -31,7 +31,7 @@ export class DurableObjectCacheAdapter extends BaseCacheAdapter {
     await this.getStub().set(key, value, ttlMs);
   }
 
-  async mset(entries: { key: string; value: unknown; ttlMs?: number }[]): Promise<void> {
+  async mset(entries: CacheEntry[]): Promise<void> {
     await this.getStub().mset(entries);
   }
 

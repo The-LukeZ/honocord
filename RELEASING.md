@@ -18,7 +18,7 @@ Every PR that modifies a publishable package **must** include a changeset.
 
 ```bash
 git checkout -b my-feature
-# ... make changes to packages/foo, packages/bar, etc.
+# ... make changes in src/
 ```
 
 ### 2. Create a changeset

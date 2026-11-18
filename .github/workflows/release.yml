@@ -40,8 +40,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages
-        run: pnpm build:all
+      - name: Build
+        run: pnpm build
 
       - name: Create release PR or publish to npm
         uses: changesets/action@v2
