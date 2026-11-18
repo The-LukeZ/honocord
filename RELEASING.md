@@ -1,12 +1,7 @@
 # Releasing
 
 This repo uses [Changesets](https://github.com/changesets/changesets) to manage versioning and publishing.
-Packages are versioned independently — a change to one package does not bump others.
-
-## Packages
-
-- `.`
-- `packages/*`
+Only one package is published: `honocord` (the repo root). The cache adapters ship inside it as subpath exports (`honocord/cache`, `honocord/cache/*`). The `docs` workspace (`honocord-docs`) is private and ignored by Changesets.
 
 ---
 
@@ -80,9 +75,9 @@ When you're ready to ship:
 1. **Review the "Version Packages" PR** — check the version bumps and changelog entries look correct
 2. **Merge it**
 3. The action then automatically:
-   - Publishes the bumped packages to npm
-   - Creates a GitHub Release per package with the changelog as release notes
-   - Creates git tags (e.g. `packages-foo@1.2.0`)
+   - Publishes `honocord` to npm
+   - Creates a GitHub Release with the changelog as release notes
+   - Creates a git tag (e.g. `honocord@4.0.0`)
 
 There is nothing else to do manually.
 
@@ -105,5 +100,4 @@ There is nothing else to do manually.
 - **One changeset per PR**, not per commit. The PR is the unit of change.
 - **Don't manually edit `package.json` versions** — Changesets owns that.
 - **Don't manually publish** — the CI action owns that.
-- If a PR touches multiple packages, a single `pnpm changeset` run can cover all of them.
-- If a package is `"private": true` in its `package.json`, Changesets will skip it automatically.
+- Packages marked `"private": true` or listed in `ignore` in `.changeset/config.json` are skipped.
