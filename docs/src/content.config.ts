@@ -11,9 +11,9 @@ export const collections = {
     schema: docsSchema({
       extend: z.object({
         // Add a default value to the built-in `banner` field.
-        // banner: z.object({ content: z.string() }).default({
-        //   content: "V2 has arrived! A lot has changed, so treat this as a fresh start.",
-        // }),
+        banner: z.object({ content: z.string() }).default({
+          content: "V4 has arrived!",
+        }),
       }),
     }),
   }),
