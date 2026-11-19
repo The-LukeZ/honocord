@@ -1,13 +1,16 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+import { satteri } from "@astrojs/markdown-satteri";
 import mermaid from "astro-mermaid";
-import starlightImageZoom from "starlight-image-zoom";
 import starlightLlmsTxt from "starlight-llms-txt";
 import starlightContextualMenu from "starlight-contextual-menu";
 
 // https://astro.build/config
 export default defineConfig({
+  // Explicit so Expressive Code uses its Satteri plugin (Astro 7 default processor).
+  markdown: { processor: satteri() },
+
   trailingSlash: "ignore",
 
   site: "https://honocord.thelukez.com",
@@ -52,7 +55,6 @@ export default defineConfig({
         starlightContextualMenu({
           actions: ["copy", "view", "claude", "chatgpt", "lechat"],
         }),
-        starlightImageZoom({ showCaptions: false }),
       ],
       title: "Honocord Docs",
       description: "Documentation for Honocord — Imagine a Discord HTTP interactions bot for Hono",
@@ -116,7 +118,43 @@ export default defineConfig({
         "./src/styles/components.css",
       ],
       credits: true,
-      expressiveCode: true,
+      expressiveCode: {
+        // One dark theme for both modes: code blocks are always dark.
+        themes: ["github-dark"],
+        useStarlightDarkModeSwitch: false,
+        useStarlightUiThemeColors: false,
+        customizeTheme(theme) {
+          // Flame for keywords, blurple for strings, types and functions.
+          const swaps = { "#f97583": "#FF8C5A", "#9ecbff": "#A3ABFF", "#b392f0": "#A3ABFF" };
+          for (const setting of theme.settings) {
+            const color = setting.settings.foreground?.toLowerCase();
+            if (color && swaps[color]) setting.settings.foreground = swaps[color];
+          }
+          return theme;
+        },
+        styleOverrides: {
+          codeBackground: "var(--hc-code-bg)",
+          borderRadius: "6px",
+          borderColor: "transparent",
+          codeFontFamily: "'JetBrains Mono', ui-monospace, monospace",
+          uiFontFamily: "var(--sl-font)",
+          frames: {
+            editorTabBarBackground: "var(--hc-code-bg)",
+            editorActiveTabBackground: "var(--hc-code-bg)",
+            // Flat filename tab: no outlines or indicator bars.
+            editorTabBarBorderColor: "transparent",
+            editorTabBarBorderBottomColor: "#FFFFFF14",
+            editorActiveTabBorderColor: "transparent",
+            editorActiveTabIndicatorTopColor: "transparent",
+            editorActiveTabIndicatorBottomColor: "transparent",
+            editorActiveTabForeground: "#B5BAC1",
+            terminalTitlebarBorderBottomColor: "#FFFFFF14",
+            terminalTitlebarBackground: "var(--hc-code-bg)",
+            terminalBackground: "var(--hc-code-bg)",
+            frameBoxShadowCssValue: "none",
+          },
+        },
+      },
       pagefind: true,
       editLink: { baseUrl: "https://github.com/The-LukeZ/honocord/tree/main/docs" },
       lastUpdated: true,
@@ -127,6 +165,7 @@ export default defineConfig({
       },
       components: {
         Head: "./src/components/overrides/Head.astro",
+        MarkdownContent: "./src/components/overrides/MarkdownContent.astro",
       },
       head: [
         {

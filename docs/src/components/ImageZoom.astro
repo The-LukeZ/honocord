@@ -1,0 +1,89 @@
+---
+// Click (or Enter/Space) on a content image to view it full size in a dialog.
+// Replaces starlight-image-zoom. Opt out per image with `data-zoom-off`.
+// Images inside links are left alone so the link still works.
+---
+
+<dialog class="hc-zoom" aria-label="Zoomed image">
+  <img alt="" />
+</dialog>
+
+<style is:global>
+  @layer honocord {
+    .sl-markdown-content img[data-hc-zoomable] {
+      cursor: zoom-in;
+    }
+
+    .hc-zoom {
+      background: transparent;
+      border: 0;
+      max-height: none;
+      max-width: none;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .hc-zoom[open] {
+      display: grid;
+      place-items: center;
+    }
+
+    .hc-zoom::backdrop {
+      background: color-mix(in oklab, var(--hc-bg) 92%, transparent);
+    }
+
+    .hc-zoom img {
+      background: var(--hc-surface);
+      border-radius: var(--hc-radius-code);
+      cursor: zoom-out;
+      max-height: 92vh;
+      max-width: 94vw;
+      object-fit: contain;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .hc-zoom[open] img {
+        animation: hc-zoom-in 160ms ease-out;
+      }
+
+      @keyframes hc-zoom-in {
+        from {
+          opacity: 0;
+          transform: scale(0.96);
+        }
+      }
+    }
+  }
+</style>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>("dialog.hc-zoom");
+  const zoomed = dialog?.querySelector("img");
+
+  if (dialog && zoomed) {
+    const open = (img: HTMLImageElement) => {
+      zoomed.src = img.currentSrc || img.src;
+      zoomed.alt = img.alt;
+      dialog.showModal();
+    };
+
+    for (const img of document.querySelectorAll<HTMLImageElement>(".sl-markdown-content img")) {
+      if (img.closest("a, [data-zoom-off]") || img.hasAttribute("data-zoom-off")) continue;
+      img.dataset["hcZoomable"] = "";
+      img.tabIndex = 0;
+      img.setAttribute("role", "button");
+      img.setAttribute("aria-label", img.alt ? `Zoom image: ${img.alt}` : "Zoom image");
+      img.addEventListener("click", () => open(img));
+      img.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          open(img);
+        }
+      });
+    }
+
+    // Any click closes it; Esc is handled by the dialog itself.
+    dialog.addEventListener("click", () => dialog.close());
+  }
+</script>
