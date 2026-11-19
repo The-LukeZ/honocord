@@ -1,0 +1,114 @@
+---
+title: Migrating to v4
+description: Upgrade a Honocord v3 bot to v4 and v4.1.
+sidebar:
+  order: 9
+---
+
+import { Aside, Steps } from "@astrojs/starlight/components";
+
+Honocord v4 merges the separate cache adapter packages into `honocord` itself. v4.1 then raises the minimum Node.js version to 24. If your bot doesn't use a cache adapter and already runs on Node.js 24 or newer, updating the package is all you need to do.
+
+## What changed
+
+| Version | Change                                                                                                   | Action needed                                                             |
+| ------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| 4.0.0   | `@honocord/cache-*` packages merged into `honocord` as subpath exports                                   | Update imports, uninstall the old packages                                |
+| 4.0.0   | Unused `CacheAdapter` interface and `CacheSetOptions` type removed                                       | Only if you imported them: extend `BaseCacheAdapter` instead              |
+| 4.0.0   | `mset()` entry shape exported as `CacheEntry`                                                            | None (optional: use it to type your entries)                              |
+| 4.0.0   | CommonJS `main`/`types`/`exports` fixed: `require("honocord")` now resolves                              | None                                                                      |
+| 4.0.0   | Dependencies updated: `@discordjs/builders` 1.15.0, `@discordjs/core` 2.7.0, `discord-api-types` 0.38.58 | None, unless you pin these packages yourself                              |
+| 4.1.0   | Node.js 24 or newer required (`engines.node` is `>=24`)                                                  | Upgrade Node.js (Cloudflare Workers are not affected by the Node version) |
+| 4.1.0   | `AutocompleteHelper` exported from `honocord`                                                            | None. It was documented before but could not be imported.                 |
+
+## Upgrade steps
+
+<Steps>
+
+1. **Check your Node.js version.** Run `node --version`. If it prints anything below `v24`, upgrade Node.js first, including on your server or in your CI. Bots on Cloudflare Workers can skip this step.
+
+2. **Update Honocord.**
+
+   ```bash
+   pnpm add honocord@^4.1.0
+   ```
+
+3. **Uninstall the old cache packages** you had installed. Skip this if you never used a cache adapter.
+
+   ```bash
+   pnpm remove @honocord/cache-base @honocord/cache-memory @honocord/cache-do @honocord/cache-mongo
+   ```
+
+4. **Update your cache imports.** Export names are unchanged; only the paths differ.
+
+   | Old import               | New import              |
+   | ------------------------ | ----------------------- |
+   | `@honocord/cache-base`   | `honocord/cache`        |
+   | `@honocord/cache-memory` | `honocord/cache/memory` |
+   | `@honocord/cache-do`     | `honocord/cache/do`     |
+   | `@honocord/cache-mongo`  | `honocord/cache/mongo`  |
+
+   ```ts del={1} ins={2}
+   import { MemoryCacheAdapter } from "@honocord/cache-memory";
+   import { MemoryCacheAdapter } from "honocord/cache/memory";
+   ```
+
+   ```ts del={1} ins={2}
+   export { HonocordCacheDO } from "@honocord/cache-do";
+   export { HonocordCacheDO } from "honocord/cache/do";
+   ```
+
+5. **Keep `mongoose` if you use MongoDB.** It is now an optional peer dependency of `honocord`, only needed when you import `honocord/cache/mongo`. Make sure it stays in your own `package.json`.
+
+6. **Build and run your type check.** Any leftover `@honocord/cache-*` import now fails to resolve, so the compiler points you at what is left to change.
+
+</Steps>
+
+## Custom cache adapters
+
+If you wrote your own adapter, extend `BaseCacheAdapter` from `honocord/cache`. The removed `CacheAdapter` interface never matched it: its `delete()` returned a `boolean` and its `set()` took an options object. `BaseCacheAdapter` uses these signatures:
+
+```ts
+import { BaseCacheAdapter, type CacheEntry } from "honocord/cache";
+
+export class MyCacheAdapter extends BaseCacheAdapter {
+  async get<T>(key: string): Promise<T | null> {
+    /* ... */
+  }
+  async set<T>(key: string, value: T, ttlMs?: number): Promise<void> {
+    /* ... */
+  }
+  async mset(entries: CacheEntry[]): Promise<void> {
+    /* ... */
+  }
+  async delete(key: string): Promise<void> {
+    /* ... */
+  }
+  async has(key: string): Promise<boolean> {
+    /* ... */
+  }
+  async clear(): Promise<void> {
+    /* ... */
+  }
+}
+```
+
+<Aside type="tip">
+  The [Caching guide](/guides/caching/) shows how to register an adapter with `withCache()` and how each built-in adapter is set
+  up.
+</Aside>
+
+## Autocomplete helper
+
+`AutocompleteHelper` can now be imported from the package root, as the [Handlers guide](/guides/handlers/) always showed:
+
+```ts
+import { AutocompleteHelper } from "honocord";
+```
+
+If you worked around the missing export (for example by copying the helper into your project), you can delete your copy.
+
+## Release notes
+
+- [honocord@4.0.0](https://github.com/The-LukeZ/honocord/releases/tag/honocord%404.0.0)
+- [honocord@4.1.0](https://github.com/The-LukeZ/honocord/releases/tag/honocord%404.1.0)
