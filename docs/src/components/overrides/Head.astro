@@ -1,21 +1,40 @@
 ---
+import { redirects } from "../../config/redirects.mjs";
+
 const { head } = Astro.locals.starlightRoute;
+// Redirect short links (/github, /discord, ...) lead off-site, so treat them as external.
+const externalPaths = Object.keys(redirects);
 ---
 
 {head.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
 
-<script is:inline>
+<script is:inline define:vars={{ externalPaths }}>
+  // Open external links (other origins and redirect short links) in a new tab.
+  // Modified clicks (Ctrl, Shift, middle button) keep the browser's default.
   document.addEventListener(
     "click",
-    function (e) {
-      console.log("Clicked element:", e.target);
-      /** @type {HTMLAnchorElement | null} */
-      const target = e.target.closest("a");
-      if (target && !target.href.includes(location.hostname)) {
-        e.preventDefault();
-        window.open(target.href, "_blank", "noopener");
+    (event) => {
+      if (event.defaultPrevented || event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (!(event.target instanceof Element)) return;
+      const link = event.target.closest("a[href]");
+      if (!link || link.target || link.hasAttribute("download")) return;
+
+      let url;
+      try {
+        url = new URL(link.href, location.href);
+      } catch {
+        return;
       }
+      if (url.protocol !== "http:" && url.protocol !== "https:") return;
+
+      const path = url.pathname.replace(/\/$/, "") || "/";
+      const external = url.origin !== location.origin || externalPaths.includes(path);
+      if (!external) return;
+
+      event.preventDefault();
+      window.open(url.href, "_blank", "noopener");
     },
-    true
+    true,
   );
 </script>

@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+import { redirects } from "./src/config/redirects.mjs";
 import { satteri } from "@astrojs/markdown-satteri";
 import mermaid from "astro-mermaid";
 import starlightLlmsTxt from "starlight-llms-txt";
@@ -15,28 +16,7 @@ export default defineConfig({
 
   site: "https://honocord.thelukez.com",
 
-  redirects: {
-    "/github": {
-      destination: "https://github.com/The-LukeZ/honocord",
-      status: 302,
-    },
-    "/discord": {
-      destination: "https://discord.gg/X4DjpZj6Nz", // this is unique
-      status: 302,
-    },
-    "/lukez": {
-      destination: "https://thelukez.com",
-      status: 302,
-    },
-    "/npm": {
-      destination: "https://www.npmjs.com/package/honocord",
-      status: 302,
-    },
-    "/examples": {
-      destination: "https://github.com/The-LukeZ/honocord-examples",
-      status: 302,
-    },
-  },
+  redirects,
   integrations: [
     mermaid({ autoTheme: true, theme: "dark" }),
     starlight({
