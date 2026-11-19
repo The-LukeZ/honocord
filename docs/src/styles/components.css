@@ -1,0 +1,173 @@
+/* Discord vocabulary for Starlight's UI: channel-style sidebar, slash-command
+   search, embed-style asides and Discord buttons. Tokens only (tokens.css). */
+
+@layer honocord {
+  /* Sidebar: links read like channels. */
+  nav.sidebar a[href] {
+    border-radius: var(--hc-radius-control);
+    color: var(--hc-muted);
+  }
+
+  nav.sidebar a[href]::before {
+    content: "#" / "";
+    color: var(--hc-muted);
+    margin-inline-end: 0.35em;
+  }
+
+  nav.sidebar a[href]:is(:hover, :focus) {
+    color: var(--hc-text);
+  }
+
+  nav.sidebar a[aria-current="page"],
+  nav.sidebar a[aria-current="page"]:is(:hover, :focus) {
+    background-color: var(--hc-active);
+    color: var(--hc-text);
+    font-weight: 600;
+  }
+
+  nav.sidebar summary .large {
+    color: var(--hc-muted);
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+  }
+
+  /* Search: a recessed input whose placeholder reads like a slash command.
+     The label span is aria-hidden; the button keeps its aria-label "Search". */
+  site-search button[data-open-modal] {
+    background-color: var(--hc-recessed);
+    border: 0;
+    border-radius: var(--hc-radius-control);
+    color: var(--hc-muted);
+  }
+
+  site-search button[data-open-modal]:hover {
+    color: var(--hc-text);
+  }
+
+  site-search button[data-open-modal] > span {
+    font-size: 0;
+  }
+
+  site-search button[data-open-modal] > span::before {
+    content: "/ search" / "";
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-sm);
+  }
+
+  /* Asides: Discord embeds with a colored left bar. */
+  .starlight-aside {
+    background-color: var(--hc-surface);
+    border: 1px solid var(--hc-hairline);
+    border-inline-start: 4px solid var(--sl-color-asides-border);
+    border-radius: var(--hc-radius-control);
+    color: var(--hc-text);
+  }
+
+  .starlight-aside--note {
+    --sl-color-asides-border: var(--hc-aside-note);
+    --sl-color-asides-text-accent: var(--hc-aside-note-text);
+  }
+
+  .starlight-aside--tip {
+    --sl-color-asides-border: var(--hc-aside-tip);
+    --sl-color-asides-text-accent: var(--hc-aside-tip-text);
+  }
+
+  .starlight-aside--caution {
+    --sl-color-asides-border: var(--hc-aside-caution);
+    --sl-color-asides-text-accent: var(--hc-aside-caution-text);
+  }
+
+  .starlight-aside--danger {
+    --sl-color-asides-border: var(--hc-aside-danger);
+    --sl-color-asides-text-accent: var(--hc-aside-danger-text);
+  }
+
+  /* Buttons: Discord's primary (blurple) and secondary (gray). */
+  .hc-button,
+  .sl-link-button,
+  .pagination-links a {
+    align-items: center;
+    border: 0;
+    border-radius: var(--hc-radius-control);
+    box-shadow: none;
+    display: inline-flex;
+    font-weight: 600;
+    gap: 0.5em;
+    line-height: 1.2;
+    padding: 0.55rem 1rem;
+    text-decoration: none;
+  }
+
+  .hc-button,
+  .sl-link-button.primary,
+  .pagination-links a[rel="next"] {
+    background-color: var(--hc-button);
+    color: var(--hc-button-text);
+  }
+
+  .hc-button.secondary,
+  .sl-link-button.secondary,
+  .pagination-links a[rel="prev"] {
+    background-color: var(--hc-button-secondary);
+    color: var(--hc-button-secondary-text);
+  }
+
+  .sl-link-button.minimal {
+    color: var(--hc-link);
+    padding-inline: 0;
+  }
+
+  .hc-button:hover,
+  .sl-link-button:is(.primary, .secondary):hover,
+  .pagination-links a:hover {
+    filter: brightness(1.1);
+  }
+
+  .hc-button:hover,
+  .sl-link-button.primary:hover,
+  .pagination-links a[rel="next"]:hover {
+    color: var(--hc-button-text);
+  }
+
+  .hc-button.secondary:hover,
+  .sl-link-button.secondary:hover,
+  .pagination-links a[rel="prev"]:hover {
+    color: var(--hc-button-secondary-text);
+  }
+
+  .pagination-links a {
+    padding: 0.85rem 1rem;
+  }
+
+  .pagination-links a .link-title {
+    color: inherit;
+    font-size: var(--sl-text-lg);
+  }
+
+  .sl-markdown-content .sl-link-button {
+    margin-inline-end: 0.75rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hc-button,
+    .sl-link-button,
+    .pagination-links a {
+      transition:
+        filter 120ms ease-out,
+        transform 80ms ease-out;
+    }
+
+    .hc-button:active,
+    .sl-link-button:active,
+    .pagination-links a:active {
+      transform: translateY(1px);
+    }
+  }
+
+  /* Focus: one blurple ring everywhere. */
+  :is(a, button, summary, [role="button"]):focus-visible {
+    outline: 2px solid var(--hc-button);
+    outline-offset: 2px;
+  }
+}

@@ -23,6 +23,11 @@
   --hc-aside-tip: #23A55A;
   --hc-aside-caution: #F0B232;
   --hc-aside-danger: #F23F43;
+  /* Aside titles: the bar color adjusted to pass AA on the surface. */
+  --hc-aside-note-text: #A3ABFF;
+  --hc-aside-tip-text: #57C985;
+  --hc-aside-caution-text: #F0B232;
+  --hc-aside-danger-text: #FF8A8D;
   --hc-radius-control: 4px;
   --hc-radius-code: 6px;
   --hc-radius-hero: 8px;
@@ -48,4 +53,8 @@
   --hc-aside-tip: #23A55A;
   --hc-aside-caution: #F0B232;
   --hc-aside-danger: #F23F43;
+  --hc-aside-note-text: #4752C4;
+  --hc-aside-tip-text: #1A7A43;
+  --hc-aside-caution-text: #8A5A00;
+  --hc-aside-danger-text: #C42B2F;
 }

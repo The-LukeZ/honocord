@@ -22,6 +22,10 @@ const COLOR_TOKENS = [
   "aside-tip",
   "aside-caution",
   "aside-danger",
+  "aside-note-text",
+  "aside-tip-text",
+  "aside-caution-text",
+  "aside-danger-text",
 ];
 const PAIRS = [
   ["text", "bg"],
@@ -32,6 +36,10 @@ const PAIRS = [
   ["link", "surface"],
   ["button-text", "button"],
   ["button-secondary-text", "button-secondary"],
+  ["aside-note-text", "surface"],
+  ["aside-tip-text", "surface"],
+  ["aside-caution-text", "surface"],
+  ["aside-danger-text", "surface"],
 ];
 
 let css;

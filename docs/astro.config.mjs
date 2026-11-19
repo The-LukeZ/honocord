@@ -113,6 +113,7 @@ export default defineConfig({
         "@fontsource/jetbrains-mono/400.css",
         "./src/styles/tokens.css",
         "./src/styles/global.css",
+        "./src/styles/components.css",
       ],
       credits: true,
       expressiveCode: true,
