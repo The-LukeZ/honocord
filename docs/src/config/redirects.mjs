@@ -1,5 +1,7 @@
 // Short links to external sites. Used by astro.config.mjs and by the link
 // hook in Head.astro, which opens them in a new tab like other external links.
+// @ts-check
+/** @type {NonNullable<import("astro").AstroUserConfig["redirects"]>} */
 export const redirects = {
   "/github": {
     destination: "https://github.com/The-LukeZ/honocord",
