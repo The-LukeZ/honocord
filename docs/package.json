@@ -10,12 +10,13 @@
     "build": "pnpm run docs:reference && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "icons": "node scripts/build-icons.mjs"
+    "icons": "node scripts/build-icons.mjs",
+    "check:contrast": "node scripts/check-contrast.mjs"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.42.10",
-    "@catppuccin/starlight": "^2.1.0",
-    "@fontsource/poppins": "^5.3.0",
+    "@fontsource/instrument-sans": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
     "astro": "^7.4.11",
     "astro-mermaid": "^2.2.0",
     "mermaid": "^12.3.0",

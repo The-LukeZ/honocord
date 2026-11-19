@@ -1,72 +1,50 @@
 @layer starlight, honocord;
 
-:root {
-  --sl-font: "Poppins", sans-serif;
-  --sl-content-width: 1000px;
+/* Map the Honocord tokens (tokens.css) onto Starlight's variables.
+   The --hc-* values switch with the theme, so one mapping covers both. */
+:root,
+:root[data-theme="light"] {
+  --sl-font: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --sl-font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --sl-content-width: 46rem;
   --sl-sidebar-width: 300px;
+
+  --sl-color-bg: var(--hc-bg);
+  --sl-color-bg-nav: var(--hc-surface);
+  --sl-color-bg-sidebar: var(--hc-surface);
+  --sl-color-bg-inline-code: var(--hc-recessed);
+  --sl-color-hairline: var(--hc-hairline);
+  --sl-color-hairline-light: var(--hc-hairline);
+  --sl-color-hairline-shade: var(--hc-hairline);
+  --sl-color-text: var(--hc-text);
+  --sl-color-white: var(--hc-text);
+  --sl-color-black: var(--hc-bg);
+
+  /* Gray ramp from text (1) to recessed (6). */
+  --sl-color-gray-1: color-mix(in oklab, var(--hc-text) 90%, var(--hc-bg));
+  --sl-color-gray-2: color-mix(in oklab, var(--hc-text) 75%, var(--hc-bg));
+  --sl-color-gray-3: var(--hc-muted);
+  --sl-color-gray-4: color-mix(in oklab, var(--hc-muted) 55%, var(--hc-bg));
+  --sl-color-gray-5: var(--hc-active);
+  --sl-color-gray-6: var(--hc-recessed);
+  --sl-color-gray-7: var(--hc-surface);
+
+  --sl-color-accent-low: color-mix(in oklab, var(--hc-button) 22%, var(--hc-bg));
+  --sl-color-accent: var(--hc-button);
+  --sl-color-accent-high: var(--hc-link);
+  --sl-color-text-accent: var(--hc-link);
+  --sl-color-bg-accent: var(--hc-button);
+  --sl-color-text-invert: var(--hc-button-text);
 }
 
 code[dir="auto"] {
-  transition: background-color 80ms ease-in-out;
-  border-radius: 4px;
+  border-radius: var(--hc-radius-control);
   padding: 0.2em 0.4em;
-
-  &:hover {
-    background-color: color-mix(in oklab, var(--sl-color-bg-inline-code) 90%, var(--sl-color-text));
-  }
 }
 
 @layer honocord {
-  .sl-link-button {
-    align-items: center;
-    border: 1px solid transparent;
-    border-radius: 999rem;
-    display: inline-flex;
-    font-size: var(--sl-text-md);
-    gap: 0.5em;
-    line-height: 1.1875;
-    outline-offset: 0.25rem;
-    padding: 0.65rem 1rem;
-    text-decoration: none;
-    transition: all 100ms ease-in-out;
-  }
-
-  .sl-link-button:hover {
-    filter: brightness(0.85);
-  }
-
-  .sl-link-button.primary {
-    background: var(--sl-color-text-accent);
-    border-color: var(--sl-color-text-accent);
-    color: var(--sl-color-black);
-  }
-  .sl-link-button.primary:hover {
-    color: var(--sl-color-black);
-  }
-  .sl-link-button.secondary {
-    border-color: inherit;
-    color: var(--sl-color-white);
-  }
-  .sl-link-button.minimal {
-    color: var(--sl-color-white);
-    padding-inline: 0;
-  }
-
-  .sl-link-button :global(svg) {
-    flex-shrink: 0;
-  }
-
-  @media (min-width: 50rem) {
-    .sl-link-button {
-      font-size: var(--sl-text-base);
-      padding: 0.35rem 1.1rem;
-    }
-  }
-
-  :global(.sl-markdown-content) .sl-link-button {
-    margin-inline-end: 1rem;
-  }
-  :global(.sl-markdown-content) .sl-link-button:not(:where(p *)) {
-    margin-block: 1rem;
+  :is(h1, h2, h3, h4, h5, h6) {
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
 }

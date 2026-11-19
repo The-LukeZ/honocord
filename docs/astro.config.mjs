@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import starlightCatppuccin from "@catppuccin/starlight";
 import mermaid from "astro-mermaid";
 import starlightImageZoom from "starlight-image-zoom";
 import starlightLlmsTxt from "starlight-llms-txt";
@@ -54,16 +53,6 @@ export default defineConfig({
           actions: ["copy", "view", "claude", "chatgpt", "lechat"],
         }),
         starlightImageZoom({ showCaptions: false }),
-        starlightCatppuccin({
-          dark: {
-            flavor: "mocha",
-            accent: "sapphire",
-          },
-          light: {
-            flavor: "latte",
-            accent: "sapphire",
-          },
-        }),
       ],
       title: "Honocord Docs",
       description: "Documentation for Honocord — Imagine a Discord HTTP interactions bot for Hono",
@@ -118,10 +107,11 @@ export default defineConfig({
         },
       ],
       customCss: [
-        "@fontsource/poppins/400.css",
-        "@fontsource/poppins/500.css",
-        "@fontsource/poppins/600.css",
-        "@fontsource/poppins/700.css",
+        "@fontsource/instrument-sans/400.css",
+        "@fontsource/instrument-sans/600.css",
+        "@fontsource/instrument-sans/700.css",
+        "@fontsource/jetbrains-mono/400.css",
+        "./src/styles/tokens.css",
         "./src/styles/global.css",
       ],
       credits: true,
