@@ -1,9 +1,22 @@
 # Honocord - Imagine an interactions bot
 
-> [!IMPORTANT]
-> No, this ain't abandoned - I'm just busy with other projects and life stuff. I you want something added or want to help out, open an issue or PR and I'll try to get to it when I can. Thanks for understanding!
+**Honocord is a powerful, type-safe library for building Discord bots using interactions with the Hono web framework.**
 
-Honocord is a powerful, type-safe library for building Discord bots using interactions with the Hono web framework.
+> [!IMPORTANT]
+> No, this ain't abandoned - I'm just busy with other projects and life stuff. If you want something added or want to help out, open an issue or PR and I'll try to get to it when I can. Thanks for understanding!
+
+## Contents
+
+- [What is Honocord?](#what-is-honocord)
+- [Key Features](#key-features)
+- [Install](#install)
+- [Usage](#usage)
+- [Getting Help](#getting-help)
+- [Examples](#examples)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [Caveats](#caveats)
+- [License](#license)
 
 ## What is Honocord?
 
@@ -28,6 +41,39 @@ Refer to the [docs](https://honocord.thelukez.com) for detailed guides, API refe
 
 Also get familiar with [Discord.js](https://discord.js.org/docs/) and [Discord API Concepts](https://discord.com/developers/docs/intro).
 
+## Install
+
+```bash
+pnpm add honocord hono
+# or: npm install honocord hono / bun add honocord hono
+```
+
+`hono` is a peer dependency. `mongoose` is an optional peer dependency, only needed for
+`honocord/cache/mongo`. Requires Node.js 24+ (or Cloudflare Workers / Bun).
+
+## Usage
+
+```ts
+import { Honocord, SlashCommandHandler } from "honocord";
+
+export const pingCommand = new SlashCommandHandler()
+  .setName("ping")
+  .setDescription("Replies with Pong!")
+  .addHandler(async (interaction) => {
+    await interaction.reply("🏓 Pong!");
+  });
+
+const bot = new Honocord();
+bot.loadHandlers(pingCommand);
+
+// POST / and POST /interactions handle Discord interactions
+export default bot.getApp();
+```
+
+Honocord reads `DISCORD_PUBLIC_KEY` and `DISCORD_TOKEN` from the Hono context's env bindings.
+Register commands with `registerCommands(token, applicationId, ...handlers)`. The
+[Quick Start](https://honocord.thelukez.com/guides/quickstart) covers the full setup.
+
 ## Getting Help
 
 If you encounter issues or have questions:
@@ -40,10 +86,10 @@ If you encounter issues or have questions:
 
 Browse the [Examples](https://github.com/The-LukeZ/honocord-examples) repo for complete, working implementations:
 
-- **cloudflare-workers** - Bot on Cloudflare Workers with Caching
-- **custom-hono-integration** - Integration with existing Hono apps (with Bun)
-- **webhook-events** - Handling Discord webhook events alongside interactions
-- **caching-mongo** - Example of a simple MongoDB cache adapter implementation
+- **[cloudflare-workers](https://github.com/The-LukeZ/honocord-examples/tree/main/examples/cloudflare-workers)** - Bot on Cloudflare Workers with commands, autocomplete, buttons, modals, context menus, middleware and Durable Object caching
+- **[node-server](https://github.com/The-LukeZ/honocord-examples/tree/main/examples/node-server)** - Integration with an existing Hono app on Node.js, with in-memory caching
+- **[webhook-events](https://github.com/The-LukeZ/honocord-examples/tree/main/examples/webhook-events)** - Handling Discord webhook events on Cloudflare Workers and sending files with `AttachmentBuilder`
+- **[dynamic-commands](https://github.com/The-LukeZ/honocord-examples/tree/main/examples/dynamic-commands)** - Per-guild custom commands created at runtime, handled by dynamic command handlers
 
 ## Testing
 
@@ -72,6 +118,8 @@ Tests use [Vitest](https://vitest.dev/) for fast unit testing with TypeScript su
 
 ## Contributing
 
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`CONVENTIONS.md`](CONVENTIONS.md). Releases are described in [`RELEASING.md`](RELEASING.md).
+
 The repository is organized as a monorepo with the following structure:
 
 - **`src/`** - Core Honocord library, including the cache adapters (`src/cache`, exposed as `honocord/cache`, `honocord/cache/memory`, `honocord/cache/do` and `honocord/cache/mongo`)
@@ -85,3 +133,18 @@ pnpm typecheck     # Type check the root package
 ```
 
 The package uses [tsdown](https://tsdown.dev/) for zero-config builds.
+
+## Caveats
+
+- Interactions and webhook events only: there is no Gateway connection, so no presence, message
+  events or other gateway events.
+- On Cloudflare Workers, handlers run after the response via `waitUntil` and are bound by Workers
+  CPU and duration limits.
+- `reply()` and `deferReply()` are ephemeral by default; pass `false` as the second argument for
+  a public reply.
+- The in-memory cache adapter does not work on Workers, and the Durable Object adapter only works
+  on Workers.
+
+## License
+
+[MIT](LICENSE) © The-LukeZ
