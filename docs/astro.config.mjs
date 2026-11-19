@@ -4,7 +4,6 @@ import starlight from "@astrojs/starlight";
 import { redirects } from "./src/config/redirects.mjs";
 import { sidebar } from "./src/config/sidebar.mjs";
 import { satteri } from "@astrojs/markdown-satteri";
-import mermaid from "astro-mermaid";
 import starlightLlmsTxt from "starlight-llms-txt";
 import starlightContextualMenu from "starlight-contextual-menu";
 
@@ -19,7 +18,6 @@ export default defineConfig({
 
   redirects,
   integrations: [
-    mermaid({ autoTheme: true, theme: "dark" }),
     starlight({
       plugins: [
         starlightLlmsTxt({
