@@ -9,7 +9,8 @@
     "docs:reference": "pnpm --filter honocord run docs:reference",
     "build": "pnpm run docs:reference && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "icons": "node scripts/build-icons.mjs"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.42.10",

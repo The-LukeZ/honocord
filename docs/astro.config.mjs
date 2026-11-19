@@ -69,8 +69,8 @@ export default defineConfig({
       description: "Documentation for Honocord — Imagine a Discord HTTP interactions bot for Hono",
       favicon: "/favicon.ico",
       logo: {
-        src: "./public/logo.png",
-        alt: "Honocord Logo",
+        src: "./src/assets/logo.svg",
+        alt: "Honocord",
       },
       social: [
         {
@@ -142,7 +142,7 @@ export default defineConfig({
           tag: "meta",
           attrs: {
             property: "og:image",
-            content: "https://honocord.thelukez.com/favicon.svg",
+            content: "https://honocord.thelukez.com/og.png",
           },
         },
         {
