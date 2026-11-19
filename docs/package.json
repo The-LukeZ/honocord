@@ -11,7 +11,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "icons": "node scripts/build-icons.mjs",
-    "check:contrast": "node scripts/check-contrast.mjs"
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "check:sidebar": "node scripts/check-sidebar.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "0.4.9",

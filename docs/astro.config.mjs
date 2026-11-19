@@ -2,6 +2,7 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import { redirects } from "./src/config/redirects.mjs";
+import { sidebar } from "./src/config/sidebar.mjs";
 import { satteri } from "@astrojs/markdown-satteri";
 import mermaid from "astro-mermaid";
 import starlightLlmsTxt from "starlight-llms-txt";
@@ -60,34 +61,7 @@ export default defineConfig({
           href: "/discord",
         },
       ],
-      sidebar: [
-        {
-          label: "Guides",
-          items: [{ autogenerate: { directory: "guides" } }],
-        },
-        {
-          label: "For LLMs",
-          link: "/llms.txt",
-        },
-        {
-          label: "Built With Honocord",
-          slug: "built-with",
-        },
-        {
-          label: "Reference",
-          items: [
-            { label: "Classes", items: [{ autogenerate: { directory: "reference/classes" } }] },
-            { label: "Functions", items: [{ autogenerate: { directory: "reference/functions" } }] },
-            { label: "Constants", items: [{ autogenerate: { directory: "reference/constants" } }] },
-            { label: "Types", items: [{ autogenerate: { directory: "reference/types" } }] },
-          ],
-          collapsed: true,
-        },
-        {
-          label: "Examples",
-          link: "/examples",
-        },
-      ],
+      sidebar,
       customCss: [
         "@fontsource/instrument-sans/400.css",
         "@fontsource/instrument-sans/600.css",
