@@ -83,3 +83,4 @@ export { Collection, type ReadonlyCollection } from "@discordjs/collection";
 export * from "./structures";
 export { CacheManager } from "@utils/CacheManager";
 export { Fetcher } from "@utils/Fetcher";
+export { AutocompleteHelper } from "@utils/Autocomplete";
