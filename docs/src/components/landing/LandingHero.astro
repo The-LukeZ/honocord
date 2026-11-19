@@ -1,0 +1,177 @@
+---
+// Landing hero: the pitch on the left, a mock Discord interaction and the
+// code that produces it on the right. The mock always uses Discord's dark
+// colors (literal hex below), whatever the docs theme.
+import { Code } from "@astrojs/starlight/components";
+import logo from "../../assets/logo.svg";
+
+const snippet = `new SlashCommandHandler()
+  .setName("ping")
+  .setDescription("Replies with Pong!")
+  .addHandler(async (interaction) => {
+    await interaction.reply("Pong!");
+  });`;
+---
+
+<section class="hero not-content">
+  <div class="pitch">
+    <h1>Discord bots that run on a single HTTP endpoint.</h1>
+    <p class="lede">
+      Honocord handles Discord's interactions on Hono, so your bot runs on Cloudflare Workers, Bun or Node with no
+      gateway connection.
+    </p>
+    <div class="actions">
+      <a class="hc-button" href="/guides/getting-started/">Get started</a>
+      <a class="hc-button secondary" href="/examples">See examples</a>
+    </div>
+  </div>
+
+  <div class="demo">
+    <figure class="chat" aria-label="Example: a user runs /ping and the bot replies Pong!">
+      <div class="message" aria-hidden="true">
+        <img class="avatar" src={logo.src} alt="" width="40" height="40" />
+        <div class="body">
+          <p class="used">Luke used <span class="command">/ping</span></p>
+          <p class="author">Honocord Bot <span class="tag">APP</span></p>
+          <div class="embed">Pong!</div>
+          <span class="chat-button">Ping again</span>
+        </div>
+      </div>
+    </figure>
+    <Code code={snippet} lang="ts" />
+  </div>
+</section>
+
+<style>
+  .hero {
+    align-items: center;
+    display: grid;
+    gap: 2.5rem;
+    padding-block: 2rem 1rem;
+  }
+
+  @media (min-width: 50rem) {
+    .hero {
+      grid-template-columns: 1fr 1fr;
+      padding-block: 4rem 1.5rem;
+    }
+  }
+
+  /* Grid children may shrink below their content, so the code scrolls. */
+  .pitch,
+  .demo {
+    min-width: 0;
+  }
+
+  h1 {
+    color: var(--hc-text);
+    font-size: clamp(2.1rem, 5vw, 3.1rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+    margin: 0;
+  }
+
+  .lede {
+    color: var(--hc-muted);
+    font-size: var(--sl-text-lg);
+    margin-block: 1rem 1.75rem;
+    max-width: 34ch;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .chat {
+    background-color: #1a1a1e;
+    border-radius: var(--hc-radius-hero);
+    color: #dfe0e2;
+    margin: 0 0 0.75rem;
+    padding: 1rem 1.1rem 1.1rem;
+  }
+
+  .message {
+    display: flex;
+    gap: 0.85rem;
+  }
+
+  .avatar {
+    background-color: #242429;
+    border-radius: 50%;
+    flex: none;
+    height: 40px;
+    padding: 6px;
+    width: 40px;
+  }
+
+  .body {
+    min-width: 0;
+  }
+
+  .body p {
+    margin: 0;
+  }
+
+  .used {
+    color: #9b9ca3;
+    font-size: var(--sl-text-xs);
+  }
+
+  .command {
+    color: #c9cdfb;
+  }
+
+  .author {
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  .tag {
+    background-color: #5865f2;
+    border-radius: 3px;
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 600;
+    margin-inline-start: 0.25rem;
+    padding: 0.05rem 0.3rem;
+    vertical-align: 0.1em;
+  }
+
+  .embed {
+    background-color: #242429;
+    border: 1px solid #2c2c31;
+    border-inline-start: 0;
+    border-radius: 4px;
+    margin-top: 0.4rem;
+    padding: 0.55rem 0.8rem;
+    position: relative;
+  }
+
+  .embed::before {
+    background: linear-gradient(var(--hc-flame-from), var(--hc-flame-to));
+    border-radius: 4px 0 0 4px;
+    content: "";
+    inset: -1px auto -1px -1px;
+    position: absolute;
+    width: 4px;
+  }
+
+  .chat-button {
+    background-color: #2a2a2f;
+    border: 1px solid #2c2c31;
+    border-radius: 4px;
+    color: #ffffff;
+    display: inline-block;
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.75rem;
+  }
+
+  .demo :global(.expressive-code) {
+    margin: 0;
+  }
+</style>

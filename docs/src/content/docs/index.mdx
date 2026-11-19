@@ -2,53 +2,28 @@
 title: Welcome to Honocord
 description: Build an HTTP Interactions Discord bot with Hono
 template: splash
-hero:
-  tagline: Build an HTTP Interactions Discord bot with Hono
-  image:
-    file: ../../assets/logo.svg
-  actions:
-    - text: Get Started
-      link: /guides/getting-started
-      icon: right-arrow
-    - text: See the examples
-      link: https://github.com/The-LukeZ/honocord-examples
-      icon: external
-      variant: minimal
 ---
 
-import { Card, CardGrid } from "@astrojs/starlight/components";
+import LandingHero from "../../components/landing/LandingHero.astro";
+import EntryPoints from "../../components/landing/EntryPoints.astro";
 
-## What is Honocord?
+<LandingHero />
 
-Honocord bridges Discord's Interaction API with Hono's lightweight web framework, allowing you to build fast, serverless Discord bots that run on edge platforms like Cloudflare Workers, or traditional Node.js environments.
+<EntryPoints />
 
-## Key Features
+## What you get
 
-- **🚀 Edge-First Design** - Optimized for Cloudflare Workers with async interaction handling
-- **📘 Fully Type-Safe** - Built with TypeScript using `discord-api-types` for excellent type safety (I hope at least)
-- **🎯 Handler-Based Architecture** - Clean, modular system for commands, components, modals, and webhooks
-- **⚡ Hono Integration** - Leverages Hono's lightweight, fast routing capabilities
-- **🔧 Flexible Deployment** - Works with Cloudflare Workers, Bun, Node.js, and more
-- **🎨 Rich Builders** - Re-exports Discord.js builders for creating embeds, buttons, modals, and more
-- **🤖 Autocomplete Support** - Built-in autocomplete helper for slash commands
-- **🔐 Secure by Default** - Automatic signature verification for Discord interactions and webhooks
-- **🪝 Direct Webhook Support** - Handle Discord webhook events alongside interactions
+- **Edge-first.** Runs on Cloudflare Workers, Bun and Node.js.
+- **Fully typed.** Built on `discord-api-types`.
+- **Handler-based.** Commands, components, modals and webhooks each get their own handler.
+- **Secure by default.** Every request's signature is verified for you.
+- **Familiar builders.** discord.js builders are re-exported for embeds, buttons and modals.
+- **Autocomplete built in.** A helper for slash command autocomplete.
 
-_Disclaimer: Yes, AI helped me build this - with the focus on **helped**._
+## Help and community
 
-Also get familiar with [Discord.js](https://discord.js.org/docs/) and [Discord API Concepts](https://discord.com/developers/docs/intro).
+- Ask in the [Discord server](/discord).
+- Report bugs in [GitHub issues](/github).
+- Browse working bots in the [examples repo](/examples).
 
-## Getting Help
-
-If you encounter issues or have questions:
-
-- Check the [Examples](https://github.com/The-LukeZ/honocord-examples) repo
-- Review the documentation pages
-- Open an issue on GitHub
-
-## Examples
-
-Browse the [Examples](https://github.com/The-LukeZ/honocord-examples) repo for complete, working implementations:
-
-- **cloudflare-workers** - Basic bot on Cloudflare Workers
-- **custom-hono-integration** - Integration with existing Hono apps (with Bun)
+_Yes, AI helped me build this, with the focus on **helped**._

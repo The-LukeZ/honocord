@@ -118,43 +118,8 @@ export default defineConfig({
         "./src/styles/components.css",
       ],
       credits: true,
-      expressiveCode: {
-        // One dark theme for both modes: code blocks are always dark.
-        themes: ["github-dark"],
-        useStarlightDarkModeSwitch: false,
-        useStarlightUiThemeColors: false,
-        customizeTheme(theme) {
-          // Flame for keywords, blurple for strings, types and functions.
-          const swaps = { "#f97583": "#FF8C5A", "#9ecbff": "#A3ABFF", "#b392f0": "#A3ABFF" };
-          for (const setting of theme.settings) {
-            const color = setting.settings.foreground?.toLowerCase();
-            if (color && swaps[color]) setting.settings.foreground = swaps[color];
-          }
-          return theme;
-        },
-        styleOverrides: {
-          codeBackground: "var(--hc-code-bg)",
-          borderRadius: "6px",
-          borderColor: "transparent",
-          codeFontFamily: "'JetBrains Mono', ui-monospace, monospace",
-          uiFontFamily: "var(--sl-font)",
-          frames: {
-            editorTabBarBackground: "var(--hc-code-bg)",
-            editorActiveTabBackground: "var(--hc-code-bg)",
-            // Flat filename tab: no outlines or indicator bars.
-            editorTabBarBorderColor: "transparent",
-            editorTabBarBorderBottomColor: "#FFFFFF14",
-            editorActiveTabBorderColor: "transparent",
-            editorActiveTabIndicatorTopColor: "transparent",
-            editorActiveTabIndicatorBottomColor: "transparent",
-            editorActiveTabForeground: "#B5BAC1",
-            terminalTitlebarBorderBottomColor: "#FFFFFF14",
-            terminalTitlebarBackground: "var(--hc-code-bg)",
-            terminalBackground: "var(--hc-code-bg)",
-            frameBoxShadowCssValue: "none",
-          },
-        },
-      },
+      // Expressive Code options live in ec.config.mjs (needed by the <Code> component).
+      expressiveCode: true,
       pagefind: true,
       editLink: { baseUrl: "https://github.com/The-LukeZ/honocord/tree/main/docs" },
       lastUpdated: true,
@@ -166,6 +131,7 @@ export default defineConfig({
       components: {
         Head: "./src/components/overrides/Head.astro",
         MarkdownContent: "./src/components/overrides/MarkdownContent.astro",
+        PageTitle: "./src/components/overrides/PageTitle.astro",
       },
       head: [
         {
