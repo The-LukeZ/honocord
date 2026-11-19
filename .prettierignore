@@ -19,3 +19,4 @@ docs/src/content/docs/reference/types
 
 # Astro generated
 docs/.astro
+.superpowers/
