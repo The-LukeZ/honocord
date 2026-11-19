@@ -61,3 +61,25 @@
   --hc-aside-caution-text: #8a5a00;
   --hc-aside-danger-text: #c42b2f;
 }
+
+/* Print on white paper: always the light palette, whatever the screen theme. */
+@media print {
+  :root,
+  :root[data-theme="light"] {
+    --hc-bg: #ffffff;
+    --hc-surface: #ffffff;
+    --hc-embed: #ffffff;
+    --hc-recessed: #ebedf1;
+    --hc-hairline: #e4e6eb;
+    --hc-text: #23252b;
+    --hc-muted: #5c606b;
+    --hc-active: #e3e5ea;
+    --hc-link: #4752c4;
+    --hc-button-secondary: #e3e5ea;
+    --hc-button-secondary-text: #23252b;
+    --hc-aside-note-text: #4752c4;
+    --hc-aside-tip-text: #1a7a43;
+    --hc-aside-caution-text: #8a5a00;
+    --hc-aside-danger-text: #c42b2f;
+  }
+}

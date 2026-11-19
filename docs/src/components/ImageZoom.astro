@@ -69,7 +69,8 @@
     };
 
     for (const img of document.querySelectorAll<HTMLImageElement>(".sl-markdown-content img")) {
-      if (img.closest("a, [data-zoom-off]") || img.hasAttribute("data-zoom-off")) continue;
+      // Skip linked images, opt-outs, and custom components (.not-content, e.g. the hero avatar).
+      if (img.closest("a, [data-zoom-off], .not-content") || img.hasAttribute("data-zoom-off")) continue;
       img.dataset["hcZoomable"] = "";
       img.tabIndex = 0;
       img.setAttribute("role", "button");

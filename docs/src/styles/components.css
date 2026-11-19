@@ -12,6 +12,18 @@
     display: none;
   }
 
+  /* ...and the hairline Starlight draws between it and the content. */
+  .content-panel:has(> .sl-container:empty) + .content-panel {
+    border-top: 0;
+  }
+
+  /* Skip link: Starlight's text-invert on link color is 2.1:1 in dark mode.
+     Use the primary button pair instead (4.6:1 in both themes). */
+  .sl-skip-link {
+    background-color: var(--hc-button);
+    color: var(--hc-button-text);
+  }
+
   /* Sidebar: links read like channels. */
   nav.sidebar a[href] {
     border-radius: var(--hc-radius-control);
