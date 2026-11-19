@@ -140,15 +140,17 @@
     padding-inline: 0;
   }
 
-  .hc-button:hover,
-  .sl-link-button:is(.primary, .secondary):hover,
-  .pagination-links a:hover {
+  /* Primary hover darkens via a token: brightening blurple drops white text to 4.0:1. */
+  .hc-button.secondary:hover,
+  .sl-link-button.secondary:hover,
+  .pagination-links a[rel="prev"]:hover {
     filter: brightness(1.1);
   }
 
-  .hc-button:hover,
+  .hc-button:not(.secondary):hover,
   .sl-link-button.primary:hover,
   .pagination-links a[rel="next"]:hover {
+    background-color: var(--hc-button-hover);
     color: var(--hc-button-text);
   }
 
@@ -176,6 +178,7 @@
     .sl-link-button,
     .pagination-links a {
       transition:
+        background-color 120ms ease-out,
         filter 120ms ease-out,
         transform 80ms ease-out;
     }
@@ -185,6 +188,16 @@
     .pagination-links a:active {
       transform: translateY(1px);
     }
+  }
+
+  /* External links open in a new tab (Head.astro): mark text links with an arrow.
+     Screen readers get a text hint instead, so the arrow has empty alt text. */
+  .sl-markdown-content a[data-hc-external]:not(:has(img, svg))::after {
+    content: "\2197" / "";
+    display: inline-block;
+    font-size: 0.8em;
+    margin-inline-start: 0.15em;
+    text-decoration: none;
   }
 
   /* Focus: one blurple ring everywhere. */

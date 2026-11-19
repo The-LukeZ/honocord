@@ -11,30 +11,50 @@ const externalPaths = Object.keys(redirects);
 <script is:inline define:vars={{ externalPaths }}>
   // Open external links (other origins and redirect short links) in a new tab.
   // Modified clicks (Ctrl, Shift, middle button) keep the browser's default.
-  document.addEventListener(
-    "click",
-    (event) => {
-      if (event.defaultPrevented || event.button !== 0) return;
-      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-      if (!(event.target instanceof Element)) return;
-      const link = event.target.closest("a[href]");
-      if (!link || link.target || link.hasAttribute("download")) return;
+  const NEW_TAB = "opens in a new tab";
 
-      let url;
-      try {
-        url = new URL(link.href, location.href);
-      } catch {
-        return;
+  // Returns the URL when `link` should open in a new tab, else null.
+  function externalUrl(link) {
+    if (link.target || link.hasAttribute("download")) return null;
+    let url;
+    try {
+      url = new URL(link.href, location.href);
+    } catch {
+      return null;
+    }
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    const path = url.pathname.replace(/\/$/, "") || "/";
+    return url.origin !== location.origin || externalPaths.includes(path) ? url : null;
+  }
+
+  // Tell everyone before the click: an arrow for sighted users (CSS, on
+  // [data-hc-external]) and text for screen readers.
+  document.addEventListener("DOMContentLoaded", () => {
+    for (const link of document.querySelectorAll("a[href]")) {
+      if (!externalUrl(link)) continue;
+      link.dataset["hcExternal"] = "";
+      const label = link.getAttribute("aria-label");
+      if (label) {
+        link.setAttribute("aria-label", `${label} (${NEW_TAB})`);
+      } else {
+        const hint = document.createElement("span");
+        hint.className = "sr-only";
+        hint.textContent = ` (${NEW_TAB})`;
+        link.append(hint);
       }
-      if (url.protocol !== "http:" && url.protocol !== "https:") return;
+    }
+  });
 
-      const path = url.pathname.replace(/\/$/, "") || "/";
-      const external = url.origin !== location.origin || externalPaths.includes(path);
-      if (!external) return;
+  // Bubble phase, so handlers that ran first and called preventDefault() win.
+  document.addEventListener("click", (event) => {
+    if (event.defaultPrevented || event.button !== 0) return;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (!(event.target instanceof Element)) return;
+    const link = event.target.closest("a[href]");
+    const url = link && externalUrl(link);
+    if (!url) return;
 
-      event.preventDefault();
-      window.open(url.href, "_blank", "noopener");
-    },
-    true,
-  );
+    event.preventDefault();
+    window.open(url.href, "_blank", "noopener");
+  });
 </script>

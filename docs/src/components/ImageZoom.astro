@@ -5,6 +5,11 @@
 ---
 
 <dialog class="hc-zoom" aria-label="Zoomed image">
+  <button class="hc-zoom-close" type="button" aria-label="Close zoomed image">
+    <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20">
+      <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" />
+    </svg>
+  </button>
   <img alt="" />
 </dialog>
 
@@ -27,6 +32,31 @@
     .hc-zoom[open] {
       display: grid;
       place-items: center;
+    }
+
+    /* Keep the page still behind the open dialog. */
+    html:has(.hc-zoom[open]) {
+      overflow: hidden;
+    }
+
+    .hc-zoom-close {
+      align-items: center;
+      background: var(--hc-button-secondary);
+      border: 0;
+      border-radius: var(--hc-radius-control);
+      color: var(--hc-button-secondary-text);
+      cursor: pointer;
+      display: inline-flex;
+      height: 2.5rem;
+      inset-block-start: 1rem;
+      inset-inline-end: 1rem;
+      justify-content: center;
+      position: fixed;
+      width: 2.5rem;
+    }
+
+    .hc-zoom-close:hover {
+      filter: brightness(1.1);
     }
 
     .hc-zoom::backdrop {
@@ -66,6 +96,8 @@
       zoomed.src = img.currentSrc || img.src;
       zoomed.alt = img.alt;
       dialog.showModal();
+      // Focus the close button so keyboard users see how to get out.
+      dialog.querySelector<HTMLButtonElement>(".hc-zoom-close")?.focus();
     };
 
     for (const img of document.querySelectorAll<HTMLImageElement>(".sl-markdown-content img")) {
@@ -84,7 +116,7 @@
       });
     }
 
-    // Any click closes it; Esc is handled by the dialog itself.
+    // Any click (the close button included) closes it; Esc is handled by the dialog itself.
     dialog.addEventListener("click", () => dialog.close());
   }
 </script>

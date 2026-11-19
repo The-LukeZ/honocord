@@ -12,7 +12,7 @@ export const collections = {
       extend: z.object({
         // Add a default value to the built-in `banner` field.
         banner: z.object({ content: z.string() }).default({
-          content: "V4 has arrived!",
+          content: 'V4 has arrived! <a href="/guides/migrating-to-v4/">Read the migration guide</a>.',
         }),
       }),
     }),

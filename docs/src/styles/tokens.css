@@ -15,6 +15,7 @@
   --hc-active: #2e2e34;
   --hc-link: #a3abff;
   --hc-button: #5865f2;
+  --hc-button-hover: #4752c4;
   --hc-button-text: #ffffff;
   --hc-button-secondary: #2a2a2f;
   --hc-button-secondary-text: #ffffff;
@@ -46,6 +47,7 @@
   --hc-active: #e3e5ea;
   --hc-link: #4752c4;
   --hc-button: #5865f2;
+  --hc-button-hover: #4752c4;
   --hc-button-text: #ffffff;
   --hc-button-secondary: #e3e5ea;
   --hc-button-secondary-text: #23252b;
