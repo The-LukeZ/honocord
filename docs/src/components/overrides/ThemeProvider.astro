@@ -1,0 +1,22 @@
+---
+// Dark-first replacement for Starlight's ThemeProvider (same pattern as the
+// SupportMail docs). Storage uses Starlight's key "starlight-theme": "light",
+// "dark", or "" for auto (follow the system). Nothing stored (first visit)
+// means dark. Also sets `data-theme-mode` ("dark" | "light" | "auto") on
+// <html>, which ThemeSelect reads to show the right icon before first paint.
+---
+
+{/* Inlined to avoid a flash of the wrong theme. */}
+<script is:inline>
+  (() => {
+    let stored = null;
+    try {
+      stored = localStorage.getItem("starlight-theme");
+    } catch {}
+    const system = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    const theme = stored === null ? "dark" : stored === "" ? system : stored;
+    document.documentElement.dataset.theme = theme === "light" ? "light" : "dark";
+    document.documentElement.dataset.themeMode =
+      stored === null ? "dark" : stored === "" ? "auto" : stored === "light" ? "light" : "dark";
+  })();
+</script>

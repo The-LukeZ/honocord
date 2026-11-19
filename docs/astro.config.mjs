@@ -112,6 +112,8 @@ export default defineConfig({
         Head: "./src/components/overrides/Head.astro",
         MarkdownContent: "./src/components/overrides/MarkdownContent.astro",
         PageTitle: "./src/components/overrides/PageTitle.astro",
+        ThemeProvider: "./src/components/overrides/ThemeProvider.astro",
+        ThemeSelect: "./src/components/overrides/ThemeSelect.astro",
       },
       head: [
         {
