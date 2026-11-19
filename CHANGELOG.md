@@ -1,5 +1,15 @@
 # honocord
 
+## 4.1.0
+
+### Minor Changes
+
+- 0e16ad9: Require Node.js 24 or newer (`engines.node` is now `>=24`).
+
+### Patch Changes
+
+- 4f1ab1b: Export `AutocompleteHelper` from the package entry point. It was documented but could not be imported.
+
 ## 4.0.0
 
 ### Major Changes
