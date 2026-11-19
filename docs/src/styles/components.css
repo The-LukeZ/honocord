@@ -56,7 +56,7 @@
 
   /* Asides: Discord embeds with a colored left bar. */
   .starlight-aside {
-    background-color: var(--hc-surface);
+    background-color: var(--hc-embed);
     border: 1px solid var(--hc-hairline);
     border-inline-start: 4px solid var(--sl-color-asides-border);
     border-radius: var(--hc-radius-control);

@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 const COLOR_TOKENS = [
   "bg",
   "surface",
+  "embed",
   "recessed",
   "hairline",
   "text",
@@ -34,12 +35,15 @@ const PAIRS = [
   ["muted", "surface"],
   ["link", "bg"],
   ["link", "surface"],
+  ["text", "embed"],
+  ["muted", "embed"],
+  ["link", "embed"],
   ["button-text", "button"],
   ["button-secondary-text", "button-secondary"],
-  ["aside-note-text", "surface"],
-  ["aside-tip-text", "surface"],
-  ["aside-caution-text", "surface"],
-  ["aside-danger-text", "surface"],
+  ["aside-note-text", "embed"],
+  ["aside-tip-text", "embed"],
+  ["aside-caution-text", "embed"],
+  ["aside-danger-text", "embed"],
 ];
 
 let css;

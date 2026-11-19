@@ -1,29 +1,31 @@
 /* Honocord "Interaction" theme tokens. Starlight's default theme is dark,
-   so :root holds the dark values and :root[data-theme="light"] the light ones.
-   Components use these tokens only, never raw hex.
+   so :root holds the dark values and the light selector the light ones.
+   Dark follows Discord's 2025 refreshed Dark theme (sampled by eye; Discord
+   publishes no values). Components use these tokens only, never raw hex.
    Checked by `pnpm check:contrast`. */
 
 :root {
-  --hc-bg: #313338;
-  --hc-surface: #2B2D31;
-  --hc-recessed: #1E1F22;
-  --hc-hairline: #1F2023;
-  --hc-text: #DBDEE1;
-  --hc-muted: #949BA4;
-  --hc-active: #404249;
+  --hc-bg: #1A1A1E;
+  --hc-surface: #121214;
+  --hc-embed: #242429;
+  --hc-recessed: #242429;
+  --hc-hairline: #2C2C31;
+  --hc-text: #DFE0E2;
+  --hc-muted: #9B9CA3;
+  --hc-active: #2E2E34;
   --hc-link: #A3ABFF;
   --hc-button: #5865F2;
   --hc-button-text: #FFFFFF;
-  --hc-button-secondary: #4E5058;
+  --hc-button-secondary: #2A2A2F;
   --hc-button-secondary-text: #FFFFFF;
   --hc-flame-from: #FF8844;
   --hc-flame-to: #FF3300;
-  --hc-code-bg: #1E1F22;
+  --hc-code-bg: #121214;
   --hc-aside-note: #5865F2;
   --hc-aside-tip: #23A55A;
   --hc-aside-caution: #F0B232;
   --hc-aside-danger: #F23F43;
-  /* Aside titles: the bar color adjusted to pass AA on the surface. */
+  /* Aside titles: the bar color adjusted to pass AA on the embed. */
   --hc-aside-note-text: #A3ABFF;
   --hc-aside-tip-text: #57C985;
   --hc-aside-caution-text: #F0B232;
@@ -36,6 +38,7 @@
 :root[data-theme="light"] {
   --hc-bg: #F7F8FA;
   --hc-surface: #FFFFFF;
+  --hc-embed: #FFFFFF;
   --hc-recessed: #EBEDF1;
   --hc-hairline: #E4E6EB;
   --hc-text: #23252B;
@@ -48,7 +51,7 @@
   --hc-button-secondary-text: #23252B;
   --hc-flame-from: #FF8844;
   --hc-flame-to: #FF3300;
-  --hc-code-bg: #2B2D31;
+  --hc-code-bg: #242429;
   --hc-aside-note: #5865F2;
   --hc-aside-tip: #23A55A;
   --hc-aside-caution: #F0B232;
