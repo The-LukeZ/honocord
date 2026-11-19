@@ -119,6 +119,6 @@
     "url": "https://github.com/The-LukeZ/honocord/issues"
   },
   "engines": {
-    "node": ">=22.9.0"
+    "node": ">=24"
   }
 }
