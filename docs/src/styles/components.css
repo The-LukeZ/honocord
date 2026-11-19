@@ -2,6 +2,16 @@
    search, embed-style asides and Discord buttons. Tokens only (tokens.css). */
 
 @layer honocord {
+  /* Site title in text color, not link blurple. */
+  .site-title {
+    color: var(--hc-text);
+  }
+
+  /* Landing page: PageTitle renders nothing there, so drop its empty panel. */
+  .content-panel:has(> .sl-container:empty) {
+    display: none;
+  }
+
   /* Sidebar: links read like channels. */
   nav.sidebar a[href] {
     border-radius: var(--hc-radius-control);

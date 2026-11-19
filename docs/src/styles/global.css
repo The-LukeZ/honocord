@@ -1,14 +1,19 @@
 @layer starlight, honocord;
 
-/* Map the Honocord tokens (tokens.css) onto Starlight's variables.
-   The --hc-* values switch with the theme, so one mapping covers both. */
-:root,
-:root[data-theme="light"] {
+/* Layout and fonts: plain :root only. A more specific selector here would beat
+   Starlight's `html:not([data-has-sidebar])` splash width in one theme only. */
+:root {
   --sl-font: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
   --sl-font-mono: "JetBrains Mono", ui-monospace, monospace;
   --sl-content-width: 46rem;
   --sl-sidebar-width: 300px;
+}
 
+/* Map the Honocord tokens (tokens.css) onto Starlight's colors. The --hc-*
+   values switch with the theme; the light selector is listed to beat
+   Starlight's own light-theme color rules. */
+:root,
+:root[data-theme="light"] {
   --sl-color-bg: var(--hc-bg);
   --sl-color-bg-nav: var(--hc-surface);
   --sl-color-bg-sidebar: var(--hc-surface);
