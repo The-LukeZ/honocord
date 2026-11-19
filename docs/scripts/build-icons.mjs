@@ -18,9 +18,7 @@ await sharp({
 
 // favicon.ico: sharp cannot write ICO, so build the container by hand.
 const sizes = [16, 32, 48];
-const frames = await Promise.all(
-  sizes.map((size) => sharp(svg, { density: 600 }).resize(size, size).png().toBuffer()),
-);
+const frames = await Promise.all(sizes.map((size) => sharp(svg, { density: 600 }).resize(size, size).png().toBuffer()));
 const header = Buffer.alloc(6);
 header.writeUInt16LE(0, 0); // reserved
 header.writeUInt16LE(1, 2); // type: icon
