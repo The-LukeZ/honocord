@@ -9,9 +9,6 @@ minimumReleaseAge: 10080
 
 allowBuilds:
   esbuild: true
+  "@resvg/resvg-js": true
   sharp: true
   workerd: true
-
-peerDependencyRules:
-  allowedVersions:
-    starlight-contextual-menu>astro: "7"

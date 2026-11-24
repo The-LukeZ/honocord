@@ -14,7 +14,7 @@ export class ComponentHandler<
   private handlerFn?: (interaction: MessageComponentInteractionObj<Context, CType>) => Promise<any> | any;
 
   /**
-   * @param prefix - The custom ID prefix this handler matches against. See the [Custom ID System](/guides/custom-id-system) guide.
+   * @param prefix - The custom ID prefix this handler matches against. See the [Custom ID System](/docs/custom-id-system) guide.
    * @param componentType - The message component type this handler is registered for
    * @param handler - Optional handler function, equivalent to calling `addHandler` afterwards
    */

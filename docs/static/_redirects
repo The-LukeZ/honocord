@@ -1,0 +1,14 @@
+# Cloudflare Pages reads this file from the build output (SvelteKit copies static/ there) and answers these rules
+# before the app. Static rules must come before dynamic (splat) ones.
+
+# Short links to other sites.
+/github https://github.com/The-LukeZ/honocord 302
+/discord https://discord.gg/X4DjpZj6Nz 302
+/lukez https://thelukez.com 302
+/npm https://www.npmjs.com/package/honocord 302
+/examples https://github.com/The-LukeZ/honocord-examples 302
+
+# Old URLs from the Starlight site, before the guides moved under /docs.
+/built-with /docs/built-with 301
+/guides /docs/getting-started 301
+/guides/* /docs/:splat 301

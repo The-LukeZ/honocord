@@ -1,0 +1,102 @@
+/*
+ * svelte-docsmith theme: Honocord "Interaction".
+ *
+ * Dark follows Discord's 2025 refreshed dark theme (sampled by eye; Discord publishes no values), light is the
+ * matching light palette. Blurple is the primary, the flame gradient is the brand accent and
+ * lives in app.css. Values are oklch because docsmith reads them for the generated OG images.
+ */
+
+:root {
+  --radius: 0.5rem;
+  --background: oklch(0.9789 0.0029 264.54); /* #f7f8fa */
+  --foreground: oklch(0.2649 0.0116 270.95); /* #23252b */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2649 0.0116 270.95);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2649 0.0116 270.95);
+  --primary: oklch(0.4967 0.176 273.91); /* #4752c4 */
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.9218 0.0071 268.54); /* #e3e5ea */
+  --secondary-foreground: oklch(0.2649 0.0116 270.95);
+  --muted: oklch(0.9457 0.0058 264.53); /* #ebedf1 */
+  --muted-foreground: oklch(0.4894 0.0183 269.78); /* #5c606b */
+  --accent: oklch(0.9218 0.0071 268.54);
+  --accent-foreground: oklch(0.2649 0.0116 270.95);
+  --border: oklch(0.9248 0.0071 268.54); /* #e4e6eb */
+  --input: oklch(0.9248 0.0071 268.54);
+  --ring: oklch(0.5774 0.2091 273.85); /* #5865f2 */
+  --destructive: oklch(0.55 0.2 24.73);
+  --destructive-foreground: oklch(1 0 0);
+  --chart-1: oklch(0.5774 0.2091 273.85);
+  --chart-2: oklch(0.6463 0.2409 32.62);
+  --chart-3: oklch(0.637 0.1551 152.26);
+  --chart-4: oklch(0.7475 0.1655 47.89);
+  --chart-5: oklch(0.4894 0.0183 269.78);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.2649 0.0116 270.95);
+  --sidebar-primary: oklch(0.4967 0.176 273.91);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.9218 0.0071 268.54);
+  --sidebar-accent-foreground: oklch(0.2649 0.0116 270.95);
+  --sidebar-border: oklch(0.9248 0.0071 268.54);
+  --sidebar-ring: oklch(0.5774 0.2091 273.85);
+
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Code colours: flame for keywords, blurple for strings, types and functions. Each at least 4.5:1. */
+  --code-token-keyword: oklch(0.55 0.2 38);
+  --code-token-string: oklch(0.5 0.17 274);
+  --code-token-function: oklch(0.5 0.17 274);
+  --code-token-constant: oklch(0.5 0.12 152);
+  --code-token-parameter: oklch(0.5 0.15 320);
+  --code-token-comment: oklch(0.4894 0.0183 269.78);
+  --code-token-string-expression: var(--code-token-string);
+  --code-token-punctuation: var(--code-token-comment);
+}
+
+.dark {
+  --radius: 0.5rem;
+  --background: oklch(0.2195 0.0077 285.74); /* #1a1a1e */
+  --foreground: oklch(0.9065 0.0029 264.54); /* #dfe0e2 */
+  --card: oklch(0.2624 0.0093 285.74); /* #242429 */
+  --card-foreground: oklch(0.9065 0.0029 264.54);
+  --popover: oklch(0.2624 0.0093 285.74);
+  --popover-foreground: oklch(0.9065 0.0029 264.54);
+  --primary: oklch(0.7676 0.1203 278.99); /* #a3abff */
+  --primary-foreground: oklch(0.1831 0.004 285.99);
+  --secondary: oklch(0.287 0.009 285.82); /* #2a2a2f */
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(0.2624 0.0093 285.74);
+  --muted-foreground: oklch(0.6941 0.0102 279.61); /* #9b9ca3 */
+  --accent: oklch(0.3036 0.0107 285.74); /* #2e2e34 */
+  --accent-foreground: oklch(0.9065 0.0029 264.54);
+  --border: oklch(0.2951 0.009 285.84); /* #2c2c31 */
+  --input: oklch(0.2951 0.009 285.84);
+  --ring: oklch(0.5774 0.2091 273.85);
+  --destructive: oklch(0.6373 0.215 24.73); /* #f23f43 */
+  --destructive-foreground: oklch(1 0 0);
+  --chart-1: oklch(0.5774 0.2091 273.85);
+  --chart-2: oklch(0.6463 0.2409 32.62);
+  --chart-3: oklch(0.637 0.1551 152.26);
+  --chart-4: oklch(0.7475 0.1655 47.89);
+  --chart-5: oklch(0.6941 0.0102 279.61);
+  --sidebar: oklch(0.1831 0.004 285.99); /* #121214 */
+  --sidebar-foreground: oklch(0.9065 0.0029 264.54);
+  --sidebar-primary: oklch(0.7676 0.1203 278.99);
+  --sidebar-primary-foreground: oklch(0.1831 0.004 285.99);
+  --sidebar-accent: oklch(0.3036 0.0107 285.74);
+  --sidebar-accent-foreground: oklch(0.9065 0.0029 264.54);
+  --sidebar-border: oklch(0.2951 0.009 285.84);
+  --sidebar-ring: oklch(0.5774 0.2091 273.85);
+
+  --code-token-keyword: oklch(0.78 0.14 45); /* ~#ff8c5a */
+  --code-token-string: oklch(0.7676 0.1203 278.99); /* #a3abff */
+  --code-token-function: oklch(0.7676 0.1203 278.99);
+  --code-token-constant: oklch(0.78 0.12 152);
+  --code-token-parameter: oklch(0.8 0.1 320);
+  --code-token-comment: oklch(0.6941 0.0102 279.61);
+  --code-token-string-expression: var(--code-token-string);
+  --code-token-punctuation: var(--code-token-comment);
+}

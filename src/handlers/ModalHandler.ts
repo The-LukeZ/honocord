@@ -11,7 +11,7 @@ export class ModalHandler<Context extends BaseInteractionContext = BaseInteracti
   private handlerFn?: (interaction: ModalInteraction<Context>) => Promise<any> | any;
 
   /**
-   * @param prefix - The custom ID prefix this handler matches against. See the [Custom ID System](/guides/custom-id-system) guide.
+   * @param prefix - The custom ID prefix this handler matches against. See the [Custom ID System](/docs/custom-id-system) guide.
    * @param handler - Optional handler function, equivalent to calling `addHandler` afterwards
    */
   constructor(prefix: string, handler?: (interaction: ModalInteraction<Context>) => Promise<any> | any) {

@@ -30,7 +30,7 @@ Honocord is a type-safe library for building Discord bots using Discord's Intera
   - `src/cache/memory` (`honocord/cache/memory`) - In-memory cache implementation
   - `src/cache/do` (`honocord/cache/do`) - Cloudflare Durable Objects cache (needs Workers runtime)
   - `src/cache/mongo` (`honocord/cache/mongo`) - MongoDB cache adapter (`mongoose` is an optional peer dependency)
-- `docs/` — Astro Starlight documentation site (not published to npm)
+- `docs/` — SvelteKit + svelte-docsmith documentation site on Cloudflare Pages (not published to npm). Guides under `/docs`, typedoc API reference under `/reference`
 
 ### Core data flow
 

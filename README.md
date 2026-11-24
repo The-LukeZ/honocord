@@ -72,7 +72,7 @@ export default bot.getApp();
 
 Honocord reads `DISCORD_PUBLIC_KEY` and `DISCORD_TOKEN` from the Hono context's env bindings.
 Register commands with `registerCommands(token, applicationId, ...handlers)`. The
-[Quick Start](https://honocord.thelukez.com/guides/quickstart) covers the full setup.
+[Quick Start](https://honocord.thelukez.com/docs/quickstart) covers the full setup.
 
 ## Getting Help
 
@@ -123,7 +123,7 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`CONVENTIONS.md`](CONVENTIONS.md).
 The repository is organized as a monorepo with the following structure:
 
 - **`src/`** - Core Honocord library, including the cache adapters (`src/cache`, exposed as `honocord/cache`, `honocord/cache/memory`, `honocord/cache/do` and `honocord/cache/mongo`)
-- **`docs/`** - Documentation site (Astro)
+- **`docs/`** - Documentation site (SvelteKit + svelte-docsmith)
 
 ### Building
 
