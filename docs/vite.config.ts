@@ -5,10 +5,12 @@ import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { docsmith } from "svelte-docsmith/vite";
 import { defineConfig } from "vite";
+import { builtWith } from "./plugins/built-with.ts";
 import { SITE_URL } from "./src/site.ts";
 
 export default defineConfig({
   plugins: [
+    builtWith(),
     docsmith({
       site: {
         title: "Honocord",

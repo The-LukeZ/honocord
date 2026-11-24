@@ -7,10 +7,10 @@ order: 90
 
 <script>
   import { Card } from "svelte-docsmith";
-  import { builtWith } from "#lib/built-with.ts";
+  import { builtWith } from "#lib/generated/built-with.ts";
 </script>
 
-Do you use Honocord for your Discord bot? Open a PR that adds your bot to the list in [`docs/src/lib/built-with.ts`](https://github.com/The-LukeZ/honocord/blob/main/docs/src/lib/built-with.ts).
+Do you use Honocord for your Discord bot? Open a PR that adds your bot to the list in [`docs/src/lib/built-with.yaml`](https://github.com/The-LukeZ/honocord/blob/main/docs/src/lib/built-with.yaml).
 Please include the following information:
 
 - Bot name

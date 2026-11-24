@@ -85,9 +85,7 @@
     {/snippet}
   </CTA>
 
-  <p class="pb-12 text-center text-sm text-muted-foreground italic">
-    Yes, AI helped me build this, with the focus on <strong>helped</strong>.
-  </p>
+  <p class="pb-12 text-center text-sm text-muted-foreground italic">Yes, AI helped me build this package.</p>
 </DocsShell>
 
 <style>

@@ -20,3 +20,4 @@ docs/src/routes/reference/types
 # SvelteKit generated
 docs/.svelte-kit
 .superpowers/
+docs/src/lib/generated
