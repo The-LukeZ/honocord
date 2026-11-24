@@ -10,8 +10,8 @@ order: 90
   import { builtWith } from "#lib/generated/built-with.ts";
 </script>
 
-Do you use Honocord for your Discord bot? Open a PR that adds your bot to the list in [`docs/src/lib/built-with.yaml`](https://github.com/The-LukeZ/honocord/blob/main/docs/src/lib/built-with.yaml).
-Please include the following information:
+Do you use Honocord for your Discord bot? [Open an issue](https://github.com/The-LukeZ/honocord/issues/new?template=built-with.yml) with the "Built with Honocord" template and I may add it to the list.
+The template asks for:
 
 - Bot name
 - Short description (max. 200 characters)
