@@ -1,0 +1,56 @@
+@import "tailwindcss";
+/* The whole svelte-docsmith CSS contract: package scan, design tokens, typography and animation plugins, base styles.
+   The colour tokens come from src/theme.css, chosen in vite.config.ts. */
+@import "svelte-docsmith/theme.css";
+@import "@fontsource/instrument-sans/400.css";
+@import "@fontsource/instrument-sans/600.css";
+@import "@fontsource/instrument-sans/700.css";
+
+/* The brand flame, used by the landing hero. Not a docsmith token, so it lives here. */
+:root {
+  --hc-flame-from: oklch(0.7475 0.1655 47.89);
+  --hc-flame-to: oklch(0.65 0.2361 32.6151);
+}
+
+/* Long identifiers (DynamicGuildContextCommandHandler, ModalInteractionResponseCallbackData) would widen the page on a
+   phone. Let them break when they can't fit on their line. Code blocks scroll on their own and are unaffected.
+   Headings take `anywhere` because docsmith lays them out as flex rows, where `break-word` does not let text shrink. */
+:not(pre) > code {
+  overflow-wrap: break-word;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  overflow-wrap: anywhere;
+}
+
+/* An arrow after links that leave the site: header nav (desktop and mobile menu) and the sidebar. Docsmith has no option
+   for it, so it keys off the markup: header links to other sites open in a new tab, sidebar links to them are absolute.
+   The icon is Lucide's arrow-up-right, painted in the link's own colour through a mask. */
+nav[aria-label="Main"] a[target="_blank"]::after,
+nav[aria-label="Documentation"] a[href^="http"]::after {
+  content: "" / " (external)";
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-inline-start: 0.25em;
+  vertical-align: -0.05em;
+  background-color: currentColor;
+  opacity: 0.7;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 7h10v10'/%3E%3Cpath d='M7 17 17 7'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+/* Long reference names (APIInteractionDataResolvedChannel) overflow the sidebar. Break them where they hit the edge. */
+nav[aria-label="Documentation"] a {
+  overflow-wrap: anywhere;
+}
+
+/* A click or double click on a button should not select its label. */
+button,
+[role="button"] {
+  -webkit-user-select: none;
+  user-select: none;
+}

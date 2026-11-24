@@ -1,9 +1,0 @@
----
-// Starlight's PageTitle, except on the landing page, where the hero headline
-// is the page's single h1.
-import Default from "@astrojs/starlight/components/PageTitle.astro";
-
-const isLanding = Astro.locals.starlightRoute.id === "";
----
-
-{!isLanding && <Default />}

@@ -19,7 +19,7 @@ class ModalInteraction<Context extends BaseInteractionContext = BaseInteractionC
   public readonly fields: ModalComponentResolver;
   /** The message the modal was opened from, if it was opened in response to a message component interaction. */
   public readonly message?: APIMessage;
-  /** The modal's custom ID, as set when it was built. See the [Custom ID System](/guides/custom-id-system) guide. */
+  /** The modal's custom ID, as set when it was built. See the [Custom ID System](/docs/custom-id-system) guide. */
   public readonly customId: string;
 
   constructor(api: API, interaction: APIModalSubmitInteraction, c: Context) {

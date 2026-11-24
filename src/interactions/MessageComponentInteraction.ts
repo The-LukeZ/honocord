@@ -13,7 +13,7 @@ abstract class MessageComponentInteraction<
 > extends ModalCapableInteraction<InteractionType.MessageComponent, Context> {
   /** The message the component is attached to. */
   public readonly message: APIMessage;
-  /** The component's custom ID, as set when it was built. See the [Custom ID System](/guides/custom-id-system) guide. */
+  /** The component's custom ID, as set when it was built. See the [Custom ID System](/docs/custom-id-system) guide. */
   public readonly customId: string;
   /** The message component's type (button, string select, etc). */
   public readonly componentType: T;

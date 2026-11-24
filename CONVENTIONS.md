@@ -28,7 +28,7 @@ handler to mount where you like.
 | `src/types/`           | Public TypeScript types                                                                          |
 | `src/tests/`           | Vitest tests, mirroring the layout of the code they test                                         |
 | `src/test/`            | Type-level checks, run by `pnpm typecheck`, never executed                                       |
-| `docs/`                | Documentation site (Astro Starlight), private workspace package, not published                   |
+| `docs/`                | Documentation site (svelte-docsmith), private workspace package, not published                   |
 | `scripts/`, `tooling/` | Scripts that generate the API reference from TypeDoc                                             |
 | `.changeset/`          | Pending changesets                                                                               |
 

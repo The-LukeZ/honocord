@@ -1,0 +1,41 @@
+name: Add my bot to "Built with Honocord"
+description: Ask for your Discord bot to be listed on the "Built with Honocord" docs page.
+title: "[Built with]: "
+labels: ["built-with"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for building with Honocord! Fill in the details below and the maintainer may add your bot to the
+        [Built with Honocord](https://honocord.thelukez.com/docs/built-with) page.
+  - type: input
+    id: title
+    attributes:
+      label: Bot name
+      description: Max. 50 characters.
+      placeholder: My Cool Bot
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Short description
+      description: One or two sentences about what your bot does. Max. 200 characters.
+      placeholder: Translates messages between languages right inside Discord.
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Link
+      description: The bot's repository, website or docs.
+      placeholder: https://example.com
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: My bot uses Honocord and the link above is public.
+          required: true

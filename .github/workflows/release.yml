@@ -1,55 +1,61 @@
+# If npm trusted publishing is configured for honocord, the filename "release.yml" is registered as the trusted
+# publisher. Renaming this file breaks publishing until the npm setting is updated to match.
 name: Release
 
 on:
   push:
-    branches:
-      - main
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    branches: [main]
+  # Retry a failed publish without an empty commit.
+  workflow_dispatch:
 
 permissions:
-  contents: write # to create git tags and GitHub Releases
-  pull-requests: write # to open and update the "Version Packages" PR
-  id-token: write # npm trusted publishing (OIDC) and provenance, no NPM_TOKEN
+  contents: read
+
+# A publish must never be cancelled halfway.
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
+  # The Version Packages PR is opened with GITHUB_TOKEN, so it gets no CI run of its own.
+  # Running the full CI here gates every version PR and every publish on the exact commit.
+  checks:
+    uses: ./.github/workflows/ci.yml
+
   release:
-    name: Release
+    needs: checks
+    # workflow_dispatch accepts any ref, and the npm trusted publisher is not bound to a branch.
+    # Only main may version or publish.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-26.04
     permissions:
-      contents: write # to create git tags and GitHub Releases
-      pull-requests: write # to open and update the "Version Packages" PR
-      id-token: write # npm trusted publishing (OIDC) and provenance, no NPM_TOKEN
-
+      contents: write # version commit, tags, GitHub releases
+      pull-requests: write # the Version Packages PR
+      id-token: write # npm trusted publishing (OIDC) and provenance
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
-          # Fetch full history so Changesets can diff against previous tags
+          # Full history so Changesets can diff against previous tags.
           fetch-depth: 0
 
-      - name: Setup pnpm
-        uses: pnpm/setup@v3
+      # Third-party actions in this job are pinned to a commit: the job can publish to npm and push to main.
+      - uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3.2.0
         with:
           runtime: node@26
           cache: true
-          install: false
+          require-lockfile: true
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - run: pnpm build
 
-      - name: Build
-        run: pnpm build
-
-      - name: Create release PR or publish to npm
-        uses: changesets/action@v2
+      # Pending changesets: open or update the Version Packages PR.
+      # None pending: `changeset publish` (pnpm publish, OIDC, no token) publishes versions not yet on npm,
+      # then tags them and creates the GitHub releases. Already published versions are skipped.
+      - uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
-          publish-script: pnpm changeset publish
           version-script: pnpm changeset version
-          commit-message: "chore: version packages"
+          publish-script: pnpm changeset publish
           pr-title: "chore: version packages"
+          commit-message: "chore: version packages"
           create-github-releases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
