@@ -55,7 +55,7 @@ jobs:
           pnpm --filter honocord-docs build
 
       # A push to main is the production deploy. A PR deploys under its head branch as a preview.
-      # wrangler is not a dependency: it is fetched pinned, so the lockfile stays untouched.
+      # wrangler is a docs devDependency, so the lockfile pins it and minimumReleaseAge already vetted it.
       - name: Deploy to Cloudflare Pages
         id: deploy
         if: steps.secrets.outputs.enabled == 'true'
@@ -68,7 +68,7 @@ jobs:
           DEPLOY_BRANCH: ${{ github.event_name == 'push' && 'main' || github.head_ref }}
           NO_COLOR: "1"
         run: |
-          pnpm dlx wrangler@4.165.0 pages deploy build --project-name=honocord-docs --branch="$DEPLOY_BRANCH" 2>&1 | tee "$RUNNER_TEMP/wrangler.log"
+          pnpm exec wrangler pages deploy build --project-name=honocord-docs --branch="$DEPLOY_BRANCH" 2>&1 | tee "$RUNNER_TEMP/wrangler.log"
           url=$(grep -oE 'https://[A-Za-z0-9.-]+\.pages\.dev' "$RUNNER_TEMP/wrangler.log" | head -n 1 || true)
           echo "url=$url" >> "$GITHUB_OUTPUT"
 
