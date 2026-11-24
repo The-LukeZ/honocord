@@ -1,0 +1,109 @@
+name: Docs deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: docs-${{ github.ref }}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-26.04
+    # Fork PRs get no secrets, so they never deploy (ci.yml still builds them).
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      # Secrets only reach the step through env, never through the script text.
+      - name: Check Cloudflare secrets
+        id: secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Deploy skipped: Cloudflare secrets are not set." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/checkout@v7
+        if: steps.secrets.outputs.enabled == 'true'
+        with:
+          # Full history: docsmith dates pages from git.
+          fetch-depth: 0
+
+      # Pinned to a commit: this job holds the Cloudflare token.
+      - uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3.2.0
+        if: steps.secrets.outputs.enabled == 'true'
+        with:
+          runtime: node@26
+          cache: true
+          require-lockfile: true
+
+      # Builds the library first (the docs resolve it through its gitignored dist), then the docs.
+      - name: Build the docs
+        if: steps.secrets.outputs.enabled == 'true'
+        run: |
+          pnpm build
+          pnpm --filter honocord-docs build
+
+      # A push to main is the production deploy. A PR deploys under its head branch as a preview.
+      # wrangler is not a dependency: it is fetched pinned, so the lockfile stays untouched.
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        if: steps.secrets.outputs.enabled == 'true'
+        working-directory: docs
+        # bash -eo pipefail: a failed wrangler must fail the step even though tee ends the pipe.
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DEPLOY_BRANCH: ${{ github.event_name == 'push' && 'main' || github.head_ref }}
+          NO_COLOR: "1"
+        run: |
+          pnpm dlx wrangler@4.165.0 pages deploy build --project-name=honocord-docs --branch="$DEPLOY_BRANCH" 2>&1 | tee "$RUNNER_TEMP/wrangler.log"
+          url=$(grep -oE 'https://[A-Za-z0-9.-]+\.pages\.dev' "$RUNNER_TEMP/wrangler.log" | head -n 1 || true)
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Report the deployment
+        if: steps.secrets.outputs.enabled == 'true'
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
+          DEPLOY_BRANCH: ${{ github.event_name == 'push' && 'main' || github.head_ref }}
+        run: |
+          if [ -n "$DEPLOY_URL" ]; then
+            echo "Docs deployed ($DEPLOY_BRANCH): $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Docs deployed ($DEPLOY_BRANCH), but the deployment URL was not found in the wrangler output." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # One comment per PR, found by its hidden marker and updated on each push. A comment failure after a
+      # successful deploy must not fail the job.
+      - name: Comment the preview URL on the PR
+        if: steps.secrets.outputs.enabled == 'true' && github.event_name == 'pull_request' && steps.deploy.outputs.url != ''
+        continue-on-error: true
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          marker="<!-- docs-preview -->"
+          body=$(printf '%s\nDocs preview: %s (commit %s)' "$marker" "$DEPLOY_URL" "${SHA:0:7}")
+          id=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
+            --jq '[.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- docs-preview -->")))] | last | .id // empty' \
+            | tail -n 1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$id" -f body="$body"
+          else
+            gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$body"
+          fi

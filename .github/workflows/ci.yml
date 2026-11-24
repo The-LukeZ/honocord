@@ -1,12 +1,17 @@
-name: CI - Pull Request
+name: CI
 
+# Pushes to main run this through release.yml (workflow_call), so the checks run once per push.
 on:
   pull_request:
-    branches:
-      - main
+    branches: [main]
+  workflow_call:
 
 permissions:
   contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   ci:
@@ -14,20 +19,35 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # pnpm version comes from "packageManager" in the root package.json.
+      # Installs Node, then runs `pnpm install --frozen-lockfile`.
       - uses: pnpm/setup@v3
         with:
           runtime: node@26
           cache: true
-          install: false
-
-      - run: pnpm install --frozen-lockfile
-
-      - run: pnpm run build
-
-      - run: pnpm typecheck
-
-      - run: pnpm run docs:reference
-
-      - run: pnpm test
+          require-lockfile: true
 
       - run: pnpm check
+      - run: pnpm typecheck
+      - run: pnpm build
+      - run: pnpm test
+
+  docs:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Full history: docsmith dates pages from git.
+          fetch-depth: 0
+
+      - uses: pnpm/setup@v3
+        with:
+          runtime: node@26
+          cache: true
+          require-lockfile: true
+
+      # The docs resolve honocord through its gitignored dist, so build it first.
+      - run: pnpm build
+      # The docs build generates the typedoc reference first, which the check needs.
+      - run: pnpm --filter honocord-docs build
+      - run: pnpm --filter honocord-docs check
