@@ -27,6 +27,19 @@
   ];
 </script>
 
+<!-- Docsmith's secondary Action takes its border and hover fill from tokens that sit too close to the card background in
+     dark mode, so the button disappears. Same shape, but drawn from the foreground colour so it shows on any surface. -->
+{#snippet secondary(href: string, label: string)}
+  <a
+    {href}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="inline-flex h-11 items-center gap-2 rounded-lg border border-foreground/25 px-6 font-medium text-foreground transition-colors hover:border-foreground/50 hover:bg-foreground/10"
+  >
+    {label}
+  </a>
+{/snippet}
+
 <svelte:head>
   <title>Honocord | Discord bots on a single HTTP endpoint</title>
 </svelte:head>
@@ -40,7 +53,7 @@
     {/snippet}
     {#snippet actions()}
       <Action href="/docs/getting-started">Get started</Action>
-      <Action href="https://github.com/The-LukeZ/honocord-examples" variant="secondary" external>See examples</Action>
+      {@render secondary("https://github.com/The-LukeZ/honocord-examples", "See examples")}
     {/snippet}
     {#snippet media()}
       <InteractionDemo />
@@ -81,7 +94,7 @@
   >
     {#snippet actions()}
       <Action href="https://discord.gg/X4DjpZj6Nz" external>Join the Discord</Action>
-      <Action href="https://github.com/The-LukeZ/honocord" variant="secondary" external>GitHub</Action>
+      {@render secondary("https://github.com/The-LukeZ/honocord", "GitHub")}
     {/snippet}
   </CTA>
 
